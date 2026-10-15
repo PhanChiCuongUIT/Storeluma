@@ -1,57 +1,95 @@
-﻿# Storeluma
+# Storeluma
 
-Đồ án 2 của Phan Chí Cường (23520207).
+Storeluma là ứng dụng quản lý hoạt động kinh doanh dành cho chủ hộ và nhân viên, được xây dựng theo kiến trúc microservices. Phiên bản hiện tại tập trung vào quản lý hộ kinh doanh, địa điểm và quyền truy cập của nhân sự.
 
-[Đề cương và kế hoạch thực hiện](output/pdf/Storeluma_De_cuong_Do_an_2.pdf) là sản phẩm tuần 1.
+## Chức năng hiện có
 
-## Sản phẩm và báo cáo tuần 4
+- Đăng nhập bằng mật khẩu và mã xác thực TOTP qua Keycloak; đăng xuất và kết thúc phiên.
+- Tạo hộ kinh doanh, thêm địa điểm, tạm ngừng hoặc kích hoạt lại địa điểm.
+- Tự động khởi tạo kho và quầy cho địa điểm qua sự kiện RabbitMQ, hiển thị trạng thái sẵn sàng trên giao diện.
+- Chọn hộ và địa điểm làm việc theo phạm vi được cấp quyền.
+- Mời nhân viên, nhận lời mời, quản lý vai trò, phạm vi địa điểm và khóa hoặc mở lại thành viên.
+- Xem lịch sử thao tác trong hộ kinh doanh.
+- Giao diện tiếng Việt, hỗ trợ màn hình máy tính và điện thoại.
 
-Nền ứng dụng chạy bằng Docker: đăng nhập mật khẩu + TOTP, hộ/địa điểm, khởi tạo kho/quầy qua RabbitMQ, thành viên và phân quyền theo hộ/địa điểm, nhật ký thao tác.
+## Công nghệ và kiến trúc
 
-- [Hướng dẫn chạy, đăng nhập và trình diễn](docs/week-04/README.md).
-- [Báo cáo PDF tuần 4](output/pdf/Storeluma_Bao_cao_Tuan_04.pdf).
-- [Hợp đồng API và sự kiện](docs/week-04/api-contract.md).
-
-Khởi động nhanh: `npm ci`, `npm run setup`, `docker compose up -d --build`; mở http://localhost:4100. Lấy thông tin tài khoản mẫu trên máy bằng `node tools/demo-login.mjs owner`.
-
-## Báo cáo tuần 3
-
-- [Báo cáo PDF để nộp giảng viên](output/pdf/Storeluma_Bao_cao_Tuan_03.pdf).
-- [Nội dung, sơ đồ và mẫu màn hình](docs/week-03/bao-cao-tuan-03.md).
-- [Tài liệu và sơ đồ tuần 3](docs/week-03/README.md).
-
-Kết quả phân tích nghiệp vụ, 13 sơ đồ, 7 mẫu màn hình và đối chiếu 24 yêu cầu tuần 2. Kỳ kế hoạch 05/10-11/10/2026; báo cáo hoàn thiện ngày 14/10/2026.
-
-## Báo cáo tuần 2
-
-- [Báo cáo PDF để nộp giảng viên](output/pdf/Storeluma_Bao_cao_Tuan_02.pdf).
-- [Bản nội dung có thể chỉnh sửa](docs/week-02/bao-cao-tuan-02.md).
-- [Thông tin tài liệu tuần 2](docs/week-02/README.md).
-
-Báo cáo tổng hợp công việc tuần 28/09–04/10/2026: khảo sát sản phẩm tương tự, nhu cầu ban đầu, yêu cầu và chức năng ưu tiên. Toàn bộ sản phẩm tuần 2 nằm trong cùng báo cáo; ngày lập là 03/10/2026.
-
-## Cấu trúc dự án
-
-| Thư mục | Nội dung |
+| Thành phần | Công nghệ / vai trò |
 | --- | --- |
-| `apps/web` | Giao diện React và tài nguyên nhận diện Storeluma |
-| `services` | Gateway và các dịch vụ nghiệp vụ, migration riêng |
-| `packages/platform` | Hạ tầng dùng chung: xác thực, database, sự kiện |
-| `infra/keycloak` | Theme xác thực tiếng Việt |
-| `tests` | Kiểm thử tích hợp và giao diện bằng Playwright |
-| `tools` | Thiết lập môi trường, truy cập tài khoản mẫu, cấu hình theme |
-| `docs` | Báo cáo nội dung, thiết kế, API và minh chứng |
-| `output/pdf` | Báo cáo hoàn chỉnh theo tuần |
+| Giao diện | React, TypeScript, Vite |
+| Backend | NestJS, Gateway/BFF và các dịch vụ nghiệp vụ |
+| Xác thực | Keycloak, OpenID Connect, TOTP |
+| Dữ liệu | PostgreSQL, database và tài khoản riêng cho từng dịch vụ |
+| Sự kiện | RabbitMQ, Outbox/Inbox để gửi lại và chống xử lý trùng |
+| Môi trường chạy | Docker Compose |
+| Kiểm thử | Playwright |
 
-## Kiểm tra
+Gateway phục vụ giao diện và quản lý phiên đăng nhập. Business xử lý hộ kinh doanh, địa điểm, thành viên và nhật ký. Inventory và Finance tiếp nhận sự kiện để tạo kho và quầy.
 
-```powershell
+Catalog, Sales, Reporting và Notification hiện có khung dịch vụ, migration và health endpoint; chưa triển khai nghiệp vụ hàng hóa, bán hàng, báo cáo hoặc thông báo.
+
+## Cài đặt và chạy
+
+Yêu cầu Node.js 24 trở lên và Docker có hỗ trợ Linux containers. Các cổng `4100`, `8180`, `55432`, `5673`, `15673` cần còn trống.
+
+```sh
+git clone https://github.com/PhanChiCuongUIT/Storeluma.git
+cd Storeluma
+npm ci
+npm run setup
+docker compose up -d --build
+docker compose ps
+```
+
+Chờ các dịch vụ sẵn sàng, sau đó mở [http://localhost:4100](http://localhost:4100). Có thể kiểm tra Gateway tại [http://localhost:4100/health](http://localhost:4100/health).
+
+Lệnh `npm run setup` sinh cấu hình và tài khoản mẫu trên máy, giữ nguyên cấu hình đã có. Các tệp `.env` và `infra/generated/` chứa thông tin riêng của môi trường và không được lưu trong Git.
+
+### Đăng nhập
+
+Lấy thông tin tài khoản chủ hộ và mã TOTP để chạy thử:
+
+```sh
+node tools/demo-login.mjs owner
+```
+
+Đăng nhập bằng tên tài khoản, mật khẩu và mã TOTP được hiển thị. Nếu mã hết hạn, chạy lại lệnh để lấy mã mới. Có thể thay `owner` bằng `cashier` hoặc `outsider` để kiểm tra quyền truy cập bằng tài khoản khác.
+
+Sau khi đăng nhập, tạo hộ kinh doanh và địa điểm đầu tiên. Khi địa điểm chuyển sang **Sẵn sàng**, chọn địa điểm làm việc và quản lý nhân viên trong mục **Nhân sự**. Quyền truy cập phụ thuộc vào vai trò và địa điểm được cấp trong từng hộ.
+
+### Dừng ứng dụng
+
+```sh
+docker compose down
+```
+
+Dữ liệu được lưu trong Docker volumes và vẫn được giữ sau khi dừng ứng dụng.
+
+## Kiểm tra mã nguồn và chức năng
+
+```sh
 npm run typecheck
 npm run build
 npx playwright install chromium
 npm test
 ```
 
-Cần khởi động các dịch vụ trước khi chạy `npm test`. Bộ kiểm thử chủ động dừng/khởi động một số dịch vụ và tạo dữ liệu kiểm thử. Xem [kết quả tuần 4](docs/week-04/evidence/verification.md) và [hướng dẫn chi tiết](docs/week-04/README.md).
+Cần khởi động các dịch vụ trước khi chạy `npm test`. Bộ kiểm thử sử dụng backend và cơ sở dữ liệu thật, tạo dữ liệu kiểm thử và dừng/khởi động một số dịch vụ để kiểm tra khả năng phục hồi. Chạy bộ kiểm thử trong môi trường riêng dành cho phát triển và kiểm thử.
 
-Cấu hình bí mật được sinh riêng bằng `npm run setup`, không lưu trong Git. Môi trường hiện tại dùng Docker Compose trên máy cá nhân; phạm vi tuần 4 chưa bao gồm triển khai Internet/HTTPS. Các dịch vụ Catalog, Sales, Reporting và Notification mới có khung ứng dụng; chức năng nghiệp vụ được phát triển ở các tuần tiếp theo.
+## Cấu trúc dự án
+
+| Đường dẫn | Nội dung |
+| --- | --- |
+| `apps/web` | Giao diện và tài nguyên Storeluma |
+| `services` | Gateway, các dịch vụ nghiệp vụ và migration |
+| `packages/platform` | Thành phần dùng chung cho dữ liệu, HTTP và sự kiện |
+| `infra/keycloak` | Theme đăng nhập tiếng Việt |
+| `tests` | Kiểm thử tích hợp và giao diện |
+| `tools` | Công cụ thiết lập môi trường và cấu hình ứng dụng |
+| `compose.yaml` | Cấu hình các dịch vụ và hạ tầng Docker |
+
+## Trạng thái phát triển
+
+Ứng dụng hiện chạy bằng Docker Compose trên máy cá nhân, dùng HTTP và Keycloak ở chế độ phát triển. Tài khoản mẫu phục vụ kiểm thử. Phiên đăng nhập có thời hạn 15 phút; khi hết phiên, người dùng cần đăng nhập lại.
+
+Chưa triển khai môi trường production, HTTPS, tự đăng ký tài khoản, gửi email, tự làm mới phiên hoặc quy trình sao lưu và khôi phục dữ liệu. Các nghiệp vụ hàng hóa và bán hàng chưa có trong phiên bản hiện tại.
