@@ -13,7 +13,7 @@ Theo kế hoạch Đồ án 2, tuần 4 (12/10-18/10/2026) thực hiện dựng 
 | Đăng nhập và phiên | Keycloak, mật khẩu + TOTP; Gateway/BFF giữ token phía máy chủ; chọn ngữ cảnh hộ/địa điểm; đăng xuất. |
 | Hộ và địa điểm | Tạo hộ kèm địa điểm đầu tiên; thêm/sửa/tạm ngừng địa điểm; cấp kho và quầy bất đồng bộ. |
 | Quyền cơ bản | Vai trò theo từng hộ và phạm vi địa điểm; lời mời đúng tài khoản; khóa thành viên; nhật ký thao tác. |
-| Kiểm tra và bàn giao | 18/18 ca kiểm thử tích hợp và giao diện đạt; ảnh chụp bản chạy; hướng dẫn chạy; hợp đồng API và báo cáo. |
+| Kiểm tra và bàn giao | 20/20 ca kiểm thử tích hợp và giao diện đạt; ảnh chụp bản chạy; hướng dẫn chạy; hợp đồng API và báo cáo. |
 
 Tiêu chí hoàn thành
 
@@ -67,7 +67,7 @@ Tạo hộ ghi đồng thời thông tin hộ, membership OWNER của người t
 | Chỉnh sửa | Chủ hộ hoặc quản lý đúng phạm vi; kiểm tra version để tránh ghi đè dữ liệu đã thay đổi. |
 | Chọn nơi làm việc | Địa điểm thuộc hộ, trong phạm vi được giao và đang ACTIVE. PROVISIONING hoặc SUSPENDED bị từ chối. |
 
-Bộ kiểm thử gửi đồng thời sáu yêu cầu tạo hộ cùng khóa và nhận cùng một tenantId, với một địa điểm đầu tiên. Giao diện cũng tạo được địa điểm CH03 qua biểu mẫu thật.
+Bộ kiểm thử gửi đồng thời sáu yêu cầu tạo hộ cùng khóa và nhận cùng một tenantId, với một địa điểm đầu tiên. Giao diện tạo được địa điểm CH03 và một hộ mới qua biểu mẫu thật. Ca W4-20 tiếp tục chọn nơi làm việc, mời và nhận nhân viên qua giao diện, rồi đối chiếu dữ liệu và nhật ký tại API.
 
 
 ## 5. Khởi tạo kho và quầy qua sự kiện
@@ -99,7 +99,7 @@ Vai trò khác gồm CASHIER, STOCK và ACCOUNTANT. Tuần 4 mới kiểm soát 
 
 ![Hình 5. Thu ngân chỉ thấy địa điểm được giao, không có mục quản lý nhân sự.](evidence/screenshots/04-cashier.png)
 
-Các ca kiểm thử đã từ chối truy cập hộ khác, địa điểm ngoài phạm vi, header tự khai danh tính và yêu cầu cấp quyền của thu ngân. Quyền được kiểm tra tại API, ngoài việc ẩn chức năng trên giao diện.
+Các ca kiểm thử đã từ chối truy cập hộ khác, địa điểm ngoài phạm vi, header tự khai danh tính và yêu cầu cấp quyền của thu ngân. W4-19 kiểm tra quản lý sửa đúng địa điểm được giao; thu ngân, kho và tài chính bị từ chối sửa địa điểm. Phiên kiểm tra lại ngữ cảnh; giao diện cập nhật vai trò và địa điểm khoảng 2,5 giây một lần, còn API kiểm quyền từng yêu cầu.
 
 
 ## 7. Lời mời và quản lý thành viên
@@ -135,7 +135,7 @@ Database và tài khoản PostgreSQL tách theo dịch vụ trên cùng một m�
 
 ## 9. Hợp đồng API và dữ liệu
 
-API công khai đi qua Gateway ở localhost:4100. GET /auth/session trả danh tính, CSRF token, ngữ cảnh và thời hạn; các API nghiệp vụ /v1 dùng cookie phiên. POST/PATCH yêu cầu CSRF token và Origin đúng. Hợp đồng chi tiết nằm tại docs/week-04/api-contract.md và được đối chiếu với controller hiện tại.
+API công khai đi qua Gateway ở localhost:4100. GET /auth/session kiểm tra lại ngữ cảnh đã chọn, bỏ ngữ cảnh khi site ngừng hoặc quyền không còn; trả danh tính, CSRF token và thời hạn; các API nghiệp vụ /v1 dùng cookie phiên. POST/PATCH yêu cầu CSRF token và Origin đúng. Hợp đồng chi tiết nằm tại docs/week-04/api-contract.md và được đối chiếu với controller hiện tại.
 
 | API | Mục đích / quyền |
 | --- | --- |
@@ -157,7 +157,7 @@ Lỗi chính: 400 dữ liệu không hợp lệ; 401 chưa xác thực hoặc h�
 
 ## 10. Kiểm thử tích hợp - nhóm 1
 
-Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy cuối có 18/18 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 20.5 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
+Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy cuối có 20/20 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 32.2 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
 
 | Mã | Nội dung kiểm tra | Kết quả |
 | --- | --- | --- |
@@ -189,14 +189,16 @@ Kiểm tra cả HTTP response và số bản ghi ở database tương ứng. Nh�
 | W4-16 | Tạo CH03 bằng biểu mẫu; khóa/mở quyền qua giao diện; mở nhật ký; logo tải được, màn hình 390 px không tràn ngang. | Đạt |
 | W4-17 | Phiên hết hạn phía server bị từ chối. | Đạt |
 | W4-18 | Đăng xuất xóa phiên BFF và đưa về luồng nhập tài khoản Keycloak. | Đạt |
+| W4-19 | Xóa ngữ cảnh khi site ngừng hoặc quyền đổi; quản lý chỉ sửa site được giao; thu ngân, kho, tài chính không được sửa. | Đạt |
+| W4-20 | Tạo hộ, chọn nơi, mời và nhận lời mời bằng biểu mẫu thật; kiểm tra phạm vi và nhật ký qua API. | Đạt |
 
 Lỗi phát hiện và xử lý trong quá trình kiểm tra
 
-Cấu hình nhập TOTP ban đầu thiếu thông tin mã hóa BASE32; đã bổ sung vào công cụ tạo môi trường và sửa bộ tài khoản mẫu cục bộ. Nhãn trường mã địa điểm bị gộp với phần trợ giúp; biểu tượng điều hướng bị tính vào tên nút. Đã tách mô tả trợ giúp và đặt nhãn truy cập rõ ràng, sau đó chạy lại toàn bộ bộ kiểm thử.
+Rà soát bổ sung phát hiện phiên vẫn trả địa điểm đã chọn sau khi site tạm ngừng. W4-19 tái hiện lỗi trước sửa. Đã kiểm tra lại ngữ cảnh phía Gateway, cập nhật vai trò/phạm vi trên giao diện và bỏ kết quả tải cũ khi đổi hộ. W4-19 và W4-20 được bổ sung trước lần chạy lại toàn bộ. Đã tách nhãn mã lời mời khỏi giá trị mã và báo rõ khi chưa chọn địa điểm cho nhân viên. Cấu hình BASE32 của TOTP đã sửa ở lần kiểm tra trước.
 
 Phạm vi của kết luận
 
-Kết quả chứng minh các luồng nền được liệt kê hoạt động trên môi trường cục bộ này. Chưa đo tải cao, độ trễ trên mạng thật, kiểm thử thâm nhập toàn diện, mất PostgreSQL/RabbitMQ, sao lưu/phục hồi hay tương thích nhiều trình duyệt. Không suy rộng kết quả 18 ca thành bảo đảm toàn bộ hệ thống hoàn chỉnh.
+Kết quả chứng minh các luồng nền được liệt kê hoạt động trên môi trường cục bộ này. Chưa đo tải cao, độ trễ trên mạng thật, kiểm thử thâm nhập toàn diện, mất PostgreSQL/RabbitMQ, sao lưu/phục hồi hay tương thích nhiều trình duyệt. Không suy rộng kết quả 20 ca thành bảo đảm toàn bộ hệ thống hoàn chỉnh.
 
 
 ## 12. Giao diện sản phẩm và mã nguồn
@@ -209,10 +211,10 @@ Kết quả chứng minh các luồng nền được liệt kê hoạt động t
 | services/ | Gateway và bảy dịch vụ nghiệp vụ; main.ts và migration từng dịch vụ. |
 | packages/platform/ | Kết nối DB, migration, JWT guard, Outbox/Inbox, RabbitMQ worker. |
 | infra/ | Theme đăng nhập tiếng Việt dùng cùng logo; generated/ chứa cấu hình riêng, bị loại khỏi Git. |
-| tests/week04.spec.ts | 18 ca kiểm thử; xuất ảnh và JSON kết quả. |
+| tests/week04.spec.ts | 20 ca kiểm thử; xuất ảnh và JSON kết quả. |
 | tools/ + docs/week-04/ | Công cụ thiết lập/đăng nhập, cấu hình nhận diện; tài liệu và minh chứng. |
 
-Logo gốc được lưu trong apps/web/public/brand/ và dùng chung với theme Keycloak qua cấu hình Compose. Đã tạo Dockerfile, Compose, lockfile và workflow kiểm tra cho GitHub Actions. Workflow mới là cấu hình trong mã nguồn; chưa có lần chạy CI trên GitHub và chưa phát hành môi trường từ xa.
+Logo gốc được lưu trong apps/web/public/brand/ và dùng chung với theme Keycloak qua cấu hình Compose. Đã tạo Dockerfile, Compose, lockfile và workflow kiểm tra cho GitHub Actions. Mã nguồn và workflow đã được đẩy lên GitHub. Báo cáo chỉ xác nhận kết quả kiểm thử cục bộ; chưa xác minh kết quả CI trên GitHub và chưa phát hành môi trường từ xa.
 
 
 ## 13. Hướng dẫn chạy và trình diễn
@@ -245,14 +247,14 @@ Bộ kiểm thử tạo dữ liệu mới và chủ động dừng/khởi độn
 | Nền ứng dụng 0.4.0 | Mã nguồn trong apps/, services/, packages/; build và typecheck đạt. |
 | Môi trường cục bộ | Docker Compose với PostgreSQL, RabbitMQ, Keycloak và bốn ứng dụng phục vụ tuần 4. |
 | Tài liệu API / chạy thử | docs/week-04/api-contract.md và README.md. |
-| Kiểm thử và ảnh | 18 ca đạt; bản tổng hợp kết quả và 9 ảnh trong docs/week-04/evidence/. |
+| Kiểm thử và ảnh | 20 ca đạt; bản tổng hợp kết quả và 9 ảnh trong docs/week-04/evidence/. |
 | Báo cáo tuần 4 | PDF độc lập kèm nội dung Markdown, sơ đồ và ảnh minh chứng. |
 
 Giới hạn còn lại
 
 Môi trường chỉ phục vụ phát triển cục bộ, Keycloak dùng start-dev; chưa triển khai HTTPS hay máy chủ Internet. Phiên hết hạn sau tối đa 15 phút và chưa tự làm mới. Tài khoản mẫu và mã TOTP sinh trên cùng máy chỉ thuận tiện cho trình diễn; sử dụng thật cần thiết bị xác thực riêng. Chưa gửi email lời mời, tự đăng ký, chuyển quyền sở hữu hoặc hoàn thiện vận hành hàng đợi lỗi.
 
-Inventory/Finance mới làm khởi tạo kho/quầy. Catalog, Sales, Reporting và Notification là khung dịch vụ. Chưa có nghiệp vụ danh mục, nhập/xuất, POS, thu chi, báo cáo hoặc thông báo. Chưa triển khai CI từ xa, kiểm thử tải hay sao lưu/phục hồi. Các nội dung này không được tính là sản phẩm hoàn thành tuần 4.
+Inventory/Finance mới làm khởi tạo kho/quầy. Catalog, Sales, Reporting và Notification là khung dịch vụ. Chưa có nghiệp vụ danh mục, nhập/xuất, POS, thu chi, báo cáo hoặc thông báo. Chưa xác minh kết quả CI trên GitHub, kiểm thử tải hay sao lưu/phục hồi. Các nội dung này không được tính là sản phẩm hoàn thành tuần 4.
 
 Tuần 5: 19/10-25/10/2026
 

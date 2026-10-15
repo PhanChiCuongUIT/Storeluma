@@ -58,7 +58,7 @@ Gateway/BFF phục vụ React và phiên đăng nhập; Business xử lý hộ, 
 
 Catalog, Sales, Reporting, Notification hiện chỉ có khung ứng dụng, migration và health endpoint; chưa có nghiệp vụ. Có thể bật bằng `docker compose --profile full up -d --build`. Bộ kiểm thử tuần 4 tập trung vào bốn ứng dụng Gateway/Business/Inventory/Finance và ba thành phần hạ tầng.
 
-Môi trường hiện tại dùng HTTP loopback và Keycloak `start-dev`. Chưa triển khai Internet/HTTPS, gửi email, tự đăng ký tài khoản, nghiệp vụ hàng hóa/bán hàng, tự làm mới phiên, kiểm thử tải, backup/restore hoặc vận hành production. Workflow CI đã viết trong `.github/workflows/verify.yml`, chưa chạy trên GitHub.
+Môi trường hiện tại dùng HTTP loopback và Keycloak `start-dev`. Chưa triển khai Internet/HTTPS, gửi email, tự đăng ký tài khoản, nghiệp vụ hàng hóa/bán hàng, tự làm mới phiên, kiểm thử tải, backup/restore hoặc vận hành production. Workflow CI tại `.github/workflows/verify.yml` đã được đẩy lên GitHub; kết quả CI chưa được xác minh trong lần rà soát này.
 
 ## Dừng ứng dụng
 
@@ -75,3 +75,7 @@ Giao diện dùng logo gốc tại `apps/web/public/brand/Logo_Storeluma.png`. C
 Môi trường tạo mới nhận theme qua `npm run setup`. Với database đã có từ bản trước, sau khi cập nhật và chạy Compose, dùng `node tools/configure-branding.mjs` để áp dụng theme. Công cụ chỉ cập nhật cấu hình trình bày của realm và không đổi tài khoản, mật khẩu hoặc luồng xác thực.
 
 Minh chứng cập nhật gồm chín ảnh: trang vào ứng dụng, địa điểm chờ/sẵn sàng, phạm vi thu ngân, nhân sự, nhật ký, giao diện hẹp và hai bước xác thực. Bộ kiểm thử còn thao tác khóa/mở thành viên bằng biểu mẫu rồi đối chiếu quyền tại API.
+
+## Rà soát điều kiện hoàn thành
+
+Đối chiếu đề cương tuần 4 và YC01–YC03 của tuần 2 tại [bảng nhiệm vụ và kết quả kiểm tra](evidence/verification.md). Bộ kiểm thử bổ sung kiểm tra ngữ cảnh khi đổi trạng thái/quyền và luồng tạo hộ, mời, nhận nhân viên hoàn toàn bằng giao diện.

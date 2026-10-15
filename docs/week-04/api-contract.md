@@ -10,9 +10,11 @@ Mọi POST/PATCH phía trình duyệt cần Origin đúng base URL và `X-CSRF-T
 |---|---|
 | GET `/auth/login` | 302 đến Keycloak, Authorization Code + PKCE S256, state, nonce |
 | GET `/auth/callback` | Xác minh code, tạo phiên mới và 302 về `/`; 400 nếu callback không hợp lệ |
-| GET `/auth/session` | 200 `{user,csrf,context?,expiresAt}`; không trả access/id token; 401 nếu hết phiên |
+| GET `/auth/session` | 200 `{user,csrf,context?,expiresAt}`; kiểm tra lại ngữ cảnh theo quyền và trạng thái hiện tại; không trả access/id token; 401 nếu hết phiên, 503 nếu chưa kiểm tra được ngữ cảnh |
 | POST `/auth/logout` | 200 `{redirectUrl}`; frontend chuyển đến URL này để kết thúc Keycloak session |
 | GET `/health` | 200 khi sẵn sàng, 503 nếu chưa sẵn sàng |
+
+Ngữ cảnh đã chọn bị xóa khỏi phiên nếu địa điểm không còn ACTIVE, thành viên bị khóa hoặc không còn được giao địa điểm. Tên địa điểm và vai trò được cập nhật từ Business. Ngữ cảnh lưu trong phiên không thay thế việc kiểm quyền từng yêu cầu tại API.
 
 ## Hộ và địa điểm
 

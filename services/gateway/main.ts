@@ -51,7 +51,25 @@ await start([],false,app=>{
       res.cookie('sl_session',sid,{...cookie,maxAge:expiresAt-Date.now()});res.redirect('/');
     }catch(e){console.warn('oidc_callback_rejected',{code:(e as {code?:string}).code});res.clearCookie('sl_session',cookie);res.status(400).send('Không xác minh được đăng nhập. Vui lòng đăng nhập lại.');}
   });
-  server.get('/auth/session',async(req,res)=>{const s=await load(req);if(s?.kind!=='user'){res.status(401).json({message:'Cần đăng nhập.'});return;}res.json({user:s.user,csrf:s.csrf,context:s.context,expiresAt:s.expiresAt});});
+  server.get('/auth/session',async(req,res)=>{
+    const s=await load(req);if(s?.kind!=='user'){res.status(401).json({message:'Cần đăng nhập.'});return;}
+    if(s.context){
+      // A saved selection is not a permission grant. Revalidate it against live business data.
+      const selected=s.context as {tenantId:string,siteId:string};
+      try{
+        const result=await fetch(process.env.BUSINESS_URL+'/v1/context',{method:'POST',headers:{authorization:`Bearer ${s.accessToken}`,'content-type':'application/json'},body:JSON.stringify({tenantId:selected.tenantId,siteId:selected.siteId}),signal:AbortSignal.timeout(8000)});
+        if(result.ok){
+          const context=await result.json();
+          if(JSON.stringify(context)!==JSON.stringify(s.context)){s.context=context;await save(req.cookies.sl_session,s);}
+        }else if([403,404,409].includes(result.status)){
+          delete s.context;await save(req.cookies.sl_session,s);
+        }else if(result.status===401){
+          await remove(req);res.clearCookie('sl_session',cookie);res.status(401).json({message:'Phiên đã hết hạn. Vui lòng đăng nhập lại.'});return;
+        }else{res.status(503).json({message:'Chưa kiểm tra được địa điểm làm việc. Vui lòng thử lại.'});return;}
+      }catch{res.status(503).json({message:'Chưa kiểm tra được địa điểm làm việc. Vui lòng thử lại.'});return;}
+    }
+    res.json({user:s.user,csrf:s.csrf,context:s.context,expiresAt:s.expiresAt});
+  });
   server.post('/auth/logout',async(req,res)=>{
     const s=await load(req);if(s?.kind!=='user'){res.status(401).json({message:'Phiên đã kết thúc.'});return;}
     if(!csrfOK(req,s)){res.status(403).json({message:'Không xác minh được yêu cầu.'});return;}

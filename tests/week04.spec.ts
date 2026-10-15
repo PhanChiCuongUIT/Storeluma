@@ -165,6 +165,83 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
     await ownerPage.getByRole('button',{name:'Lịch sử thao tác',exact:true}).click();await expect(ownerPage.getByText('Tạo hộ',{exact:true})).toBeVisible();await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/06-audit.png',fullPage:true});
     await ownerPage.setViewportSize({width:390,height:844});await ownerPage.getByRole('button',{name:'Địa điểm',exact:true}).click();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/07-mobile.png',fullPage:true});
   });
+  test('W4-19 Selected context follows site status and membership scope',async()=>{
+    await good(await api(cashier,'/v1/context','POST',{tenantId:tenant,siteId:first}));
+    await cashierPage.reload();await cashierPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).selectOption(tenant);
+    await expect(cashierPage.locator('.context')).toContainText('Cửa hàng Trung Tâm');
+    let site=await good(await api(owner,`/v1/tenants/${tenant}/sites/${first}`));
+    try{
+      site=await good(await api(owner,`/v1/tenants/${tenant}/sites/${first}`,'PATCH',{name:site.name,address:site.address,status:'SUSPENDED',version:site.version}));
+      expect((await good(await cashier.request.get('/auth/session'))).context).toBeUndefined();
+      await expect(cashierPage.locator('.context')).toHaveCount(0);
+    }finally{
+      site=await good(await api(owner,`/v1/tenants/${tenant}/sites/${first}`,'PATCH',{name:site.name,address:site.address,status:'ACTIVE',version:site.version}));
+    }
+    await good(await api(cashier,'/v1/context','POST',{tenantId:tenant,siteId:first}));
+    member=(await good(await api(owner,`/v1/tenants/${tenant}/memberships`))).find((m:any)=>m.subject_id===accounts[1].subject);
+    try{
+      member=await good(await api(owner,`/v1/tenants/${tenant}/memberships/${member.id}`,'PATCH',{role:'MANAGER',status:'ACTIVE',siteIds:[second],version:member.version}));
+      expect((await good(await cashier.request.get('/auth/session'))).context).toBeUndefined();
+      expect((await api(cashier,`/v1/tenants/${tenant}/sites/${first}`,'PATCH',{name:site.name,address:site.address,status:'ACTIVE',version:site.version})).status()).toBe(404);
+      await expect(cashierPage.locator('article').filter({hasText:'Cửa hàng Trung Tâm'})).toHaveCount(0);
+      const assigned=cashierPage.locator('article').filter({hasText:'Cửa hàng Phú Mỹ'});
+      await expect(assigned.getByRole('button',{name:'Chỉnh sửa',exact:true})).toBeVisible();
+      let permitted=await good(await api(cashier,`/v1/tenants/${tenant}/sites/${second}`));
+      permitted=await good(await api(cashier,`/v1/tenants/${tenant}/sites/${second}`,'PATCH',{name:permitted.name,address:permitted.address,status:'ACTIVE',version:permitted.version}));
+      expect((await api(cashier,`/v1/tenants/${tenant}/memberships`)).status()).toBe(403);
+      for(const role of ['STOCK','ACCOUNTANT','CASHIER']){
+        member=await good(await api(owner,`/v1/tenants/${tenant}/memberships/${member.id}`,'PATCH',{role,status:'ACTIVE',siteIds:[second],version:member.version}));
+        expect((await good(await api(cashier,`/v1/tenants/${tenant}/sites`))).map((s:any)=>s.id)).toEqual([second]);
+        expect((await api(cashier,`/v1/tenants/${tenant}/sites/${second}`,'PATCH',{name:permitted.name,address:permitted.address,status:'ACTIVE',version:permitted.version})).status()).toBe(403);
+      }
+      await expect(assigned.getByRole('button',{name:'Chỉnh sửa',exact:true})).toHaveCount(0);
+      await good(await api(cashier,'/v1/context','POST',{tenantId:tenant,siteId:second}));
+      member=await good(await api(owner,`/v1/tenants/${tenant}/memberships/${member.id}`,'PATCH',{role:'MANAGER',status:'BLOCKED',siteIds:[second],version:member.version}));
+      expect((await good(await cashier.request.get('/auth/session'))).context).toBeUndefined();
+      const other=await good(await api(owner,`/v1/tenants/${tenant}/sites/${second}`));
+      expect((await api(cashier,`/v1/tenants/${tenant}/sites/${second}`,'PATCH',{name:other.name,address:other.address,status:'ACTIVE',version:other.version})).status()).toBe(403);
+    }finally{
+      member=await good(await api(owner,`/v1/tenants/${tenant}/memberships/${member.id}`,'PATCH',{role:'CASHIER',status:'ACTIVE',siteIds:[first],version:member.version}));
+    }
+  });
+  test('W4-20 Browser creates tenant, invites and accepts the assigned employee',async()=>{
+    await ownerPage.setViewportSize({width:1440,height:1000});await ownerPage.reload();
+    await ownerPage.getByRole('button',{name:'Tạo hộ kinh doanh',exact:true}).first().click();
+    const dialog=ownerPage.getByRole('dialog');
+    const tenantName=`Hộ kinh doanh Minh An ${run}`;
+    await dialog.getByLabel('Tên hộ kinh doanh',{exact:true}).fill(tenantName);
+    await dialog.getByLabel('Liên hệ',{exact:true}).fill('Cửa hàng Minh An');
+    await dialog.getByLabel('Tên địa điểm',{exact:true}).fill('Cửa hàng Minh An');
+    await dialog.getByLabel('Mã địa điểm',{exact:true}).fill('MA01');
+    await dialog.getByLabel('Địa chỉ',{exact:true}).fill('TP. Hồ Chí Minh');
+    await dialog.getByRole('button',{name:'Tạo mới',exact:true}).click();await expect(dialog).toHaveCount(0);
+    const newCard=ownerPage.locator('article').filter({hasText:'Cửa hàng Minh An'});
+    await expect(newCard.getByText('Sẵn sàng',{exact:true})).toBeVisible({timeout:45000});
+    await newCard.getByRole('button',{name:'Chọn làm việc',exact:true}).click();
+    await expect(ownerPage.locator('.context')).toContainText('Cửa hàng Minh An');
+    const createdTenant=await ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).inputValue();
+    await ownerPage.getByRole('button',{name:'Nhân sự',exact:true}).click();
+    await ownerPage.getByRole('button',{name:'+ Mời nhân viên',exact:true}).click();
+    await dialog.getByLabel('Mã tài khoản người nhận',{exact:true}).fill(accounts[1].subject);
+    await dialog.getByLabel('Tôi đã xác nhận mã tài khoản thuộc đúng người nhận.',{exact:true}).check();
+    await dialog.getByRole('button',{name:'Tạo lời mời',exact:true}).click();
+    await expect(dialog.getByRole('alert')).toHaveText('Chọn ít nhất một địa điểm cho nhân viên.');
+    await dialog.getByLabel('Cửa hàng Minh An',{exact:true}).check();
+    await dialog.getByRole('button',{name:'Tạo lời mời',exact:true}).click();
+    await expect(dialog.getByLabel('Mã lời mời',{exact:true})).toBeVisible();
+    const token=await dialog.getByLabel('Mã lời mời',{exact:true}).inputValue();
+    await dialog.getByRole('button',{name:'Đã lưu mã',exact:true}).click();
+    await cashierPage.reload();await cashierPage.getByRole('button',{name:'Nhận lời mời',exact:true}).click();
+    const accept=cashierPage.getByRole('dialog');await accept.getByLabel('Mã lời mời',{exact:true}).fill(token);
+    await accept.getByRole('button',{name:'Xác nhận nhận lời mời',exact:true}).click();await expect(accept).toHaveCount(0);
+    await cashierPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).selectOption(createdTenant);
+    await expect(cashierPage.locator('article')).toHaveCount(1);
+    await expect(cashierPage.getByRole('heading',{name:'Cửa hàng Minh An',exact:true})).toBeVisible();
+    await expect(cashierPage.getByRole('button',{name:'Nhân sự',exact:true})).toHaveCount(0);
+    expect((await good(await api(cashier,`/v1/tenants/${createdTenant}/sites`)))).toHaveLength(1);
+    const audits=await good(await api(owner,`/v1/tenants/${createdTenant}/audit`));
+    expect(audits.map((a:any)=>a.action)).toEqual(expect.arrayContaining(['TENANT_CREATED','INVITATION_CONFIRMED','INVITATION_ACCEPTED']));
+  });
   test('W4-17 Expired server session rejected',async()=>{
     const sid=(await outsider.cookies()).find(c=>c.name==='sl_session')!.value;
     await gateway.query("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE id_hash=$1",[createHash('sha256').update(sid).digest('hex')]);expect((await outsider.request.get('/v1/me')).status()).toBe(401);
