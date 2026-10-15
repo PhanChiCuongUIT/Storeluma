@@ -120,7 +120,7 @@ Lời mời hiện được chuyển trực tiếp giữa chủ hộ và nhân v
 
 ## 8. Nhật ký và lưu trữ dữ liệu
 
-![Hình 7. Nhật ký thao tác của hộ trong lần chạy kiểm thử.](evidence/screenshots/06-audit.png)
+![Hình 7. Nhật ký thao tác của hộ, trích phần đầu màn hình kiểm thử.](evidence/screenshots/06-audit.png)
 
 Business ghi nhật ký tạo hộ, thêm địa điểm, địa điểm sẵn sàng, sửa địa điểm, xác nhận/nhận lời mời và cập nhật quyền. Bản ghi gồm hộ, người thực hiện, đối tượng, thời điểm và dữ liệu trước/sau phù hợp. Giao diện hiển thị tối đa 50 bản ghi mới nhất; chỉ chủ hộ được xem.
 
@@ -157,7 +157,7 @@ Lỗi chính: 400 dữ liệu không hợp lệ; 401 chưa xác thực hoặc h�
 
 ## 10. Kiểm thử tích hợp - nhóm 1
 
-Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy cuối có 20/20 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 32.2 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
+Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy cuối có 20/20 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 34.9 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
 
 | Mã | Nội dung kiểm tra | Kết quả |
 | --- | --- | --- |
@@ -186,7 +186,7 @@ Kiểm tra cả HTTP response và số bản ghi ở database tương ứng. Nh�
 | W4-13 | SUSPENDED không chọn làm việc; version cũ bị từ chối; kích hoạt lại hợp lệ. | Đạt |
 | W4-14 | Khởi động lại Business/Gateway vẫn truy cập được phiên, dữ liệu và nhật ký. | Đạt |
 | W4-15 | Tài khoản database Business không kết nối được finance_db. | Đạt |
-| W4-16 | Tạo CH03 bằng biểu mẫu; khóa/mở quyền qua giao diện; mở nhật ký; logo tải được, màn hình 390 px không tràn ngang. | Đạt |
+| W4-16 | Tạo CH03; tìm không dấu, lọc, đổi cách xem; Tab/Escape trong hộp thoại; khóa/mở quyền, nhật ký, logo và màn hình 390 px. | Đạt |
 | W4-17 | Phiên hết hạn phía server bị từ chối. | Đạt |
 | W4-18 | Đăng xuất xóa phiên BFF và đưa về luồng nhập tài khoản Keycloak. | Đạt |
 | W4-19 | Xóa ngữ cảnh khi site ngừng hoặc quyền đổi; quản lý chỉ sửa site được giao; thu ngân, kho, tài chính không được sửa. | Đạt |
@@ -194,7 +194,7 @@ Kiểm tra cả HTTP response và số bản ghi ở database tương ứng. Nh�
 
 Lỗi phát hiện và xử lý trong quá trình kiểm tra
 
-Rà soát bổ sung phát hiện phiên vẫn trả địa điểm đã chọn sau khi site tạm ngừng. W4-19 tái hiện lỗi trước sửa. Đã kiểm tra lại ngữ cảnh phía Gateway, cập nhật vai trò/phạm vi trên giao diện và bỏ kết quả tải cũ khi đổi hộ. W4-19 và W4-20 được bổ sung trước lần chạy lại toàn bộ. Đã tách nhãn mã lời mời khỏi giá trị mã và báo rõ khi chưa chọn địa điểm cho nhân viên. Cấu hình BASE32 của TOTP đã sửa ở lần kiểm tra trước.
+Rà soát bổ sung phát hiện phiên vẫn trả địa điểm đã chọn sau khi site tạm ngừng. W4-19 tái hiện lỗi trước sửa. Đã kiểm tra lại ngữ cảnh phía Gateway, cập nhật vai trò/phạm vi trên giao diện và bỏ kết quả tải cũ khi đổi hộ. W4-19 và W4-20 được bổ sung trước lần chạy lại toàn bộ. Đã tách nhãn mã lời mời khỏi giá trị mã và báo rõ khi chưa chọn địa điểm cho nhân viên. Đợt hoàn thiện giao diện còn sửa lỗi tác vụ tải nền ghi đè hộ vừa chọn; cập nhật trạng thái dựa trên lựa chọn mới nhất.
 
 Phạm vi của kết luận
 
@@ -280,6 +280,8 @@ Tài liệu kỹ thuật đã tham khảo
 [7] RabbitMQ. Consumer Acknowledgements and Publisher Confirms. <link href="https://www.rabbitmq.com/docs/confirms" color="#17635b">rabbitmq.com/docs/confirms</link>.
 
 [8] Keycloak. Working with themes. <link href="https://www.keycloak.org/ui-customization/themes" color="#12679a">keycloak.org/ui-customization/themes</link>. Tham khảo ngày 15/10/2026 để đồng bộ nhận diện màn hình đăng nhập.
+
+[9] Tabler. Dashboard UI. <link href="https://github.com/tabler/tabler" color="#12679a">github.com/tabler/tabler</link>.<br/>[10] shadcn/ui. Dashboard blocks. <link href="https://ui.shadcn.com/blocks?category=dashboard" color="#12679a">ui.shadcn.com/blocks</link>. Tham khảo bố cục ngày 15/10/2026; tự triển khai bằng React/CSS hiện có, không tích hợp hai thư viện.
 
 Các tài liệu [4]-[7] được tham khảo trong quá trình triển khai ngày 14/10/2026. Quyết định và phạm vi thực hiện được ghi theo mã nguồn của bản 0.4.0, không coi toàn bộ khả năng của framework là chức năng đã làm.
 

@@ -8,6 +8,7 @@ Storeluma is a business management application for household business owners and
 - Create a business, add locations, and suspend or reactivate locations.
 - Automatically provision a warehouse and cash register for each location through RabbitMQ events, with readiness status shown in the interface.
 - Select a business and working location within the user's assigned scope.
+- Search locations by name, code, or address, filter by status, and switch between card and list views.
 - Invite staff, accept invitations, manage roles and location assignments, and block or reactivate members.
 - View the business's activity log.
 - Use a Vietnamese interface that supports desktop and mobile screens.

@@ -19,6 +19,9 @@ AGENTS.md
 .claude/
 /Logo_Storeluma.png
 /README.vi.md
+/docs/local/HUONG_DAN_CHAY_VA_VAN_HANH.md
+/docs/local/HIEN_TRANG_DU_AN.md
+/docs/local/KICH_BAN_DEMO_VA_DU_LIEU_MAU.md
 /tools/*
 !/tools/dev-setup.mjs
 !/tools/demo-login.mjs

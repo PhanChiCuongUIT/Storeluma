@@ -148,13 +148,28 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
   });
   test('W4-16 Browser creates site, renders staff and audit; mobile layout',async()=>{
     await ownerPage.reload();await ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).selectOption(tenant);
+    await expect(ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true})).toHaveValue(tenant);
     await ownerPage.getByRole('button',{name:'+ Thêm địa điểm',exact:true}).click();
     const dialog=ownerPage.getByRole('dialog');await dialog.getByLabel('Tên địa điểm',{exact:true}).fill('Cửa hàng Nam Long');await dialog.getByLabel('Mã địa điểm',{exact:true}).fill('CH03');await dialog.getByLabel('Địa chỉ',{exact:true}).fill('TP. Hồ Chí Minh');await dialog.getByRole('button',{name:'Tạo mới'}).click();
     await expect(dialog).toHaveCount(0);const card=ownerPage.locator('article').filter({hasText:'Cửa hàng Nam Long'});await expect(card.getByText('Sẵn sàng',{exact:true})).toBeVisible({timeout:45000});
     await expect(ownerPage.getByAltText('Storeluma')).toBeVisible();
     expect(await ownerPage.getByAltText('Storeluma').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
     await expect(ownerPage.locator('body')).not.toContainText(/Tuần 4|Đồ án|Bản chạy phát triển|Nền hệ thống|Đúng người\. Đúng quyền/);
+    const search=ownerPage.getByLabel('Tìm địa điểm',{exact:true});
+    await search.fill('cua hang nam long');await expect(ownerPage.locator('article')).toHaveCount(1);await expect(card).toBeVisible();
+    await search.fill('khong-co-dia-diem');await expect(ownerPage.locator('article')).toHaveCount(0);
+    await ownerPage.getByRole('button',{name:'Xóa bộ lọc'}).click();await expect(ownerPage.locator('article')).toHaveCount(3);
+    await ownerPage.getByLabel('Lọc trạng thái').selectOption('SUSPENDED');await expect(ownerPage.locator('article')).toHaveCount(0);
+    await ownerPage.getByLabel('Lọc trạng thái').selectOption('ALL');
+    await ownerPage.getByRole('button',{name:'Xem dạng danh sách'}).click();await expect(ownerPage.locator('.site-grid')).toHaveClass(/list-view/);
+    await ownerPage.getByRole('button',{name:'Xem dạng thẻ'}).click();
+    const add=ownerPage.getByRole('button',{name:'+ Thêm địa điểm',exact:true});await add.click();
+    const close=dialog.getByRole('button',{name:'Đóng',exact:true});await expect(close).toBeFocused();
+    await ownerPage.keyboard.press('Shift+Tab');await expect(dialog.getByRole('button',{name:'Tạo mới'})).toBeFocused();
+    await ownerPage.keyboard.press('Tab');await expect(close).toBeFocused();
+    await ownerPage.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(add).toBeFocused();
     await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/03-sites.png',fullPage:true});
+    await expect(ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true})).toHaveValue(tenant);
     await ownerPage.getByRole('button',{name:'Nhân sự',exact:true}).click();await expect(ownerPage.getByRole('button',{name:'Sửa quyền'})).toBeVisible();await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/05-staff.png',fullPage:true});
     for(const status of ['BLOCKED','ACTIVE']){
       await ownerPage.getByRole('button',{name:'Sửa quyền',exact:true}).click();

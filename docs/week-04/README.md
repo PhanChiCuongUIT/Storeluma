@@ -35,6 +35,8 @@ Lệnh trên chỉ hiện thông tin tài khoản mẫu trên máy cá nhân. Nh
 
 Phiên hiện tại tối đa 15 phút; chưa tự làm mới token. Khi hết phiên, đăng nhập lại.
 
+Giao diện hỗ trợ tìm địa điểm không dấu, lọc trạng thái, đổi dạng thẻ/danh sách và sao chép mã tài khoản. Xem [ghi nhận thiết kế giao diện](ui-design.md) để đối chiếu thay đổi và nguồn tham khảo.
+
 ## Kiểm thử
 
 ```powershell
