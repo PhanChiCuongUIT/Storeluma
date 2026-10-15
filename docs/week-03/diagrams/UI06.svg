@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="375" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 375" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="375"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-375)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="2" y="2" width="476" height="371" rx="3" ry="3" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="2" y="340" width="476" height="33" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="12" y="354.0" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,708) scale(1,-1)">STORELUMA</text>
+			<text x="130" y="355.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,710) scale(1,-1)">Hộ: An Bình | Điểm: Cửa hàng 01</text>
+			<text x="415" y="356.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,712) scale(1,-1)">Tài khoản</text>
+			<rect x="2" y="2" width="91" height="338" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="10" y="314.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,629) scale(1,-1)">Tổng quan</text>
+			<text x="10" y="286.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,573) scale(1,-1)">Hàng hóa</text>
+			<text x="10" y="258.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,517) scale(1,-1)">Nhập / tồn</text>
+			<text x="10" y="230.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,461) scale(1,-1)">Bán tại quầy</text>
+			<text x="10" y="202.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,405) scale(1,-1)">Giao dịch</text>
+			<text x="10" y="174.5" style="font-family: TNR-Bold; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,349) scale(1,-1)">Quỹ / ca</text>
+			<text x="10" y="146.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,293) scale(1,-1)">Báo cáo</text>
+			<text x="106" y="316.0" style="font-family: TNR-Bold; font-size: 13px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,632) scale(1,-1)">Quỹ / ca</text>
+			<rect x="106" y="271" width="358" height="29" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="225.7108154296875" y="281.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,563) scale(1,-1)">Ca C001 | Quầy 01 | Đang chốt</text>
+			<rect x="106" y="172" width="174" height="88" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="160.09228515625" y="231.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,462) scale(1,-1)">Đầu ca: 500.000</text>
+			<text x="157.267578125" y="218.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,437) scale(1,-1)">Thu bán: +36.000</text>
+			<text x="164.11572265625" y="206.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,412) scale(1,-1)">Hoàn: -18.000</text>
+			<text x="157.931640625" y="193.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,387) scale(1,-1)">Dự kiến: 518.000</text>
+			<rect x="290" y="172" width="174" height="88" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="335.759765625" y="224.75" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,449) scale(1,-1)">Tiền đếm: [518.000]</text>
+			<text x="349.22900390625" y="212.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,424) scale(1,-1)">Chênh lệch: 0</text>
+			<text x="345.88916015625" y="199.75" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,399) scale(1,-1)">Giao dịch dở: 0</text>
+			<rect x="106" y="119" width="358" height="41" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="184.6864013671875" y="135.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,271) scale(1,-1)">Lý do lệch / người xác nhận: chỉ yêu cầu nếu có lệch</text>
+			<rect x="106" y="71" width="358" height="32" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="244.5126953125" y="82.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,165) scale(1,-1)">Xác nhận chốt ca</text>
+			<text x="110" y="41.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,82) scale(1,-1)">Còn thanh toán/hoàn tiền mặt chưa rõ: chặn chốt.</text>
+			<text x="110" y="28.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,57) scale(1,-1)">Số đếm không sửa doanh thu hoặc các dòng tiền đã ghi.</text>
+		</g>
+	</g>
+</svg>

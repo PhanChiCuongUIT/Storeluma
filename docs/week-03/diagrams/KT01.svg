@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="425" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 425" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="425"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-425)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="150" y="388" width="180" height="34" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="190.986328125" y="400.5" style="font-family: TNR-Bold; font-size: 12px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,801) scale(1,-1)">Web quản lý / POS</text>
+			<rect x="150" y="326" width="180" height="38" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="172.7882080078125" y="341.0625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,682) scale(1,-1)">API Gateway / phiên đăng nhập</text>
+			<rect x="354" y="326" width="119" height="38" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="394.34228515625" y="347.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,695) scale(1,-1)">Keycloak</text>
+			<text x="392.53076171875" y="335.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,670) scale(1,-1)">Định danh</text>
+			<path d="M 240,388 L 240,364 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="240 364, 237.3902 369.4027, 242.6098 369.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 330,345 L 354,345 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="354 345, 348.5973 342.3902, 348.5973 347.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 240,326 L 240,97 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<rect x="10" y="252" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="85.7406005859375" y="278.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,557) scale(1,-1)">Business</text>
+			<text x="77.85791015625" y="265.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,531) scale(1,-1)">business_db</text>
+			<path d="M 240,276 L 200,276 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="200 276, 205.4027 278.6098, 205.4027 273.3902" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="280" y="252" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="357.501708984375" y="278.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,557) scale(1,-1)">Catalog</text>
+			<text x="350.498291015625" y="265.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,531) scale(1,-1)">catalog_db</text>
+			<path d="M 240,276 L 280,276 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="280 276, 274.5973 273.3902, 274.5973 278.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="10" y="187" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="82.8336181640625" y="213.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,427) scale(1,-1)">Inventory</text>
+			<text x="74.9534912109375" y="200.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,401) scale(1,-1)">inventory_db</text>
+			<path d="M 240,211 L 200,211 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="200 211, 205.4027 213.6098, 205.4027 208.3902" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="280" y="187" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="363.623291015625" y="213.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,427) scale(1,-1)">Sales</text>
+			<text x="356.035400390625" y="200.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,401) scale(1,-1)">sales_db</text>
+			<path d="M 240,211 L 280,211 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="280 211, 274.5973 208.3902, 274.5973 213.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="10" y="122" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="87.20947265625" y="148.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,297) scale(1,-1)">Finance</text>
+			<text x="80.2034912109375" y="135.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,271) scale(1,-1)">finance_db</text>
+			<path d="M 240,146 L 200,146 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="200 146, 205.4027 148.6098, 205.4027 143.3902" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="280" y="122" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="352.251708984375" y="148.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,297) scale(1,-1)">Reporting</text>
+			<text x="345.248291015625" y="135.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,271) scale(1,-1)">reporting_db</text>
+			<path d="M 240,146 L 280,146 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="280 146, 274.5973 143.3902, 274.5973 148.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="10" y="57" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="78.462890625" y="83.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,167) scale(1,-1)">Notification</text>
+			<text x="70.869873046875" y="70.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,141) scale(1,-1)">notification_db</text>
+			<path d="M 240,107 L 220,107 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 220,107 L 220,90 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 220,90 L 200,90 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="200 90, 205.4027 92.60979, 205.4027 87.39021" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="280" y="57" width="190" height="48" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="352.5413818359375" y="83.625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,167) scale(1,-1)">RabbitMQ</text>
+			<text x="340.51611328125" y="70.5" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,141) scale(1,-1)">Trao đổi sự kiện</text>
+			<path d="M 470,211 L 477,211 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<path d="M 477,211 L 477,81 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<path d="M 477,81 L 470,81 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<polygon points="470 81, 475.4027 83.60979, 475.4027 78.39021" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 280,71 L 200,71 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<polygon points="200 71, 205.4027 73.60979, 205.4027 68.39021" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 375,105 L 375,122 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<polygon points="375 122, 377.6098 116.5973, 372.3902 116.5973" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="5" y="27.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,54) scale(1,-1)">Liền: API. Đứt: sự kiện minh họa Sales → RabbitMQ → bên nhận.</text>
+			<text x="5" y="14.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,29) scale(1,-1)">Các quan hệ còn lại được trình bày trong bảng; mỗi dịch vụ có dữ liệu riêng.</text>
+		</g>
+	</g>
+</svg>

@@ -1,0 +1,19 @@
+:root {
+  --pf-v5-global--primary-color--100: #0875bc;
+  --pf-v5-global--primary-color--200: #065e97;
+  --pf-v5-global--FontFamily--text: Arial, Helvetica, sans-serif;
+  --pf-v5-global--FontFamily--heading: Arial, Helvetica, sans-serif;
+}
+.login-pf body { background: #f5f7fa; color: #24364a; }
+.pf-v5-c-login { min-height: 100dvh; padding: 32px 20px; }
+.pf-v5-c-login .pf-v5-c-login__container { display: block; width: min(440px, 100%); padding: 0; }
+#kc-header { margin: 0; padding: 28px 32px 8px; background: white; border: 1px solid #dce3eb; border-bottom: 0; border-radius: 10px 10px 0 0; }
+#kc-header-wrapper { width: 240px; max-width: 100%; height: 64px; margin: auto; background: url('../brand/Logo_Storeluma.png') center 48% / 100% auto no-repeat; font-size: 0; }
+.pf-v5-c-login__main { border: 1px solid #dce3eb; border-top: 0; border-radius: 0 0 10px 10px; box-shadow: none; }
+.pf-v5-c-login__main-header { border: 0; padding: 20px 32px; grid-template-columns: 1fr; }
+#kc-page-title { font-size: 24px; font-weight: 600; color: #24364a; }
+.pf-v5-c-login__main-body { padding: 0 32px 32px; }
+.pf-v5-c-form-control { border-radius: 5px; --pf-v5-c-form-control--after--BorderBottomWidth: 1px; }
+.pf-v5-c-button.pf-m-primary { border-radius: 6px; min-height: 42px; font-weight: 600; }
+.pf-v5-c-login__main-footer:empty { display: none; }
+@media(max-width:480px) { #kc-header { padding: 24px 22px 8px; } .pf-v5-c-login__main-header { padding: 18px 22px; } .pf-v5-c-login__main-body { padding: 0 22px 24px; } }

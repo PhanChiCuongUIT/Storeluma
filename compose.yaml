@@ -1,0 +1,111 @@
+name: storeluma
+x-app: &app
+  restart: unless-stopped
+  init: true
+  healthcheck:
+    test: [CMD, node, -e, "fetch('http://127.0.0.1:4100/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+    interval: 10s
+    timeout: 4s
+    start_period: 30s
+  depends_on:
+    postgres: {condition: service_healthy}
+    rabbitmq: {condition: service_healthy}
+x-env: &env
+  PORT: 4100
+  RABBIT_URL: amqp://storeluma:${RABBIT_PASSWORD}@rabbitmq:5672
+  OIDC_ISSUER: http://localhost:8180/realms/storeluma
+  OIDC_INTERNAL: http://keycloak:8080/realms/storeluma
+  OIDC_AUDIENCE: storeluma-api
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: {POSTGRES_PASSWORD: '${PG_ADMIN_PASSWORD}'}
+    volumes: [pgdata:/var/lib/postgresql/data, './infra/generated/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro']
+    ports: ['127.0.0.1:55432:5432']
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres]
+      interval: 5s
+      retries: 20
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    environment: {RABBITMQ_DEFAULT_USER: storeluma, RABBITMQ_DEFAULT_PASS: '${RABBIT_PASSWORD}'}
+    volumes: [rabbitdata:/var/lib/rabbitmq]
+    ports: ['127.0.0.1:5673:5672', '127.0.0.1:15673:15672']
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, ping]
+      interval: 5s
+      retries: 20
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.7
+    command: [start-dev, --import-realm]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: http://localhost:8180
+      KC_HEALTH_ENABLED: 'true'
+    ports: ['127.0.0.1:8180:8080']
+    volumes:
+      - './infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro'
+      - './infra/keycloak/themes/storeluma:/opt/keycloak/themes/storeluma:ro'
+      - './apps/web/public/brand:/opt/keycloak/themes/storeluma/login/resources/brand:ro'
+    depends_on: {postgres: {condition: service_healthy}}
+  business:
+    <<: *app
+    build: {context: ., args: {SERVICE: business}}
+    environment:
+      <<: *env
+      SERVICE_NAME: business
+      DATABASE_URL: postgres://business:${BUSINESS_DB_PASSWORD}@postgres:5432/business_db
+  inventory:
+    <<: *app
+    build: {context: ., args: {SERVICE: inventory}}
+    environment:
+      <<: *env
+      SERVICE_NAME: inventory
+      DATABASE_URL: postgres://inventory:${INVENTORY_DB_PASSWORD}@postgres:5432/inventory_db
+  finance:
+    <<: *app
+    build: {context: ., args: {SERVICE: finance}}
+    environment:
+      <<: *env
+      SERVICE_NAME: finance
+      DATABASE_URL: postgres://finance:${FINANCE_DB_PASSWORD}@postgres:5432/finance_db
+  gateway:
+    <<: *app
+    build: {context: ., args: {SERVICE: gateway}}
+    ports: ['127.0.0.1:4100:4100']
+    environment:
+      <<: *env
+      SERVICE_NAME: gateway
+      DATABASE_URL: postgres://gateway:${GATEWAY_DB_PASSWORD}@postgres:5432/gateway_db
+      OIDC_SECRET: ${OIDC_SECRET}
+      SESSION_KEY: ${SESSION_KEY}
+      WEB_ORIGIN: http://localhost:4100
+      BUSINESS_URL: http://business:4100
+  catalog:
+    <<: *app
+    profiles: [full]
+    build: {context: ., args: {SERVICE: catalog}}
+    environment: {<<: *env, SERVICE_NAME: catalog, DATABASE_URL: 'postgres://catalog:${CATALOG_DB_PASSWORD}@postgres:5432/catalog_db'}
+  sales:
+    <<: *app
+    profiles: [full]
+    build: {context: ., args: {SERVICE: sales}}
+    environment: {<<: *env, SERVICE_NAME: sales, DATABASE_URL: 'postgres://sales:${SALES_DB_PASSWORD}@postgres:5432/sales_db'}
+  reporting:
+    <<: *app
+    profiles: [full]
+    build: {context: ., args: {SERVICE: reporting}}
+    environment: {<<: *env, SERVICE_NAME: reporting, DATABASE_URL: 'postgres://reporting:${REPORTING_DB_PASSWORD}@postgres:5432/reporting_db'}
+  notification:
+    <<: *app
+    profiles: [full]
+    build: {context: ., args: {SERVICE: notification}}
+    environment: {<<: *env, SERVICE_NAME: notification, DATABASE_URL: 'postgres://notification:${NOTIFICATION_DB_PASSWORD}@postgres:5432/notification_db'}
+volumes:
+  pgdata:
+  rabbitdata:

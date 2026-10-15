@@ -1,0 +1,37 @@
+tmp/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+apps/web/dist/
+infra/generated/
+test-results/
+playwright-report/
+*.log
+
+# Local authoring, agent instructions and scratch material
+AGENTS.md
+.codex/
+.agents/
+.claude/
+/Logo_Storeluma.png
+/tools/*
+!/tools/dev-setup.mjs
+!/tools/demo-login.mjs
+!/tools/configure-branding.mjs
+/docs/week-02/0[1-6]-*.md
+/docs/week-*/report.json
+/docs/week-*/layout-check.json
+/docs/week-04/evidence/*.json
+/docs/week-04/evidence/mobile-viewport.png
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak

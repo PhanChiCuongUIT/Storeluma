@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="300" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="300"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-300)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="10" y="15" width="460" height="279" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="93.3828125" y="264.0" style="font-family: TNR-Bold; font-size: 14px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,528) scale(1,-1)">STORELUMA - Đăng nhập và chọn nơi làm việc</text>
+			<rect x="36" y="190" width="180" height="43" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="50.546875" y="207.375" style="font-family: TNR; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,414) scale(1,-1)">Đăng nhập qua tài khoản hệ thống</text>
+			<text x="37" y="166.0" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,332) scale(1,-1)">Sau xác thực, chọn ngữ cảnh:</text>
+			<rect x="254" y="190" width="188" height="43" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="313.321533203125" y="207.375" style="font-family: TNR; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,414) scale(1,-1)">Hộ An Bình [v]</text>
+			<rect x="254" y="133" width="188" height="43" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="295.68017578125" y="150.375" style="font-family: TNR; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,300) scale(1,-1)">Cửa hàng 01 - Sẵn sàng</text>
+			<rect x="254" y="80" width="188" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="317.758056640625" y="95.375" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,190) scale(1,-1)">Vào làm việc</text>
+			<text x="35" y="51.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,102) scale(1,-1)">Địa điểm đang khởi tạo: xem trạng thái, chưa cho vào bán hàng.</text>
+		</g>
+	</g>
+</svg>

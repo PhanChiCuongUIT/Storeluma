@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="495" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 495" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="495"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-495)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="25" y="451" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="79.1885986328125" y="466.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,933) scale(1,-1)">Kho: chọn nhà cung cấp, kho và hàng</text>
+			<rect x="25" y="387" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="71.726318359375" y="402.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,805) scale(1,-1)">Kho: nhập lượng nhận, đơn giá; lưu nháp</text>
+			<polygon points="158.5 362, 292 334.5, 158.5 307, 25 334.5" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="117.259765625" y="337.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,675) scale(1,-1)">Hợp lệ và có quyền?</text>
+			<path d="M 292,335 L 335,335 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="335 335, 329.5973 332.3902, 329.5973 337.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="296" y="342.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,684) scale(1,-1)">Không</text>
+			<rect x="335" y="305" width="140" height="54" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="371.949462890625" y="334.375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,668) scale(1,-1)">Báo lỗi; giữ nháp</text>
+			<text x="370.302734375" y="322.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,645) scale(1,-1)">Chỉnh rồi kiểm lại</text>
+			<rect x="25" y="236" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="67.8221435546875" y="251.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,503) scale(1,-1)">Kho: xác nhận nhận hàng bằng mã thao tác</text>
+			<rect x="25" y="172" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="65.2535400390625" y="187.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,375) scale(1,-1)">Inventory: ghi phiếu, tồn, giá vốn và sự kiện</text>
+			<rect x="25" y="108" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="67.665771484375" y="123.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,247) scale(1,-1)">Finance: tạo khoản phải trả từ sự kiện nhập</text>
+			<rect x="25" y="44" width="267" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="78.1632080078125" y="59.5625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,119) scale(1,-1)">Xem phiếu đã ghi sổ; thanh toán riêng</text>
+			<path d="M 158,451 L 158,426 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 426, 155.3902 431.4027, 160.6098 431.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 158,387 L 158,362 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 362, 155.3902 367.4027, 160.6098 367.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 158,307 L 158,275 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 275, 155.3902 280.4027, 160.6098 280.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="165" y="288.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,576) scale(1,-1)">Có</text>
+			<path d="M 158,236 L 158,211 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 211, 155.3902 216.4027, 160.6098 216.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 158,172 L 158,147 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 147, 155.3902 152.4027, 160.6098 152.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 158,108 L 158,83 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="158 83, 155.3902 88.40268, 160.6098 88.40268" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="8" y="17.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,34) scale(1,-1)">HD01 - Nhập mua. Tồn đầu kỳ không tạo khoản phải trả.</text>
+		</g>
+	</g>
+</svg>

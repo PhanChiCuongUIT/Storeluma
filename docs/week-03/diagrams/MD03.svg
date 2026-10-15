@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="440" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 440" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="440"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-440)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="5" y="344" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="5" y="409" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="78.41845703125" y="417.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,835) scale(1,-1)">Warehouse</text>
+			<text x="14" y="391.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,782) scale(1,-1)">id, tenantId, siteId</text>
+			<rect x="275" y="344" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="275" y="409" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="343.221923828125" y="417.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,835) scale(1,-1)">StockBalance</text>
+			<text x="284" y="391.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,782) scale(1,-1)">warehouseId, skuId</text>
+			<text x="284" y="378.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,757) scale(1,-1)">onHand, reserved, quarantined</text>
+			<rect x="5" y="204" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="5" y="269" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="66.814208984375" y="277.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,555) scale(1,-1)">StockMovement</text>
+			<text x="14" y="251.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,502) scale(1,-1)">id, warehouseId, skuId</text>
+			<text x="14" y="238.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,477) scale(1,-1)">sourceOperationId, qty, value</text>
+			<rect x="275" y="204" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="275" y="269" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="331.921142578125" y="277.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,555) scale(1,-1)">Reservation / Line</text>
+			<text x="284" y="251.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,502) scale(1,-1)">id, orderId, status</text>
+			<text x="284" y="238.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,477) scale(1,-1)">skuId, qtyBase</text>
+			<rect x="5" y="64" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="5" y="129" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="69.86767578125" y="137.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,275) scale(1,-1)">Register / Shift</text>
+			<text x="14" y="111.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,222) scale(1,-1)">registerId, siteId</text>
+			<text x="14" y="98.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,197) scale(1,-1)">shiftId, status, openingVnd</text>
+			<rect x="275" y="64" width="200" height="91" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="275" y="129" width="200" height="26" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="324.278076171875" y="137.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,275) scale(1,-1)">Payment / CashEntry</text>
+			<text x="284" y="111.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,222) scale(1,-1)">paymentId, orderId, status</text>
+			<text x="284" y="98.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,197) scale(1,-1)">entryId, shiftId, signedVnd</text>
+			<path d="M 205,390 L 275,390 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="275 390, 269.5973 387.3902, 269.5973 392.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="229.499755859375" y="401.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,802) scale(1,-1)">1 : 0..*</text>
+			<path d="M 105,344 L 105,295 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="105 295, 102.3902 300.4027, 107.6098 300.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="112" y="321.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,642) scale(1,-1)">1 : 0..*</text>
+			<text x="286" y="185.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,370) scale(1,-1)">Inventory (4 ô trên)</text>
+			<path d="M 5,174 L 475,174 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 4, 3;"/>
+			<path d="M 205,110 L 275,110 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="275 110, 269.5973 107.3902, 269.5973 112.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="229.499755859375" y="121.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,242) scale(1,-1)">1 : 0..*</text>
+			<text x="5" y="33.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,66) scale(1,-1)">Finance (2 ô dưới): mỗi ca có nhiều dòng tiền mặt. Một quầy có nhiều</text>
+			<text x="5" y="20.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,41) scale(1,-1)">ca theo thời gian, tối đa một ca đang mở hoặc đang chốt.</text>
+		</g>
+	</g>
+</svg>

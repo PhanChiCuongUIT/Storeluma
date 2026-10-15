@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="465" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 465" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="465"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-465)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="108" y="19" width="365" height="440" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="197.5537109375" y="438.0" style="font-family: TNR-Bold; font-size: 12px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,876) scale(1,-1)">STORELUMA - phạm vi chức năng</text>
+			<circle cx="48" cy="417" r="7" style="stroke: rgb(12%,14%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 48,410 L 48,386 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 35,401 L 61,401 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 36,371 L 48,386 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 48,386 L 60,371 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="27.2919921875" y="355.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,710) scale(1,-1)">Thu ngân</text>
+			<ellipse cx="315.5" cy="401.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="289.25" y="397.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,794) scale(1,-1)">NV06 Mở ca</text>
+			<path d="M 61,400 L 145,401 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,401 L 184,401 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="315.5" cy="347.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="270.50732421875" y="343.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,686) scale(1,-1)">NV07 Bán, thanh toán</text>
+			<path d="M 61,400 L 145,347 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,347 L 184,347 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="315.5" cy="293.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="254.533203125" y="289.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,578) scale(1,-1)">NV08 Hủy đơn / tra biên nhận</text>
+			<path d="M 61,400 L 145,293 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,293 L 184,293 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="315.5" cy="239.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="268.56640625" y="235.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,470) scale(1,-1)">NV09 Đề nghị trả hàng</text>
+			<path d="M 61,400 L 145,239 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,239 L 184,239 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<circle cx="48" cy="212" r="7" style="stroke: rgb(12%,14%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 48,205 L 48,181 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 35,196 L 61,196 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 36,166 L 48,181 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 48,181 L 60,166 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="38.830078125" y="150.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,300) scale(1,-1)">Kho</text>
+			<ellipse cx="315.5" cy="175.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="255.22900390625" y="171.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,342) scale(1,-1)">NV04 Nhập; NV05 Kiểm kho</text>
+			<path d="M 61,195 L 145,175 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,175 L 184,175 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<circle cx="48" cy="115" r="7" style="stroke: rgb(12%,14%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 48,108 L 48,84 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 35,99 L 61,99 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 36,69 L 48,84 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 48,84 L 60,69 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="27.5751953125" y="53.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,106) scale(1,-1)">Tài chính</text>
+			<ellipse cx="315.5" cy="108.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="267.033203125" y="104.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,208) scale(1,-1)">NV10 Thu chi / đối soát</text>
+			<path d="M 61,98 L 145,108 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,108 L 184,108 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="315.5" cy="54.0" rx="131.5" ry="22.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="286.61572265625" y="50.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,100) scale(1,-1)">NV11 Chốt ca</text>
+			<path d="M 61,98 L 145,54 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 145,54 L 184,54 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 61,400 L 130,54 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 130,54 L 184,54 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+		</g>
+	</g>
+</svg>

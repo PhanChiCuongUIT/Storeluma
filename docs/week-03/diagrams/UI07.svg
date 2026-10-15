@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="375" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 375" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="375"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-375)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="2" y="2" width="476" height="371" rx="3" ry="3" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="2" y="340" width="476" height="33" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="12" y="354.0" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,708) scale(1,-1)">STORELUMA</text>
+			<text x="130" y="355.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,710) scale(1,-1)">Hộ: An Bình | Điểm: Cửa hàng 01</text>
+			<text x="415" y="356.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,712) scale(1,-1)">Tài khoản</text>
+			<rect x="2" y="2" width="91" height="338" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="10" y="314.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,629) scale(1,-1)">Tổng quan</text>
+			<text x="10" y="286.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,573) scale(1,-1)">Hàng hóa</text>
+			<text x="10" y="258.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,517) scale(1,-1)">Nhập / tồn</text>
+			<text x="10" y="230.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,461) scale(1,-1)">Bán tại quầy</text>
+			<text x="10" y="202.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,405) scale(1,-1)">Giao dịch</text>
+			<text x="10" y="174.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,349) scale(1,-1)">Quỹ / ca</text>
+			<text x="10" y="146.5" style="font-family: TNR-Bold; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,293) scale(1,-1)">Báo cáo</text>
+			<text x="106" y="316.0" style="font-family: TNR-Bold; font-size: 13px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,632) scale(1,-1)">Báo cáo</text>
+			<rect x="106" y="271" width="358" height="29" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="202.97900390625" y="281.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,563) scale(1,-1)">Ngày: 11/10/2026 | Địa điểm: Cửa hàng 01</text>
+			<rect x="106" y="195" width="110" height="64" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="127.67236328125" y="229.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,459) scale(1,-1)">Doanh thu thuần</text>
+			<text x="147.25" y="217.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,434) scale(1,-1)">18.000</text>
+			<rect x="230" y="195" width="110" height="64" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="257.783203125" y="229.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,459) scale(1,-1)">Tiền thu ròng</text>
+			<text x="271.25" y="217.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,434) scale(1,-1)">18.000</text>
+			<rect x="354" y="195" width="110" height="64" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="393.58740234375" y="229.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,459) scale(1,-1)">Lãi gộp</text>
+			<text x="397.75" y="217.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,434) scale(1,-1)">8.000</text>
+			<rect x="106" y="143" width="358" height="39" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="196.48486328125" y="158.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,317) scale(1,-1)">Dữ liệu đến 18:30 | Đang đồng bộ | [Làm mới]</text>
+			<rect x="106" y="84" width="358" height="47" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="206.0498046875" y="109.875" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,219) scale(1,-1)">Việc cần xử lý: DH002 chờ xác nhận tiền</text>
+			<text x="219.302490234375" y="98.0" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,196) scale(1,-1)">[Mở chứng từ] [Đánh dấu đã xem]</text>
+			<text x="110" y="49.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,98) scale(1,-1)">Đã xem không đồng nghĩa đã giải quyết.</text>
+			<text x="110" y="36.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,73) scale(1,-1)">Xuất báo cáo giữ bộ lọc và quyền hiện tại.</text>
+		</g>
+	</g>
+</svg>

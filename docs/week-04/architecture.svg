@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="245" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 245" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="245"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-245)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="193" width="150" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="48.0142822265625" y="217.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,435) scale(1,-1)">Trình duyệt</text>
+			<text x="62.1749267578125" y="204.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,409) scale(1,-1)">React</text>
+			<rect x="185" y="193" width="150" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="226.17236328125" y="217.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,435) scale(1,-1)">Gateway / BFF</text>
+			<text x="232.5067138671875" y="204.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,409) scale(1,-1)">Phiên + API</text>
+			<rect x="365" y="193" width="115" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="402.3843994140625" y="217.625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,435) scale(1,-1)">Keycloak</text>
+			<text x="383.8145751953125" y="204.5" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,409) scale(1,-1)">Mật khẩu + TOTP</text>
+			<path d="M 150,215 L 185,215 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="185 215, 179.5973 212.3902, 179.5973 217.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 335,215 L 365,215 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="365 215, 359.5973 212.3902, 359.5973 217.6098" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="185" y="114" width="150" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="240.7406005859375" y="138.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,277) scale(1,-1)">Business</text>
+			<text x="212.01171875" y="125.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,251) scale(1,-1)">Hộ / địa điểm / quyền</text>
+			<path d="M 260,193 L 260,158 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="260 158, 257.3902 163.4027, 262.6098 163.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="185" y="39" width="150" height="42" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="235.498291015625" y="62.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,125) scale(1,-1)">RabbitMQ</text>
+			<text x="223.1602783203125" y="49.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,99) scale(1,-1)">Sự kiện khởi tạo</text>
+			<path d="M 260,114 L 260,81 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="260 81, 257.3902 86.40268, 262.6098 86.40268" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<rect x="0" y="39" width="150" height="42" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="54.589599609375" y="62.625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,125) scale(1,-1)">Inventory</text>
+			<text x="57.650390625" y="49.5" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,99) scale(1,-1)">Tạo kho</text>
+			<rect x="365" y="39" width="115" height="42" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,96%,98%); fill-rule: evenodd;"/>
+			<text x="405.8809814453125" y="62.625" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,125) scale(1,-1)">Finance</text>
+			<text x="402.8201904296875" y="49.5" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,99) scale(1,-1)">Tạo quầy</text>
+			<path d="M 185,60 L 150,60 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="150 60, 155.4027 62.60979, 155.4027 57.39021" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<path d="M 335,60 L 365,60 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<polygon points="365 60, 359.5973 57.39021, 359.5973 62.60979" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
+			<text x="92.8128662109375" y="13.5" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,27) scale(1,-1)">Mỗi ứng dụng / Keycloak có database và tài khoản PostgreSQL riêng.</text>
+		</g>
+	</g>
+</svg>

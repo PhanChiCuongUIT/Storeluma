@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="465" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 465" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="465"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-465)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="108" y="19" width="365" height="440" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="197.5537109375" y="438.0" style="font-family: TNR-Bold; font-size: 12px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,876) scale(1,-1)">STORELUMA - phạm vi chức năng</text>
+			<circle cx="48" cy="377" r="7" style="stroke: rgb(12%,14%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 48,370 L 48,346 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 35,361 L 61,361 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 36,331 L 48,346 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 48,346 L 60,331 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="32.296875" y="315.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,630) scale(1,-1)">Chủ hộ</text>
+			<ellipse cx="317.5" cy="382.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="262.2265625" y="378.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,756) scale(1,-1)">NV01 Đăng nhập, chọn nơi</text>
+			<path d="M 61,360 L 150,382 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,382 L 190,382 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="317.5" cy="322.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="259.9365234375" y="318.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,636) scale(1,-1)">NV02 Hộ, địa điểm, nhân sự</text>
+			<path d="M 61,360 L 150,322 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,322 L 190,322 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<circle cx="48" cy="217" r="7" style="stroke: rgb(12%,14%,16%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 48,210 L 48,186 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 35,201 L 61,201 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 36,171 L 48,186 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 48,186 L 60,171 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="30.91015625" y="155.0" style="font-family: TNR-Bold; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,310) scale(1,-1)">Quản lý</text>
+			<ellipse cx="317.5" cy="242.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="260.83740234375" y="238.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,476) scale(1,-1)">NV03 Hàng hóa, đơn vị, giá</text>
+			<path d="M 61,200 L 150,242 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,242 L 190,242 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="317.5" cy="182.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="282.22900390625" y="178.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,356) scale(1,-1)">NV04 Nhập hàng</text>
+			<path d="M 61,200 L 150,182 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,182 L 190,182 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="317.5" cy="122.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="260.703125" y="118.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,236) scale(1,-1)">NV05 Kiểm kho, điều chỉnh</text>
+			<path d="M 61,200 L 150,122 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,122 L 190,122 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<ellipse cx="317.5" cy="62.0" rx="127.5" ry="23.0" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="261.26953125" y="58.25" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,116) scale(1,-1)">NV12 Báo cáo và công việc</text>
+			<path d="M 61,200 L 150,62 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,62 L 190,62 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 61,360 L 150,122 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<path d="M 150,122 L 190,122 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
+			<text x="4" y="51.5" style="font-family: TNR; font-size: 8.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,103) scale(1,-1)">Chủ hộ có quyền quản lý</text>
+			<text x="4" y="40.875" style="font-family: TNR; font-size: 8.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,81) scale(1,-1)">trong hộ; vẫn chịu chính</text>
+			<text x="4" y="30.25" style="font-family: TNR; font-size: 8.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,60) scale(1,-1)">sách duyệt.</text>
+		</g>
+	</g>
+</svg>

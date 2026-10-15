@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="480" height="375" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 375" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="480" height="375"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-375)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="2" y="2" width="476" height="371" rx="3" ry="3" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="2" y="340" width="476" height="33" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="12" y="354.0" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,708) scale(1,-1)">STORELUMA</text>
+			<text x="130" y="355.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,710) scale(1,-1)">Hộ: An Bình | Điểm: Cửa hàng 01</text>
+			<text x="415" y="356.0" style="font-family: TNR; font-size: 9px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,712) scale(1,-1)">Tài khoản</text>
+			<rect x="2" y="2" width="91" height="338" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="10" y="314.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,629) scale(1,-1)">Tổng quan</text>
+			<text x="10" y="286.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,573) scale(1,-1)">Hàng hóa</text>
+			<text x="10" y="258.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,517) scale(1,-1)">Nhập / tồn</text>
+			<text x="10" y="230.5" style="font-family: TNR-Bold; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,461) scale(1,-1)">Bán tại quầy</text>
+			<text x="10" y="202.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,405) scale(1,-1)">Giao dịch</text>
+			<text x="10" y="174.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,349) scale(1,-1)">Quỹ / ca</text>
+			<text x="10" y="146.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,293) scale(1,-1)">Báo cáo</text>
+			<text x="106" y="316.0" style="font-family: TNR-Bold; font-size: 13px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,632) scale(1,-1)">Bán tại quầy</text>
+			<rect x="106" y="271" width="358" height="29" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="195.3599853515625" y="281.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,563) scale(1,-1)">Quầy 01 | Ca C001 đang mở | Thu ngân: NV01</text>
+			<rect x="106" y="229" width="209" height="31" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="161.4251708984375" y="240.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,481) scale(1,-1)">Quét mã / tìm sản phẩm...</text>
+			<rect x="106" y="190" width="209" height="29" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="164.405517578125" y="200.9375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,401) scale(1,-1)">Hàng A | 2 chai | 40.000</text>
+			<rect x="106" y="126" width="209" height="54" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="193.4876708984375" y="155.375" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,310) scale(1,-1)">Khách lẻ</text>
+			<text x="145.526123046875" y="143.5" style="font-family: TNR; font-size: 9.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,287) scale(1,-1)">Giảm 4.000 (10%): đã được duyệt</text>
+			<rect x="326" y="126" width="138" height="134" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="360.419921875" y="208.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,416) scale(1,-1)">Tạm tính: 40.000</text>
+			<text x="370.00244140625" y="195.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,391) scale(1,-1)">Giảm: 4.000</text>
+			<text x="363.1982421875" y="183.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,366) scale(1,-1)">Phải trả: 36.000</text>
+			<text x="377.08984375" y="170.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,341) scale(1,-1)">Tiền mặt</text>
+			<rect x="106" y="75" width="358" height="34" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(94%,94%,95%); fill-rule: evenodd;"/>
+			<text x="241.1396484375" y="87.875" style="font-family: TNR-Bold; font-size: 11px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,175) scale(1,-1)">Thanh toán 36.000</text>
+			<text x="109" y="50.0" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,100) scale(1,-1)">Đang xử lý: khóa nút thu lần nữa, hiện mã giao dịch.</text>
+			<text x="109" y="37.5" style="font-family: TNR; font-size: 10px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,75) scale(1,-1)">Chỉ cho in đã thanh toán sau khi tiền và kho hoàn tất.</text>
+		</g>
+	</g>
+</svg>
