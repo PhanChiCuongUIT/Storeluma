@@ -1,36 +1,36 @@
 # Storeluma
 
-Storeluma là ứng dụng quản lý hoạt động kinh doanh dành cho chủ hộ và nhân viên, được xây dựng theo kiến trúc microservices. Phiên bản hiện tại tập trung vào quản lý hộ kinh doanh, địa điểm và quyền truy cập của nhân sự.
+Storeluma is a business management application for household business owners and their staff, built with a microservices architecture. The current version focuses on businesses, business locations, and staff access control.
 
-## Chức năng hiện có
+## Current features
 
-- Đăng nhập bằng mật khẩu và mã xác thực TOTP qua Keycloak; đăng xuất và kết thúc phiên.
-- Tạo hộ kinh doanh, thêm địa điểm, tạm ngừng hoặc kích hoạt lại địa điểm.
-- Tự động khởi tạo kho và quầy cho địa điểm qua sự kiện RabbitMQ, hiển thị trạng thái sẵn sàng trên giao diện.
-- Chọn hộ và địa điểm làm việc theo phạm vi được cấp quyền.
-- Mời nhân viên, nhận lời mời, quản lý vai trò, phạm vi địa điểm và khóa hoặc mở lại thành viên.
-- Xem lịch sử thao tác trong hộ kinh doanh.
-- Giao diện tiếng Việt, hỗ trợ màn hình máy tính và điện thoại.
+- Sign in with a password and a TOTP verification code through Keycloak; sign out and end the session.
+- Create a business, add locations, and suspend or reactivate locations.
+- Automatically provision a warehouse and cash register for each location through RabbitMQ events, with readiness status shown in the interface.
+- Select a business and working location within the user's assigned scope.
+- Invite staff, accept invitations, manage roles and location assignments, and block or reactivate members.
+- View the business's activity log.
+- Use a Vietnamese interface that supports desktop and mobile screens.
 
-## Công nghệ và kiến trúc
+## Technology and architecture
 
-| Thành phần | Công nghệ / vai trò |
+| Component | Technology / responsibility |
 | --- | --- |
-| Giao diện | React, TypeScript, Vite |
-| Backend | NestJS, Gateway/BFF và các dịch vụ nghiệp vụ |
-| Xác thực | Keycloak, OpenID Connect, TOTP |
-| Dữ liệu | PostgreSQL, database và tài khoản riêng cho từng dịch vụ |
-| Sự kiện | RabbitMQ, Outbox/Inbox để gửi lại và chống xử lý trùng |
-| Môi trường chạy | Docker Compose |
-| Kiểm thử | Playwright |
+| Frontend | React, TypeScript, Vite |
+| Backend | NestJS, Gateway/BFF, and business services |
+| Authentication | Keycloak, OpenID Connect, TOTP |
+| Data | PostgreSQL, with a separate database and account for each service |
+| Messaging | RabbitMQ, with Outbox/Inbox patterns for retries and deduplication |
+| Runtime | Docker Compose |
+| Testing | Playwright |
 
-Gateway phục vụ giao diện và quản lý phiên đăng nhập. Business xử lý hộ kinh doanh, địa điểm, thành viên và nhật ký. Inventory và Finance tiếp nhận sự kiện để tạo kho và quầy.
+Gateway serves the frontend and manages login sessions. Business handles businesses, locations, memberships, and activity logs. Inventory and Finance consume events to provision warehouses and cash registers.
 
-Catalog, Sales, Reporting và Notification hiện có khung dịch vụ, migration và health endpoint; chưa triển khai nghiệp vụ hàng hóa, bán hàng, báo cáo hoặc thông báo.
+Catalog, Sales, Reporting, and Notification currently provide service scaffolding, migrations, and health endpoints. Product management, sales, reporting, and notification workflows have not yet been implemented.
 
-## Cài đặt và chạy
+## Setup and startup
 
-Yêu cầu Node.js 24 trở lên và Docker có hỗ trợ Linux containers. Các cổng `4100`, `8180`, `55432`, `5673`, `15673` cần còn trống.
+Requirements: Node.js 24 or later and Docker with support for Linux containers. Ports `4100`, `8180`, `55432`, `5673`, and `15673` must be available.
 
 ```sh
 git clone https://github.com/PhanChiCuongUIT/Storeluma.git
@@ -41,31 +41,31 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Chờ các dịch vụ sẵn sàng, sau đó mở [http://localhost:4100](http://localhost:4100). Có thể kiểm tra Gateway tại [http://localhost:4100/health](http://localhost:4100/health).
+Wait for the services to become ready, then open [http://localhost:4100](http://localhost:4100). Gateway health is available at [http://localhost:4100/health](http://localhost:4100/health).
 
-Lệnh `npm run setup` sinh cấu hình và tài khoản mẫu trên máy, giữ nguyên cấu hình đã có. Các tệp `.env` và `infra/generated/` chứa thông tin riêng của môi trường và không được lưu trong Git.
+`npm run setup` generates local configuration and sample accounts while preserving any existing configuration. `.env` and `infra/generated/` contain environment-specific secrets and are excluded from Git.
 
-### Đăng nhập
+### Sign in
 
-Lấy thông tin tài khoản chủ hộ và mã TOTP để chạy thử:
+Retrieve the sample owner's credentials and current TOTP code:
 
 ```sh
 node tools/demo-login.mjs owner
 ```
 
-Đăng nhập bằng tên tài khoản, mật khẩu và mã TOTP được hiển thị. Nếu mã hết hạn, chạy lại lệnh để lấy mã mới. Có thể thay `owner` bằng `cashier` hoặc `outsider` để kiểm tra quyền truy cập bằng tài khoản khác.
+Sign in using the displayed username, password, and TOTP code. If the code expires, run the command again to obtain a new one. Replace `owner` with `cashier` or `outsider` to check access using another account.
 
-Sau khi đăng nhập, tạo hộ kinh doanh và địa điểm đầu tiên. Khi địa điểm chuyển sang **Sẵn sàng**, chọn địa điểm làm việc và quản lý nhân viên trong mục **Nhân sự**. Quyền truy cập phụ thuộc vào vai trò và địa điểm được cấp trong từng hộ.
+After signing in, create a business and its first location. Once the location is ready, select it as the working location and manage staff in the staff section. Access depends on the user's role and assigned locations within each business. The application interface is in Vietnamese.
 
-### Dừng ứng dụng
+### Stop the application
 
 ```sh
 docker compose down
 ```
 
-Dữ liệu được lưu trong Docker volumes và vẫn được giữ sau khi dừng ứng dụng.
+Data is stored in Docker volumes and remains available after the application stops.
 
-## Kiểm tra mã nguồn và chức năng
+## Build and test
 
 ```sh
 npm run typecheck
@@ -74,22 +74,22 @@ npx playwright install chromium
 npm test
 ```
 
-Cần khởi động các dịch vụ trước khi chạy `npm test`. Bộ kiểm thử sử dụng backend và cơ sở dữ liệu thật, tạo dữ liệu kiểm thử và dừng/khởi động một số dịch vụ để kiểm tra khả năng phục hồi. Chạy bộ kiểm thử trong môi trường riêng dành cho phát triển và kiểm thử.
+Start the services before running `npm test`. The test suite uses real backend services and databases, creates test data, and stops or restarts some services to verify recovery. Run it in a dedicated development and test environment.
 
-## Cấu trúc dự án
+## Project structure
 
-| Đường dẫn | Nội dung |
+| Path | Contents |
 | --- | --- |
-| `apps/web` | Giao diện và tài nguyên Storeluma |
-| `services` | Gateway, các dịch vụ nghiệp vụ và migration |
-| `packages/platform` | Thành phần dùng chung cho dữ liệu, HTTP và sự kiện |
-| `infra/keycloak` | Theme đăng nhập tiếng Việt |
-| `tests` | Kiểm thử tích hợp và giao diện |
-| `tools` | Công cụ thiết lập môi trường và cấu hình ứng dụng |
-| `compose.yaml` | Cấu hình các dịch vụ và hạ tầng Docker |
+| `apps/web` | Frontend and Storeluma assets |
+| `services` | Gateway, business services, and migrations |
+| `packages/platform` | Shared database, HTTP, and messaging components |
+| `infra/keycloak` | Vietnamese login theme |
+| `tests` | Integration and browser tests |
+| `tools` | Environment setup and application configuration tools |
+| `compose.yaml` | Docker service and infrastructure configuration |
 
-## Trạng thái phát triển
+## Development status
 
-Ứng dụng hiện chạy bằng Docker Compose trên máy cá nhân, dùng HTTP và Keycloak ở chế độ phát triển. Tài khoản mẫu phục vụ kiểm thử. Phiên đăng nhập có thời hạn 15 phút; khi hết phiên, người dùng cần đăng nhập lại.
+The application currently runs locally with Docker Compose, HTTP, and Keycloak in development mode. Sample accounts are intended for testing. Login sessions last up to 15 minutes; users must sign in again after their session expires.
 
-Chưa triển khai môi trường production, HTTPS, tự đăng ký tài khoản, gửi email, tự làm mới phiên hoặc quy trình sao lưu và khôi phục dữ liệu. Các nghiệp vụ hàng hóa và bán hàng chưa có trong phiên bản hiện tại.
+Production deployment, HTTPS, account self-registration, email delivery, automatic session renewal, and backup and recovery procedures have not yet been implemented. Product management and sales workflows are not available in the current version.

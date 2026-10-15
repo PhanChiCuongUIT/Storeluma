@@ -18,6 +18,7 @@ AGENTS.md
 .agents/
 .claude/
 /Logo_Storeluma.png
+/README.vi.md
 /tools/*
 !/tools/dev-setup.mjs
 !/tools/demo-login.mjs
