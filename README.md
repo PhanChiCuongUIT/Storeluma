@@ -88,6 +88,8 @@ npm test
 
 Start the services before running `npm test`. The test suite uses real backend services and databases, creates test data, and stops or restarts some services to verify recovery. Run it in a dedicated development and test environment.
 
+Authentication tests wait for a fresh TOTP window before each login to avoid reusing a code across suites. Keep one test process per account set; the suite runs with one worker.
+
 ## Project structure
 
 | Path | Contents |

@@ -28,7 +28,13 @@ Bản sửa tách lượt chờ, bảo toàn phiên người dùng còn hạn v�
 
 Sáu ca `AUTH-01`–`AUTH-06` trong `tests/auth.spec.ts` kiểm hết hạn, mở lại callback, hai lượt độc lập, state/trình duyệt khác, code sai và khác host. Năm ca hồi quy `W4-01`, `02`, `03`, `17`, `18` kiểm đăng nhập/TOTP, token không ra trình duyệt, CSRF, phiên hết hạn và đăng xuất. Kết quả và thời điểm nằm trong [minh chứng](evidence/verification.md). Kiểm thử chờ mã TOTP mới cho mỗi lượt thay vì tắt cơ chế chống dùng lại mã của Keycloak.
 
-Các kết quả 45 ca nghiệp vụ trước sửa và 11 ca kiểm tra liên quan sau sửa là các lần chạy riêng. Chưa chạy lại toàn bộ nghiệp vụ trong một lần sau thay đổi callback. Báo cáo tuần 4 giữ hợp đồng lịch sử bản 0.4.0; bảng trên là cập nhật hiện hành.
+Các kết quả 45 ca nghiệp vụ trước sửa và 11 ca kiểm tra liên quan sau sửa là các lần chạy cục bộ riêng. Báo cáo tuần 4 giữ hợp đồng lịch sử bản 0.4.0; bảng trên là cập nhật hiện hành. Kết quả chạy toàn bộ trên GitHub được lưu riêng trong [workflow Verify Storeluma](https://github.com/PhanChiCuongUIT/Storeluma/actions/workflows/verify.yml).
+
+## Kiểm thử TOTP trên CI
+
+[Lần chạy 38920230894](https://github.com/PhanChiCuongUIT/Storeluma/actions/runs/38920230894) build thành công, đạt sáu ca AUTH và 20 ca tuần 4, rồi thất bại ở đăng nhập chuẩn bị tuần 5. Hai bộ tuần 4 và 5 dùng lại mã TOTP của cùng tài khoản trong một cửa sổ 30 giây; Keycloak từ chối mã đã dùng. 24 ca còn lại của nhóm tuần 5 không chạy do nhóm có thứ tự phụ thuộc.
+
+Các bộ AUTH, tuần 4 và tuần 5 hiện dùng chung `tests/helpers/totp.ts`: mỗi lần nhập TOTP chờ cửa sổ mới, rồi sinh mã ngay trước khi điền. Không phụ thuộc vào bộ trước chạy nhanh hay chậm và không chờ bù ở cuối một file riêng lẻ. Ba tài khoản độc lập trong bước chuẩn bị được đăng nhập song song; thời hạn của riêng hook chuẩn bị là 180 giây để gồm thời gian chờ dịch vụ và mã mới. Thời hạn ca kiểm thử, số ca, kiểm tra bảo mật và chính sách không tự retry vẫn giữ nguyên. Chỉ chạy một tiến trình kiểm thử trên cùng bộ tài khoản.
 
 Tham khảo các kiểm tra của thư viện: [openid-client AuthorizationCodeGrantChecks](https://github.com/panva/openid-client/blob/main/docs/interfaces/AuthorizationCodeGrantChecks.md).
 

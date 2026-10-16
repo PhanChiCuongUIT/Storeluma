@@ -1,3 +1,4 @@
+import { fillFreshTotp } from "./helpers/totp";
 import {
   test,
   expect,
@@ -6,12 +7,7 @@ import {
   type APIResponse,
 } from "@playwright/test";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import {
-  randomUUID,
-  createHmac,
-  createHash,
-  createDecipheriv,
-} from "node:crypto";
+import { randomUUID, createHash, createDecipheriv } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { Pool } from "pg";
 import amqp from "amqplib";
@@ -40,33 +36,13 @@ const inventory = pool("inventory"),
   finance = pool("finance"),
   catalog = pool("catalog"),
   gateway = pool("gateway");
-function otp(secret: string) {
-  let bits = 0,
-    value = 0;
-  const bytes: number[] = [];
-  for (const ch of secret) {
-    value = (value << 5) | "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(ch);
-    bits += 5;
-    if (bits >= 8) {
-      bytes.push((value >>> (bits - 8)) & 255);
-      bits -= 8;
-    }
-  }
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
-  const d = createHmac("sha1", Buffer.from(bytes)).update(counter).digest(),
-    o = d.at(-1)! & 15;
-  return ((d.readUInt32BE(o) & 0x7fffffff) % 1000000)
-    .toString()
-    .padStart(6, "0");
-}
 async function login(page: Page, i: number) {
   await page.goto("/");
   await page.getByRole("link", { name: /Đăng nhập vào Storeluma/ }).click();
   await page.locator("#username").fill(accounts[i].username);
   await page.locator("#password").fill(accounts[i].password);
   await page.locator("#kc-login").click();
-  await page.locator("#otp").fill(otp(accounts[i].otpSecret));
+  await fillFreshTotp(page, accounts[i].otpSecret);
   await page.locator("#kc-login").click();
   await expect(page).toHaveURL(origin + "/");
 }
@@ -144,15 +120,18 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
     );
   }
   test.beforeAll(async ({ browser }) => {
+    test.setTimeout(180000);
     mkdirSync("tmp", { recursive: true });
     mkdirSync(evidence, { recursive: true });
     owner = await browser.newContext();
     staff = await browser.newContext();
     outsider = await browser.newContext();
     page = await owner.newPage();
-    await login(page, 0);
-    await login(await staff.newPage(), 1);
-    await login(await outsider.newPage(), 2);
+    await Promise.all([
+      login(page, 0),
+      login(await staff.newPage(), 1),
+      login(await outsider.newPage(), 2),
+    ]);
     const previous = existsSync("tmp/week05-fixture.json")
       ? JSON.parse(readFileSync("tmp/week05-fixture.json", "utf8"))
       : null;

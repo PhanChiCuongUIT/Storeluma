@@ -1,6 +1,7 @@
+import {fillFreshTotp} from './helpers/totp';
 import {test,expect,type BrowserContext,type Page,type APIResponse} from '@playwright/test';
 import {readFileSync,mkdirSync} from 'node:fs';
-import {createHmac,createHash,randomUUID} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {Pool} from 'pg';
 import amqp from 'amqplib';
@@ -10,7 +11,6 @@ const accounts=JSON.parse(readFileSync('infra/generated/accounts.json','utf8')) 
 const env=Object.fromEntries(readFileSync('.env','utf8').trim().split(/\r?\n/).map(s=>s.split('=')));
 const pool=(service:string)=>new Pool({host:'127.0.0.1',port:55432,user:service,password:env[`${service.toUpperCase()}_DB_PASSWORD`],database:service+'_db',max:2});
 const business=pool('business'),inventory=pool('inventory'),finance=pool('finance'),gateway=pool('gateway');
-function otp(secret:string){let bits=0,value=0,bytes:number[]=[];for(const ch of secret){value=(value<<5)|'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'.indexOf(ch);bits+=5;if(bits>=8){bytes.push((value>>>(bits-8))&255);bits-=8;}}const counter=Buffer.alloc(8);counter.writeBigUInt64BE(BigInt(Math.floor(Date.now()/30000)));const digest=createHmac('sha1',Buffer.from(bytes)).update(counter).digest();const offset=digest.at(-1)!&15;return ((digest.readUInt32BE(offset)&0x7fffffff)%1000000).toString().padStart(6,'0');}
 async function login(page:Page,index:number){
   await page.goto('/');await page.getByRole('link',{name:/Đăng nhập vào Storeluma/}).click();
   await page.waitForLoadState('load');
@@ -19,7 +19,7 @@ async function login(page:Page,index:number){
   await expect(page.locator('#otp')).toBeVisible();
   await page.waitForLoadState('load');
   if(index===0)await page.locator('.pf-v5-c-login__container').screenshot({path:evidence+'/09-totp.png'});
-  await page.locator('#otp').fill(otp(accounts[index].otpSecret));await page.locator('#kc-login').click();
+  await fillFreshTotp(page,accounts[index].otpSecret);await page.locator('#kc-login').click();
   await expect(page).toHaveURL(origin+'/');await expect(page.getByRole('button',{name:'Đăng xuất'})).toBeVisible();
 }
 async function api(ctx:BrowserContext,path:string,method='GET',data?:unknown,key?:string,headers:Record<string,string>={}){
@@ -35,12 +35,13 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
   let tenant:string,first:string,second:string,member:any;
   const run=Date.now().toString(36);
   test.beforeAll(async({browser})=>{
+    test.setTimeout(180000);
     mkdirSync(evidence,{recursive:true});
     await expect.poll(async()=>{try{return (await fetch(origin+'/health')).status;}catch{return 0;}},{timeout:90000}).toBe(200);
     owner=await browser.newContext();cashier=await browser.newContext();outsider=await browser.newContext();
     ownerPage=await owner.newPage();cashierPage=await cashier.newPage();outsiderPage=await outsider.newPage();
     await ownerPage.goto('/');await expect(ownerPage.getByRole('heading',{name:'Đăng nhập',exact:true})).toBeVisible();await ownerPage.screenshot({path:evidence+'/01-login.png',fullPage:true});
-    await login(ownerPage,0);await login(cashierPage,1);await login(outsiderPage,2);
+    await Promise.all([login(ownerPage,0),login(cashierPage,1),login(outsiderPage,2)]);
   });
   test('W4-01 Password + TOTP, server session, no browser tokens',async()=>{
     const data=await good(await owner.request.get('/auth/session'));expect(data.user.subjectId).toBe(accounts[0].subject);expect(data.accessToken).toBeUndefined();

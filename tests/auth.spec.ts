@@ -1,6 +1,7 @@
+import { fillFreshTotp } from "./helpers/totp";
 import { test, expect, type Page, type BrowserContext } from "@playwright/test";
 import { readFileSync, mkdirSync } from "node:fs";
-import { createHash, createHmac } from "node:crypto";
+import { createHash } from "node:crypto";
 import { Pool } from "pg";
 const origin = "http://localhost:4100";
 const account = JSON.parse(
@@ -24,37 +25,11 @@ const hash = (s: string) =>
   createHash("sha256")
     .update("login:" + s)
     .digest("hex");
-function otp(secret: string) {
-  let bits = 0,
-    value = 0;
-  const bytes: number[] = [];
-  for (const ch of secret) {
-    value = (value << 5) | "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(ch);
-    bits += 5;
-    if (bits >= 8) {
-      bytes.push((value >>> (bits - 8)) & 255);
-      bits -= 8;
-    }
-  }
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
-  const d = createHmac("sha1", Buffer.from(bytes)).update(counter).digest(),
-    o = d.at(-1)! & 15;
-  return ((d.readUInt32BE(o) & 0x7fffffff) % 1000000)
-    .toString()
-    .padStart(6, "0");
-}
 async function credentials(page: Page) {
   await page.locator("#username").fill(account.username);
   await page.locator("#password").fill(account.password);
   await page.locator("#kc-login").click();
-  // Keycloak rejects reusing a successful TOTP in the same time window.
-  // Each isolated browser must submit a fresh code, including after other suites.
-  await page.locator("#otp").waitFor();
-  await new Promise((resolve) =>
-    setTimeout(resolve, 31000 - (Date.now() % 30000)),
-  );
-  await page.locator("#otp").fill(otp(account.otpSecret));
+  await fillFreshTotp(page, account.otpSecret);
   await page.locator("#kc-login").click();
   await expect(page).toHaveURL(origin + "/");
   await expect(
@@ -78,10 +53,6 @@ const loginCookies = async (context: BrowserContext) =>
   );
 test.afterAll(async () => {
   await gateway.end();
-  // Leave an unused TOTP window for the following foundation suite.
-  await new Promise((resolve) =>
-    setTimeout(resolve, 31000 - (Date.now() % 30000)),
-  );
 });
 test.beforeAll(async () => {
   await expect
