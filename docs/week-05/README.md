@@ -8,6 +8,7 @@ Kỳ kế hoạch: **19/10–25/10/2026**. Ngày báo cáo: **23/10/2026**.
 - [Thiết kế giao diện](ui-design.md)
 - [Kết quả kiểm tra](evidence/verification.md)
 - [Đối chiếu tuần 3–5 và kiến trúc dịch vụ](architecture-review.md)
+- [Xử lý phiên và phục hồi đăng nhập](auth-session.md)
 
 Phạm vi: danh mục, biến thể, đơn vị/giá, nhà cung cấp, phiếu nhập và phần công nợ phát sinh từ nhập mua. Phần tồn và giá vốn ở đây phục vụ ghi nhận nhập; màn hình thẻ kho, kiểm kho và điều chỉnh thuộc tuần 6.
 

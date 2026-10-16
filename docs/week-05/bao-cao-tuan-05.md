@@ -141,7 +141,7 @@ Giao diện tham khảo bố cục bảng và chứng từ của Tabler [4]-[6],
 
 ## 10. Kết quả kiểm thử - dữ liệu và nghiệp vụ
 
-Lần chạy ngày 16/10/2026: 45/45 ca đạt, không bỏ qua và không flaky; thời gian 119.7 giây. Gồm 25 ca tuần 5 và 20 ca hồi quy nền tuần 4. Chromium gọi hệ thống Docker thật: Keycloak, Gateway, Business, Catalog, Inventory, Finance, PostgreSQL và RabbitMQ.
+Lần hồi quy nền ngày 16/10/2026, trước sửa callback đăng nhập: 45/45 ca đạt, không bỏ qua và không flaky; thời gian 119.7 giây. Gồm 25 ca tuần 5 và 20 ca hồi quy nền tuần 4. Chromium gọi hệ thống Docker thật: Keycloak, Gateway, Business, Catalog, Inventory, Finance, PostgreSQL và RabbitMQ.
 
 | Mã | Nội dung kiểm tra | Kết quả |
 | --- | --- | --- |
@@ -204,13 +204,33 @@ Sửa hàng đợi lỗi từng dịch vụ để tránh phát tán qua fanout. 
 Sự kiện site.activated và inventory.stock-changed.v1 được giữ tại storeluma.deferred trong lúc consumer các tuần sau chưa có. Cần theo dõi dung lượng và bổ sung quy trình chuyển/phát lại theo identity khi có consumer; chưa khẳng định hoàn tất nghiệp vụ Reporting.
 
 
+## 11.2. Khắc phục phiên đăng nhập
+
+Đã tái hiện lỗi khi mở lại URL callback đã dùng: Gateway xóa phiên trước khi kiểm tra loại phiên, làm mất phiên đang hoạt động và chỉ hiện thông báo văn bản. Cookie chờ đăng nhập dùng chung còn khiến các tab ghi đè nhau. Mỗi lượt chờ hiện được tách theo state, gắn cookie HttpOnly riêng, thời hạn 5 phút và tiêu thụ nguyên tử một lần.
+
+| Mã | Nội dung kiểm tra | Kết quả |
+| --- | --- | --- |
+| AUTH-01 | Lượt chờ hết hạn về màn hình đăng nhập; bắt đầu lại và đăng nhập thật thành công. | Đạt |
+| AUTH-02 | Mở callback cũ hoặc /auth/login không xóa phiên đang hoạt động. | Đạt |
+| AUTH-03 | Hai lượt đăng nhập có cookie riêng, không ghi đè; callback thứ hai không phá phiên đã đăng nhập. | Đạt |
+| AUTH-04 | Sai state hoặc trình duyệt khác không tiêu thụ lượt hợp lệ; lượt gốc vẫn đăng nhập được. | Đạt |
+| AUTH-05 | Code sai chỉ kết thúc lượt chờ tương ứng; không cấp phiên; người dùng có thể bắt đầu lại. | Đạt |
+| AUTH-06 | Mở qua 127.0.0.1 được đưa về origin cấu hình trước khi đặt cookie, rồi đăng nhập thành công. | Đạt |
+
+Sau sửa: 6/6 ca AUTH đạt, bắt đầu 16/10/2026 19:09:37 (Asia/Ho_Chi_Minh); 5/5 ca hồi quy W4-01, 02, 03, 17, 18 cũng đạt trong lần chạy riêng. Không skipped/flaky. Không cộng thành một lần chạy đủ 51 ca; kết quả 45 ca nghiệp vụ ở mục 10-11 là mốc hồi quy trước sửa callback.
+
+![Hình 9. Lượt chờ không còn hợp lệ: có nút bắt đầu đăng nhập lại.](evidence/screenshots/expired-login.png)
+
+Callback cũ giữ phiên người dùng còn hạn. Callback thiếu/sai trạng thái không cấp phiên; lỗi về trang chính có hướng xử lý, không tự lặp đăng nhập. Khi bắt đầu từ 127.0.0.1, chuyển về origin cấu hình trước khi đặt cookie. State, nonce và PKCE vẫn được xác minh; không kéo dài token để che lỗi. Phiên sử dụng vẫn tối đa 15 phút, chưa có tự gia hạn.
+
+
 ## 12. Sản phẩm bàn giao và kế hoạch tiếp theo
 
 | Sản phẩm | Vị trí |
 | --- | --- |
 | Frontend và backend | apps/web/src; services/catalog, inventory, finance, business, gateway; packages/platform. |
 | Migration dữ liệu | Các migration 002.sql ở Catalog, Inventory, Finance; runner áp dụng lần lượt các version chưa chạy. |
-| Kiểm thử | tests/week05.spec.ts; tests/week04.spec.ts; cấu hình Playwright. |
+| Kiểm thử | tests/week05.spec.ts; tests/week04.spec.ts; tests/auth.spec.ts; cấu hình Playwright. |
 | Tài liệu tuần | docs/week-05: báo cáo, API, thiết kế UI, minh chứng và ảnh. |
 | Bản nộp | output/pdf/Storeluma_Bao_cao_Tuan_05.pdf. |
 
@@ -245,6 +265,6 @@ Các nguồn [4]-[9] được tra cứu ngày 16/10/2026. Bố cục tham khảo
 
 Nguồn ảnh và phạm vi kết luận
 
-Hình 1 là sơ đồ triển khai của bản 0.5.0. Hình 2-7 được chụp bằng Playwright từ ứng dụng thật ngày 16/10/2026, với dữ liệu minh họa Hộ An Nhiên: bốn sản phẩm, hai nhà cung cấp, phiếu mua, tồn đầu kỳ và nháp. Hình 8 chụp ca W5-22 trên hộ kiểm thử An Mộc. Không có mật khẩu, TOTP secret hay mã lời mời trong ảnh công khai.
+Hình 1 là sơ đồ triển khai của bản 0.5.0. Hình 2-7 được chụp bằng Playwright từ ứng dụng thật ngày 16/10/2026, với dữ liệu minh họa Hộ An Nhiên: bốn sản phẩm, hai nhà cung cấp, phiếu mua, tồn đầu kỳ và nháp. Hình 8 chụp ca W5-22 trên hộ kiểm thử An Mộc; Hình 9 là giao diện phục hồi đăng nhập chụp sau sửa callback. Không có mật khẩu, TOTP secret hay mã lời mời trong ảnh công khai.
 
 Kết quả đầy đủ được lưu trên máy chạy; bản tóm tắt công khai nằm tại docs/week-05/evidence/verification.md. Báo cáo không giả định có đánh giá của giảng viên, khách hàng thật hoặc triển khai máy chủ Internet. Bìa không dùng ảnh logo; logo chỉ hiện trong ảnh chụp giao diện sản phẩm.

@@ -46,4 +46,6 @@ Không xóa chứng từ, hàng đợi cũ hay dữ liệu người dùng khi n�
 
 Báo cáo tuần 3–4 giữ kết quả tại thời điểm lập. Kết quả hồi quy trên bản 0.5.0 và sửa lỗi chung được ghi tại tuần 5, tránh biến báo cáo cũ thành mô tả sản phẩm tương lai.
 
+Sau đợt 45 ca nêu trên, tiếp tục sửa callback đăng nhập theo phản ánh khi sử dụng: tách lượt chờ và phiên người dùng, bảo toàn phiên khi mở callback cũ, thêm đường phục hồi. Sáu ca mới và năm ca hồi quy đăng nhập được chạy riêng; xem [chi tiết phiên đăng nhập](auth-session.md). Không dùng kết quả 45 ca trước đó để khẳng định đã chạy lại toàn bộ nghiệp vụ sau sửa callback.
+
 Tham khảo cơ chế xác nhận và trả thông điệp: [RabbitMQ Consumer Acknowledgements and Publisher Confirms](https://www.rabbitmq.com/docs/confirms), [Dead Letter Exchanges](https://www.rabbitmq.com/docs/dlx). Xác nhận từ broker không chứng minh consumer đã xử lý nghiệp vụ; bằng chứng cuối cùng còn đối chiếu database Finance.

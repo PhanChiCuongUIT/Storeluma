@@ -104,6 +104,8 @@ Start the services before running `npm test`. The test suite uses real backend s
 
 The application currently runs locally with Docker Compose, HTTP, and Keycloak in development mode. Sample accounts are intended for testing. Login sessions last up to 15 minutes; users must sign in again after their session expires.
 
+Each sign-in attempt has a separate five-minute state and browser cookie. Expired attempts return to the sign-in screen with a retry action; revisiting a callback preserves an existing valid session. Start from `http://localhost:4100/`, rather than bookmarking a temporary identity-provider or callback URL.
+
 The current release is `0.5.0`. Detailed stock cards, stocktaking, sales/POS, supplier payments, financial reporting, and notifications remain planned. CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size.
 
 Production deployment, HTTPS, account self-registration, email delivery, automatic session renewal, and backup and recovery procedures have not yet been implemented. Local service accounts currently own their databases and perform startup migrations; production migration roles, service identity rotation, and broker-level per-service credentials remain deployment work.

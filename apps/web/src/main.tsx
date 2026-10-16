@@ -14,7 +14,10 @@ const statusLabel:Record<string,string>={ACTIVE:'Sẵn sàng',PROVISIONING:'Đan
 function App(){
   const [session,setSession]=useState<Session|null>(null),[loading,setLoading]=useState(true),[me,setMe]=useState<User|null>(null);
   const [tenant,setTenant]=useState(''),[sites,setSites]=useState<Site[]>([]),[staff,setStaff]=useState<Membership[]>([]),[audit,setAudit]=useState<any[]>([]);
-  const [tab,setTab]=useState('sites'),[dialog,setDialog]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
+  const [tab,setTab]=useState('sites'),[dialog,setDialog]=useState(''),[error,setError]=useState(()=>{
+    const reason=new URLSearchParams(window.location.search).get('auth');
+    return reason==='expired'?'Lượt đăng nhập đã hết hạn hoặc đã được sử dụng. Chọn Đăng nhập vào Storeluma để tiếp tục.':reason==='failed'?'Chưa xác minh được đăng nhập. Vui lòng bắt đầu lại.':'';
+  }),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
   const [editing,setEditing]=useState<Site|null>(null),[member,setMember]=useState<Membership|null>(null),[inviteToken,setInviteToken]=useState('');
   const [query,setQuery]=useState(''),[statusFilter,setStatusFilter]=useState('ALL'),[view,setView]=useState<'grid'|'list'>('grid');
   const modalRef=useRef<HTMLElement>(null),busyRef=useRef(false);busyRef.current=busy;
