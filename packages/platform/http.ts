@@ -29,7 +29,7 @@ export class Errors implements ExceptionFilter{
     if(error instanceof ZodError){res.status(400).json({message:'Dữ liệu không hợp lệ.',fields:error.issues.map(i=>({path:i.path.join('.'),message:i.message}))});return;}
     const code=(error as {code?:string})?.code;
     if(code==='23505'){res.status(409).json({message:'Mã đã tồn tại trong phạm vi này.'});return;}
-    if(code==='22P02'||code==='23514'){res.status(400).json({message:'Giá trị không hợp lệ.'});return;}
+    if(code==='22P02'||code==='23514'||code==='22003'){res.status(400).json({message:'Giá trị không hợp lệ.'});return;}
     console.error('request_failed',{name:(error as Error)?.name,code});
     res.status(500).json({message:'Không thể xử lý yêu cầu. Vui lòng thử lại.'});
   }
@@ -38,7 +38,7 @@ let extraReady=()=>true;
 export function setReadiness(fn:()=>boolean){extraReady=fn;}
 @Controller()
 class Health{
-  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:'0.4.0'};}
+  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:'0.5.0'};}
 }
 export async function start(controllers:any[]=[],secure=true,configure?:(app:INestApplication)=>Promise<void>|void){
   @Module({controllers:[Health,...controllers]})class App{}

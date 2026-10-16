@@ -3,7 +3,9 @@ import type {PoolClient} from 'pg';
 import {z} from 'zod';
 import {db,transaction} from './db.js';
 import {setReadiness} from './http.js';
-const eventSchema=z.object({id:z.uuid(),type:z.enum(['site.provision.requested','warehouse.ready','register.ready','site.activated']),version:z.literal(1),tenantId:z.uuid(),siteId:z.uuid(),warehouseId:z.uuid(),registerId:z.uuid(),occurredAt:z.iso.datetime()});
+import {domainEventSchema} from './events.js';
+const provisionSchema=z.object({id:z.uuid(),type:z.enum(['site.provision.requested','warehouse.ready','register.ready','site.activated']),version:z.literal(1),tenantId:z.uuid(),siteId:z.uuid(),warehouseId:z.uuid(),registerId:z.uuid(),occurredAt:z.iso.datetime()});
+const eventSchema=z.union([provisionSchema,domainEventSchema.transform(e=>({...e,id:e.eventId,type:e.eventType}))]);
 export type Event=z.infer<typeof eventSchema>;
 export async function worker(name:string,keys:string[],handle:(c:PoolClient,e:Event)=>Promise<void>){
   let channel:ConfirmChannel|undefined,connection:ChannelModel|undefined,busy=false,connecting=false;
@@ -17,7 +19,7 @@ export async function worker(name:string,keys:string[],handle:(c:PoolClient,e:Ev
       ch.on('error',()=>{});ch.on('close',()=>{channel=undefined;});
       await ch.assertExchange('storeluma','topic',{durable:true});
       await ch.assertExchange('storeluma.dead','fanout',{durable:true});
-      for(const [queue,routes] of Object.entries({business:['warehouse.ready','register.ready'],inventory:['site.provision.requested'],finance:['site.provision.requested']})){
+      for(const [queue,routes] of Object.entries({business:['warehouse.ready','register.ready'],inventory:['site.provision.requested','catalog.sku-updated.v1'],finance:['site.provision.requested','inventory.receipt-posted.v1']})){
         await ch.assertQueue(queue,{durable:true,arguments:{'x-dead-letter-exchange':'storeluma.dead'}});
         for(const route of routes)await ch.bindQueue(queue,'storeluma',route);
       }
@@ -36,7 +38,14 @@ export async function worker(name:string,keys:string[],handle:(c:PoolClient,e:Ev
             if(fresh.rowCount)await handle(c,event);
           });
           ch.ack(msg);
-        }catch{console.warn('consumer_retry',{service:name,eventId:event.id});setTimeout(()=>{try{ch.nack(msg,false,true);}catch{}},1000);}
+        }catch{
+          const attempt=Number(msg.properties.headers?.['x-retry-count']??0);
+          console.warn('consumer_retry',{service:name,eventId:event.id,attempt});
+          if(attempt>=5){ch.nack(msg,false,false);return;}
+          setTimeout(()=>{
+            try{ch.sendToQueue(name,msg.content,{...msg.properties,persistent:true,headers:{...msg.properties.headers,'x-retry-count':attempt+1}},err=>{try{if(err)ch.nack(msg,false,true);else ch.ack(msg);}catch{}});}catch{try{ch.nack(msg,false,true);}catch{}}
+          },Math.min(8000,500*2**attempt)+Math.random()*250);
+        }
       });
       channel=ch;console.log(`${name}: broker connected`);
     }catch{console.warn(`${name}: broker reconnect pending`);try{await connection?.close();}catch{}}

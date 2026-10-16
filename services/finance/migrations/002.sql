@@ -1,0 +1,2 @@
+CREATE TABLE payables(id uuid PRIMARY KEY,tenant_id uuid NOT NULL,site_id uuid NOT NULL,receipt_id uuid NOT NULL,supplier_id uuid NOT NULL,supplier_name text NOT NULL,total_vnd numeric(20,0) NOT NULL CHECK(total_vnd>=0),paid_vnd numeric(20,0) NOT NULL DEFAULT 0 CHECK(paid_vnd>=0 AND paid_vnd<=total_vnd),source_event_id uuid NOT NULL UNIQUE,posted_at timestamptz NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),UNIQUE(tenant_id,receipt_id));
+CREATE INDEX payables_site ON payables(tenant_id,site_id,id);

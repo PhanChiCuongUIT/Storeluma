@@ -32,7 +32,7 @@ await start([],false,app=>{
   const server=app.getHttpAdapter().getInstance() as express.Express;
   server.disable('x-powered-by');server.use(express.json({limit:'40kb'}),cookieParser());
   server.use((_req,res,next)=>{res.set({'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':"default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",'Cache-Control':'no-store'});next();});
-  server.get('/health',async(_req,res)=>{try{await db.query('SELECT 1');await provider();res.json({service:'gateway',status:'ok',version:'0.4.0'});}catch{res.status(503).json({status:'waiting'});}});
+  server.get('/health',async(_req,res)=>{try{await db.query('SELECT 1');await provider();res.json({service:'gateway',status:'ok',version:'0.5.0'});}catch{res.status(503).json({status:'waiting'});}});
   server.get('/auth/login',async(req,res)=>{
     const p=await provider(),verifier=oidc.randomPKCECodeVerifier(),state=oidc.randomState(),nonce=oidc.randomNonce();
     await remove(req);const sid=randomBytes(32).toString('base64url');
@@ -77,10 +77,13 @@ await start([],false,app=>{
     res.json({redirectUrl:oidc.buildEndSessionUrl(await provider(),{id_token_hint:s.idToken!,post_logout_redirect_uri:origin+'/'}).href});
   });
   server.all('/v1/{*rest}',async(req,res)=>{
+    if(req.path.startsWith('/v1/internal/')){res.status(404).json({message:'Không tìm thấy.'});return;}
     const s=await load(req);if(s?.kind!=='user'){res.status(401).json({message:'Phiên đã hết hạn. Vui lòng đăng nhập lại.'});return;}
     if(!['GET','HEAD'].includes(req.method)&&!csrfOK(req,s)){res.status(403).json({message:'Không xác minh được yêu cầu.'});return;}
     try{
-      const result=await fetch(process.env.BUSINESS_URL+req.originalUrl,{method:req.method,headers:{authorization:`Bearer ${s.accessToken}`,'content-type':'application/json',...(req.get('idempotency-key')?{'idempotency-key':req.get('idempotency-key')!}:{})},body:['GET','HEAD'].includes(req.method)?undefined:JSON.stringify(req.body??{}),signal:AbortSignal.timeout(8000)});
+      const resource=req.path.match(/^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|payables)(?:\/|$)/)?.[1];
+      const target=resource&&['categories','products','skus'].includes(resource)?process.env.CATALOG_URL:resource==='payables'?process.env.FINANCE_URL:resource?process.env.INVENTORY_URL:process.env.BUSINESS_URL;
+      const result=await fetch(target+req.originalUrl,{method:req.method,headers:{authorization:`Bearer ${s.accessToken}`,'content-type':'application/json',...(req.get('idempotency-key')?{'idempotency-key':req.get('idempotency-key')!}:{})},body:['GET','HEAD'].includes(req.method)?undefined:JSON.stringify(req.body??{}),signal:AbortSignal.timeout(8000)});
       const text=await result.text();
       if(req.path==='/v1/context'&&result.ok){s.context=JSON.parse(text);await save(req.cookies.sl_session,s);}
       res.status(result.status).type('application/json').send(text);

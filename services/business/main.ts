@@ -6,6 +6,7 @@ import {z} from 'zod';
 import {db,migrate,transaction,outbox} from '../../packages/platform/db.js';
 import {start,type ActorRequest} from '../../packages/platform/http.js';
 import {worker} from '../../packages/platform/bus.js';
+import {verifyService} from '../../packages/platform/service-client.js';
 const text=z.string().trim().min(1).max(120);
 const siteInput=z.object({code:z.string().regex(/^[A-Z0-9_-]{2,32}$/),name:text,address:z.string().trim().max(250).default('')}).strict();
 const memberRoles=z.enum(['MANAGER','CASHIER','STOCK','ACCOUNTANT']);
@@ -45,6 +46,26 @@ async function createSite(c:PoolClient,tenantId:string,input:z.infer<typeof site
 }
 @Controller('v1')
 class Business{
+  @Post('internal/authorize')async authorize(@Req()r:ActorRequest,@Body()body:unknown){
+    await verifyService(r,['catalog','inventory','finance']);
+    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read'])}).strict().parse(body);
+    const m=await membership(db,r.actor.sub!,input.tenantId);
+    const roles:Record<string,string[]>={
+      'catalog.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'catalog.write':['OWNER','MANAGER'],
+      'supplier.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'supplier.write':['OWNER','MANAGER','STOCK'],
+      'receipt.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'receipt.write':['OWNER','MANAGER','STOCK'],
+      'receipt.post':['OWNER','MANAGER'],'receipt.opening':['OWNER'],'stock.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'payable.read':['OWNER','ACCOUNTANT']
+    };
+    if(!roles[input.action].includes(m.role))throw new ForbiddenException('Vai trò hiện tại không được thực hiện thao tác này.');
+    let site;
+    if(input.siteId){const result=await siteAccess(db,r.actor.sub!,input.tenantId,input.siteId);site=result.s;
+      if(/write|post|opening/.test(input.action)&&site.status!=='ACTIVE')throw new ConflictException('Địa điểm chưa sẵn sàng hoặc đã tạm ngừng.');
+    }
+    if(!input.siteId&&m.role!=='OWNER'&&/write/.test(input.action)){
+      if(!(await db.query("SELECT 1 FROM sites WHERE tenant_id=$1 AND id=ANY($2::uuid[]) AND status='ACTIVE' LIMIT 1",[input.tenantId,m.site_ids])).rowCount)throw new ForbiddenException('Không có địa điểm hoạt động trong phạm vi.');
+    }
+    return {role:m.role,siteIds:m.site_ids,warehouseId:site?.warehouse_id,siteName:site?.name,costRead:['OWNER','ACCOUNTANT'].includes(m.role),permissionVersion:m.version};
+  }
   @Get('me')async me(@Req()r:ActorRequest){
     const memberships=(await db.query(`SELECT m.*,t.name AS tenant_name FROM memberships m JOIN tenants t ON t.id=m.tenant_id WHERE subject_id=$1 ORDER BY t.created_at`,[r.actor.sub])).rows;
     return {subjectId:r.actor.sub,username:r.actor.preferred_username,memberships};
@@ -136,6 +157,7 @@ class Business{
 }
 await migrate('business');
 await worker('business',['warehouse.ready','register.ready'],async(c,e)=>{
+  if('data' in e)return;
   const s=(await c.query('SELECT * FROM sites WHERE id=$1 AND tenant_id=$2 FOR UPDATE',[e.siteId,e.tenantId])).rows[0];
   if(!s||s.warehouse_id!==e.warehouseId||s.register_id!==e.registerId)return;
   const field=e.type==='warehouse.ready'?'warehouse_ready':'register_ready';

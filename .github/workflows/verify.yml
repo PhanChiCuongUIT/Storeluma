@@ -1,4 +1,4 @@
-name: Verify foundation
+name: Verify Storeluma
 on: [push, pull_request]
 jobs:
   verify:
@@ -17,9 +17,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: week04-verification
+          name: integration-verification
           path: |
             docs/week-04/evidence/
+            docs/week-05/evidence/
+            tmp/playwright-results.json
             playwright-report/
       - run: docker compose down
         if: always()

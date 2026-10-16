@@ -4,6 +4,7 @@ import {createHmac,createHash,randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {Pool} from 'pg';
 import amqp from 'amqplib';
+const evidence=process.env.WEEK04_SCREENSHOTS??'tmp/week04/screenshots';
 const origin='http://localhost:4100';
 const accounts=JSON.parse(readFileSync('infra/generated/accounts.json','utf8')) as {username:string,subject:string,password:string,otpSecret:string}[];
 const env=Object.fromEntries(readFileSync('.env','utf8').trim().split(/\r?\n/).map(s=>s.split('=')));
@@ -13,11 +14,11 @@ function otp(secret:string){let bits=0,value=0,bytes:number[]=[];for(const ch of
 async function login(page:Page,index:number){
   await page.goto('/');await page.getByRole('link',{name:/Đăng nhập vào Storeluma/}).click();
   await page.waitForLoadState('load');
-  if(index===0)await page.locator('.pf-v5-c-login__container').screenshot({path:'docs/week-04/evidence/screenshots/08-credentials.png'});
+  if(index===0)await page.locator('.pf-v5-c-login__container').screenshot({path:evidence+'/08-credentials.png'});
   await page.locator('#username').fill(accounts[index].username);await page.locator('#password').fill(accounts[index].password);await page.locator('#kc-login').click();
   await expect(page.locator('#otp')).toBeVisible();
   await page.waitForLoadState('load');
-  if(index===0)await page.locator('.pf-v5-c-login__container').screenshot({path:'docs/week-04/evidence/screenshots/09-totp.png'});
+  if(index===0)await page.locator('.pf-v5-c-login__container').screenshot({path:evidence+'/09-totp.png'});
   await page.locator('#otp').fill(otp(accounts[index].otpSecret));await page.locator('#kc-login').click();
   await expect(page).toHaveURL(origin+'/');await expect(page.getByRole('button',{name:'Đăng xuất'})).toBeVisible();
 }
@@ -34,11 +35,11 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
   let tenant:string,first:string,second:string,member:any;
   const run=Date.now().toString(36);
   test.beforeAll(async({browser})=>{
-    mkdirSync('docs/week-04/evidence/screenshots',{recursive:true});
+    mkdirSync(evidence,{recursive:true});
     await expect.poll(async()=>{try{return (await fetch(origin+'/health')).status;}catch{return 0;}},{timeout:90000}).toBe(200);
     owner=await browser.newContext();cashier=await browser.newContext();outsider=await browser.newContext();
     ownerPage=await owner.newPage();cashierPage=await cashier.newPage();outsiderPage=await outsider.newPage();
-    await ownerPage.goto('/');await expect(ownerPage.getByRole('heading',{name:'Đăng nhập',exact:true})).toBeVisible();await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/01-login.png',fullPage:true});
+    await ownerPage.goto('/');await expect(ownerPage.getByRole('heading',{name:'Đăng nhập',exact:true})).toBeVisible();await ownerPage.screenshot({path:evidence+'/01-login.png',fullPage:true});
     await login(ownerPage,0);await login(cashierPage,1);await login(outsiderPage,2);
   });
   test('W4-01 Password + TOTP, server session, no browser tokens',async()=>{
@@ -81,7 +82,7 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
       expect((await api(owner,'/v1/context','POST',{tenantId:tenant,siteId:second})).status()).toBe(409);
       expect((await good(await api(owner,`/v1/tenants/${tenant}/sites/${first}`))).status).toBe('ACTIVE');
       await ownerPage.reload();await ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).selectOption(tenant);await expect(ownerPage.getByText('Cửa hàng Phú Mỹ',{exact:true})).toBeVisible();
-      await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/02-provisioning.png',fullPage:true});
+      await ownerPage.screenshot({path:evidence+'/02-provisioning.png',fullPage:true});
     }finally{docker('start','finance');}
     await ready(owner,tenant,second);
   });
@@ -115,7 +116,7 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
     expect((await api(cashier,`/v1/tenants/${tenant}/sites`,'POST',{code:'NO',name:'Không có quyền'},randomUUID())).status()).toBe(403);
     expect((await api(cashier,`/v1/tenants/${tenant}/invitations`,'POST',{targetSubjectId:accounts[2].subject,role:'MANAGER',siteIds:[first],ownerConfirmed:true})).status()).toBe(403);
     await cashierPage.reload();await cashierPage.getByLabel('Chọn hộ kinh doanh',{exact:true}).selectOption(tenant);await expect(cashierPage.getByRole('button',{name:'Nhân sự',exact:true})).toHaveCount(0);
-    await cashierPage.screenshot({path:'docs/week-04/evidence/screenshots/04-cashier.png',fullPage:true});
+    await cashierPage.screenshot({path:evidence+'/04-cashier.png',fullPage:true});
   });
   test('W4-11 Block takes effect in existing session; stale permission update rejected',async()=>{
     const input={role:'CASHIER',status:'BLOCKED',siteIds:[first],version:member.version};
@@ -168,17 +169,17 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
     await ownerPage.keyboard.press('Shift+Tab');await expect(dialog.getByRole('button',{name:'Tạo mới'})).toBeFocused();
     await ownerPage.keyboard.press('Tab');await expect(close).toBeFocused();
     await ownerPage.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(add).toBeFocused();
-    await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/03-sites.png',fullPage:true});
+    await ownerPage.screenshot({path:evidence+'/03-sites.png',fullPage:true});
     await expect(ownerPage.getByLabel('Chọn hộ kinh doanh',{exact:true})).toHaveValue(tenant);
-    await ownerPage.getByRole('button',{name:'Nhân sự',exact:true}).click();await expect(ownerPage.getByRole('button',{name:'Sửa quyền'})).toBeVisible();await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/05-staff.png',fullPage:true});
+    await ownerPage.getByRole('button',{name:'Nhân sự',exact:true}).click();await expect(ownerPage.getByRole('button',{name:'Sửa quyền'})).toBeVisible();await ownerPage.screenshot({path:evidence+'/05-staff.png',fullPage:true});
     for(const status of ['BLOCKED','ACTIVE']){
       await ownerPage.getByRole('button',{name:'Sửa quyền',exact:true}).click();
       await dialog.getByLabel('Trạng thái thành viên',{exact:true}).selectOption(status);
       await dialog.getByRole('button',{name:'Lưu quyền',exact:true}).click();await expect(dialog).toHaveCount(0);
       expect((await api(cashier,`/v1/tenants/${tenant}/sites`)).status()).toBe(status==='BLOCKED'?403:200);
     }
-    await ownerPage.getByRole('button',{name:'Lịch sử thao tác',exact:true}).click();await expect(ownerPage.getByText('Tạo hộ',{exact:true})).toBeVisible();await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/06-audit.png',fullPage:true});
-    await ownerPage.setViewportSize({width:390,height:844});await ownerPage.getByRole('button',{name:'Địa điểm',exact:true}).click();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await ownerPage.screenshot({path:'docs/week-04/evidence/screenshots/07-mobile.png',fullPage:true});
+    await ownerPage.getByRole('button',{name:'Lịch sử thao tác',exact:true}).click();await expect(ownerPage.getByText('Tạo hộ',{exact:true})).toBeVisible();await ownerPage.screenshot({path:evidence+'/06-audit.png',fullPage:true});
+    await ownerPage.setViewportSize({width:390,height:844});await ownerPage.getByRole('button',{name:'Địa điểm',exact:true}).click();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await ownerPage.screenshot({path:evidence+'/07-mobile.png',fullPage:true});
   });
   test('W4-19 Selected context follows site status and membership scope',async()=>{
     await good(await api(cashier,'/v1/context','POST',{tenantId:tenant,siteId:first}));

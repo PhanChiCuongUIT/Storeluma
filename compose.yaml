@@ -16,6 +16,10 @@ x-env: &env
   OIDC_ISSUER: http://localhost:8180/realms/storeluma
   OIDC_INTERNAL: http://keycloak:8080/realms/storeluma
   OIDC_AUDIENCE: storeluma-api
+  BUSINESS_URL: http://business:4100
+  CATALOG_URL: http://catalog:4100
+  INVENTORY_URL: http://inventory:4100
+  FINANCE_URL: http://finance:4100
 services:
   postgres:
     image: postgres:17-alpine
@@ -59,6 +63,9 @@ services:
     environment:
       <<: *env
       SERVICE_NAME: business
+      CATALOG_SERVICE_KEY: ${CATALOG_SERVICE_KEY}
+      INVENTORY_SERVICE_KEY: ${INVENTORY_SERVICE_KEY}
+      FINANCE_SERVICE_KEY: ${FINANCE_SERVICE_KEY}
       DATABASE_URL: postgres://business:${BUSINESS_DB_PASSWORD}@postgres:5432/business_db
   inventory:
     <<: *app
@@ -66,6 +73,7 @@ services:
     environment:
       <<: *env
       SERVICE_NAME: inventory
+      INVENTORY_SERVICE_KEY: ${INVENTORY_SERVICE_KEY}
       DATABASE_URL: postgres://inventory:${INVENTORY_DB_PASSWORD}@postgres:5432/inventory_db
   finance:
     <<: *app
@@ -73,6 +81,7 @@ services:
     environment:
       <<: *env
       SERVICE_NAME: finance
+      FINANCE_SERVICE_KEY: ${FINANCE_SERVICE_KEY}
       DATABASE_URL: postgres://finance:${FINANCE_DB_PASSWORD}@postgres:5432/finance_db
   gateway:
     <<: *app
@@ -88,9 +97,8 @@ services:
       BUSINESS_URL: http://business:4100
   catalog:
     <<: *app
-    profiles: [full]
     build: {context: ., args: {SERVICE: catalog}}
-    environment: {<<: *env, SERVICE_NAME: catalog, DATABASE_URL: 'postgres://catalog:${CATALOG_DB_PASSWORD}@postgres:5432/catalog_db'}
+    environment: {<<: *env, SERVICE_NAME: catalog, DATABASE_URL: 'postgres://catalog:${CATALOG_DB_PASSWORD}@postgres:5432/catalog_db', CATALOG_SERVICE_KEY: '${CATALOG_SERVICE_KEY}', INVENTORY_SERVICE_KEY: '${INVENTORY_SERVICE_KEY}'}
   sales:
     <<: *app
     profiles: [full]

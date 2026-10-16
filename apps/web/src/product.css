@@ -185,14 +185,14 @@ aside .brand{width:175px;height:46px}
 }
 
 @media(max-width:640px){.shell{display:block}
-aside{position:static;width:100%;padding:12px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;border-right:0}
+aside{position:static;width:100%;padding:12px 16px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;border-right:0}
 .brand,aside .brand{width:155px;height:42px;margin:0}
 .tenant-picker{padding:7px 9px;min-width:0}
 .tenant-picker label{font-size:9px;margin-bottom:3px}
 .tenant-picker select{font-size:12px}
 .nav-label,.sidebar-account{display:none}
-nav{grid-column:1/-1;flex-direction:row;gap:3px;border-top:1px solid #eef2f6;padding:7px 0;justify-content:space-between}
-nav button{font-size:12px;padding:10px 8px;gap:7px;white-space:nowrap}
+nav{grid-column:1/-1;min-width:0;overflow-x:auto;flex-direction:row;gap:3px;border-top:1px solid #eef2f6;padding:7px 0;justify-content:space-between}
+nav button{font-size:12px;padding:10px 8px;gap:7px;white-space:nowrap;flex-shrink:0}
 nav .icon{width:17px;height:17px}
 .workspace{margin-left:0}
 .topbar{height:46px;padding:0 16px}
