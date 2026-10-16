@@ -1,6 +1,6 @@
 # Sản phẩm tuần 4 - Storeluma 0.4.0
 
-Kỳ kế hoạch: 12/10-18/10/2026. Hoàn thiện báo cáo ngày 15/10/2026.
+Kỳ kế hoạch: 12/10-18/10/2026. Cập nhật báo cáo ngày 16/10/2026.
 Sinh viên: Phan Chí Cường - 23520207. GVHD: ThS. Trần Anh Dũng.
 
 ## Khởi động

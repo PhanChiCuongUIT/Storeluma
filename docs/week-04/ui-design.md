@@ -25,3 +25,7 @@ Chỉ tham khảo cách tổ chức giao diện. Phần triển khai dùng React
 W4-16 kiểm tra biểu mẫu, tìm không dấu, kết quả rỗng, bộ lọc, đổi cách xem, bàn phím, logo, nhật ký và chiều rộng 390 px. Các ca còn lại kiểm tra quyền và dữ liệu qua backend thật. Xem [kết quả kiểm thử](evidence/verification.md).
 
 Báo cáo tuần 3 giữ các phác thảo ban đầu; báo cáo tuần 4 cập nhật ảnh giao diện đã triển khai. Các màn hình cho nghiệp vụ các tuần sau vẫn là thiết kế, chưa tính là chức năng hoàn thành.
+
+## Hoàn thiện đăng nhập - 16/10/2026
+
+Trang mở đầu thu gọn vào một khung có logo gốc, tiêu đề và nút tiếp tục. Theme Keycloak dùng cùng font, màu, kích thước ô nhập/nút và focus rõ ràng; đồng bộ cả bước mật khẩu và TOTP. Kiểm tra hiện/ẩn mật khẩu, thông báo lỗi, đăng nhập, đăng xuất và bố cục hẹp đạt. Đây là phần hoàn thiện nhiệm vụ đăng nhập tuần 4.

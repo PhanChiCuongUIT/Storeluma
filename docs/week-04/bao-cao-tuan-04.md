@@ -1,11 +1,11 @@
 # STORELUMA - BÁO CÁO TIẾN ĐỘ TUẦN 4
 Phan Chí Cường - 23520207 | GVHD: ThS. Trần Anh Dũng
-Kỳ kế hoạch 12/10-18/10/2026. Ngày hoàn thiện: 15/10/2026.
+Kỳ kế hoạch 12/10-18/10/2026. Ngày hoàn thiện: 16/10/2026.
 
 
 ## 1. Mục tiêu và kết quả tuần 4
 
-Theo kế hoạch Đồ án 2, tuần 4 (12/10-18/10/2026) thực hiện dựng dự án, đăng nhập, quản lý hộ và địa điểm kinh doanh; sản phẩm cần đạt là nền hệ thống và quyền cơ bản. Báo cáo này ghi nhận kết quả đã thực hiện đến ngày 15/10/2026, tiếp nối phần yêu cầu tuần 2 và thiết kế tuần 3.
+Theo kế hoạch Đồ án 2, tuần 4 (12/10-18/10/2026) thực hiện dựng dự án, đăng nhập, quản lý hộ và địa điểm kinh doanh; sản phẩm cần đạt là nền hệ thống và quyền cơ bản. Báo cáo này ghi nhận kết quả đã thực hiện đến ngày 16/10/2026, tiếp nối phần yêu cầu tuần 2 và thiết kế tuần 3.
 
 | Nhiệm vụ | Sản phẩm đã thực hiện |
 | --- | --- |
@@ -52,7 +52,7 @@ Người dùng chọn đăng nhập; Gateway tạo state, nonce và PKCE S256, s
 | Yêu cầu thay đổi dữ liệu | Kiểm tra Origin và CSRF token tại Gateway; Business tiếp tục xác minh JWT và quyền nghiệp vụ. |
 | Thời hạn và đăng xuất | Phiên tối đa 15 phút; hết hạn phải đăng nhập lại. Đăng xuất xóa phiên BFF và chuyển hướng kết thúc phiên Keycloak. |
 
-Kiểm thử đã xác nhận đăng nhập mật khẩu + TOTP thành công, cookie có thuộc tính đúng, trình duyệt không nhận access token qua API phiên, phiên hết hạn bị từ chối và đăng xuất trả về luồng đăng nhập. Bản cục bộ dùng HTTP loopback; chưa cấu hình triển khai HTTPS.
+Kiểm thử đã xác nhận đăng nhập mật khẩu + TOTP thành công, cookie có thuộc tính đúng, trình duyệt không nhận access token qua API phiên, phiên hết hạn bị từ chối và đăng xuất trả về luồng đăng nhập. Ngày 16/10 hoàn thiện giao diện đăng nhập: gom logo và nội dung, đồng bộ font, ô nhập, nút và focus ở bước mật khẩu/TOTP. Kiểm tra thêm hiện/ẩn mật khẩu, báo sai thông tin, đăng nhập, đăng xuất và bố cục 320/390/768 px đạt. Bản cục bộ dùng HTTP loopback; chưa triển khai HTTPS.
 
 
 ## 4. Quản lý hộ và địa điểm kinh doanh
@@ -157,7 +157,7 @@ Lỗi chính: 400 dữ liệu không hợp lệ; 401 chưa xác thực hoặc h�
 
 ## 10. Kiểm thử tích hợp - nhóm 1
 
-Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy cuối có 20/20 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 34.9 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
+Bộ kiểm thử Playwright chạy Chromium với PostgreSQL, RabbitMQ và Keycloak thật trong Docker; không thay bằng dữ liệu giả lập API. Lần chạy toàn bộ ngày 15/10/2026 có 20/20 ca đạt, không bỏ qua, không flaky; thời gian toàn bộ 34.9 giây. Bản tổng hợp công khai: docs/week-04/evidence/verification.md. Mỗi lần chạy kiểm thử cũng xuất JSON kết quả để kiểm tra trên máy chạy.
 
 | Mã | Nội dung kiểm tra | Kết quả |
 | --- | --- | --- |
@@ -287,6 +287,6 @@ Các tài liệu [4]-[7] được tham khảo trong quá trình triển khai ng�
 
 Đối chiếu minh chứng
 
-Hình 2-7 lấy từ giao diện sau khi hoàn thiện nhận diện Storeluma, do Playwright chụp trong các ca kiểm thử. Hình 2 gồm hai bước nhập mật khẩu và mã xác thực, chụp trước khi nhập thông tin bí mật. Hình 8 là ảnh cùng giao diện tại chiều rộng 390 px. Hình 1 là sơ đồ triển khai của bản tuần 4. Ảnh dùng dữ liệu trình diễn; không chứa mật khẩu, bí mật TOTP hay mã lời mời.
+Hình 2 chụp lại ngày 16/10/2026 sau khi hoàn thiện màn hình đăng nhập. Hình 3-8 giữ từ lần kiểm thử ngày 15/10/2026. Các ảnh đều do Playwright chụp trên ứng dụng thật. Hình 2 gồm hai bước nhập mật khẩu và mã xác thực, chụp trước khi nhập thông tin bí mật. Hình 8 là ảnh cùng giao diện tại chiều rộng 390 px. Hình 1 là sơ đồ triển khai của bản tuần 4. Ảnh dùng dữ liệu trình diễn; không chứa mật khẩu, bí mật TOTP hay mã lời mời.
 
-Kết quả được lưu kèm mã nguồn để có thể chạy lại. Báo cáo ghi nhận tiến độ đến ngày 15/10/2026, không giả định có triển khai production, đánh giá của giảng viên hoặc sử dụng thực tế ngoài những minh chứng đã nêu.
+Kết quả được lưu kèm mã nguồn để có thể chạy lại. Báo cáo ghi nhận tiến độ đến ngày 16/10/2026, không giả định có triển khai production, đánh giá của giảng viên hoặc sử dụng thực tế ngoài những minh chứng đã nêu.

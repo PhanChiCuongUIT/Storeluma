@@ -1,19 +1,50 @@
 :root {
-  --pf-v5-global--primary-color--100: #0875bc;
-  --pf-v5-global--primary-color--200: #065e97;
-  --pf-v5-global--FontFamily--text: Arial, Helvetica, sans-serif;
-  --pf-v5-global--FontFamily--heading: Arial, Helvetica, sans-serif;
+  --pf-v5-global--primary-color--100: #087bb2;
+  --pf-v5-global--primary-color--200: #06638f;
+  --pf-v5-global--FontFamily--text: "Segoe UI", Arial, sans-serif;
+  --pf-v5-global--FontFamily--heading: "Segoe UI", Arial, sans-serif;
 }
-.login-pf body { background: #f5f7fa; color: #24364a; }
-.pf-v5-c-login { min-height: 100dvh; padding: 32px 20px; }
-.pf-v5-c-login .pf-v5-c-login__container { display: block; width: min(440px, 100%); padding: 0; }
-#kc-header { margin: 0; padding: 28px 32px 8px; background: white; border: 1px solid #dce3eb; border-bottom: 0; border-radius: 10px 10px 0 0; }
-#kc-header-wrapper { width: 240px; max-width: 100%; height: 64px; margin: auto; background: url('../brand/Logo_Storeluma.png') center 48% / 100% auto no-repeat; font-size: 0; }
-.pf-v5-c-login__main { border: 1px solid #dce3eb; border-top: 0; border-radius: 0 0 10px 10px; box-shadow: none; }
-.pf-v5-c-login__main-header { border: 0; padding: 20px 32px; grid-template-columns: 1fr; }
-#kc-page-title { font-size: 24px; font-weight: 600; color: #24364a; }
+.login-pf body { background: #f4f7f9; color: #243346; }
+.pf-v5-c-login { min-height: 100dvh; padding: 32px 20px; display: flex; align-items: center; justify-content: center; }
+.pf-v5-c-login .pf-v5-c-login__container {
+  display: block; width: min(440px, 100%); padding: 0;
+  background: #fff; border: 1px solid #dfe6ed; border-radius: 14px;
+  box-shadow: 0 12px 36px #24364a0a;
+}
+#kc-header { margin: 0; padding: 32px 32px 0; background: transparent; }
+#kc-header-wrapper {
+  width: 192px; max-width: 100%; height: 52px; margin: 0 0 0 -10px;
+  background: url('../brand/Logo_Storeluma.png') center 48% / 100% auto no-repeat;
+  font-size: 0;
+}
+.pf-v5-c-login__main { background: transparent; border: 0; box-shadow: none; }
+.pf-v5-c-login__main-header { border: 0; padding: 24px 32px; grid-template-columns: 1fr; }
+#kc-page-title { font-size: 26px; line-height: 1.35; font-weight: 650; letter-spacing: -.5px; color: #1c2d3f; }
 .pf-v5-c-login__main-body { padding: 0 32px 32px; }
-.pf-v5-c-form-control { border-radius: 5px; --pf-v5-c-form-control--after--BorderBottomWidth: 1px; }
-.pf-v5-c-button.pf-m-primary { border-radius: 6px; min-height: 42px; font-weight: 600; }
+.pf-v5-c-form { --pf-v5-c-form--Gap: 22px; }
+.pf-v5-c-form__label { font-size: 14px; font-weight: 600; color: #3c4b5d; }
+.pf-v5-c-form-control { min-height: 46px; background: #fff; border: 1px solid #cfd9e3; border-radius: 8px; }
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after { border: 0 !important; }
+.pf-v5-c-form-control:focus-within { border-color: #087bb2; box-shadow: 0 0 0 3px #087bb21c; }
+.pf-v5-c-form-control.pf-m-error { border-color: #bc433c; }
+.pf-v5-c-form-control input { min-height: 44px; padding: 10px 12px; font-size: 15px; border-radius: 8px; }
+.pf-v5-c-form-control input:focus { outline: none; }
+.pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 8px 0 0 8px; }
+.pf-v5-c-input-group .pf-v5-c-button {
+  min-width: 46px; border: 1px solid #cfd9e3; border-left: 0; border-radius: 0 8px 8px 0;
+  background: #f8fafb; color: #526579;
+}
+.pf-v5-c-input-group .pf-v5-c-button::after { border: 0; }
+.pf-v5-c-button.pf-m-primary { border-radius: 8px; min-height: 46px; font-size: 14px; font-weight: 600; }
+.pf-v5-c-button:focus-visible, a:focus-visible { outline: 3px solid #62b6d8; outline-offset: 3px; }
+.pf-v5-c-form__helper-text, .pf-v5-c-helper-text { font-size: 13px; }
 .pf-v5-c-login__main-footer:empty { display: none; }
-@media(max-width:480px) { #kc-header { padding: 24px 22px 8px; } .pf-v5-c-login__main-header { padding: 18px 22px; } .pf-v5-c-login__main-body { padding: 0 22px 24px; } }
+#reset-login .kc-tooltip-text { left: auto; right: 0; transform: none; max-width: 240px; white-space: normal; }
+.pf-v5-c-login__main-body > form { margin-top: 20px; }
+@media(max-width:480px) {
+  .pf-v5-c-login { padding: 24px 16px; }
+  #kc-header { padding: 26px 24px 0; }
+  .pf-v5-c-login__main-header { padding: 22px 24px; }
+  .pf-v5-c-login__main-body { padding: 0 24px 26px; }
+}

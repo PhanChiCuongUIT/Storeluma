@@ -96,17 +96,14 @@ function App(){
   }
   if(loading)return <main className="loading"><Brand/><p>Đang mở Storeluma…</p></main>;
   if(!session)return <main className="sign-in-page">
-    <div className="sign-in-brand"><Brand/></div>
     <section className="sign-in-card" aria-labelledby="sign-in-title">
-      <div className="sign-in-symbol"><Icon name="store"/></div>
-      <span className="eyebrow">KHÔNG GIAN QUẢN LÝ CỬA HÀNG</span>
+      <div className="sign-in-brand"><Brand/></div>
       <h1 id="sign-in-title">Đăng nhập</h1>
-      <p>Hộ kinh doanh, địa điểm và đội ngũ của bạn.<br/>Cùng một nơi để quản lý.</p>
+      <p>Truy cập hộ kinh doanh và địa điểm làm việc của bạn.</p>
       <a className="button primary" href="/auth/login">Đăng nhập vào Storeluma<Icon name="arrow"/></a>
       {error&&<p role="alert" className="alert error">{error}</p>}
-      <div className="sign-in-help"><Icon name="shield"/><span>Sử dụng tài khoản và mã xác thực<br/>để truy cập không gian của bạn.</span></div>
+      <div className="sign-in-help"><Icon name="shield"/><span>Chuẩn bị tài khoản, mật khẩu và mã từ ứng dụng xác thực.</span></div>
     </section>
-    <p className="sign-in-footer">Storeluma · Quản lý hoạt động kinh doanh</p>
   </main>;
   return <div className="shell">
     <aside inert={Boolean(dialog)}>

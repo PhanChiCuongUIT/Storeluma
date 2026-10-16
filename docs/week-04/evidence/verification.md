@@ -69,3 +69,11 @@ npm test
 Bộ kiểm thử tạo dữ liệu mới, dừng/khởi động Finance và khởi động lại Business/Gateway. Kết quả chi tiết nằm tại `docs/week-04/evidence/playwright-results.json`, `playwright-report/` và `test-results/` trên máy chạy; các tệp này được bỏ qua bởi Git.
 
 Kết luận đạt áp dụng cho nhiệm vụ nền hệ thống và quyền cơ bản của tuần 4. Danh mục/nhập hàng bắt đầu từ tuần 5; kiểm thử tải, nhiều trình duyệt, sao lưu/phục hồi và triển khai HTTPS/production chưa được nghiệm thu. Workflow đã có trên GitHub, nhưng kết quả CI chưa được xác minh trong lần rà soát này.
+
+## Kiểm tra bổ sung giao diện đăng nhập - 16/10/2026
+
+Phạm vi thay đổi: trang mở đầu React và CSS theme Keycloak. Gom logo/nội dung, đồng bộ chữ, ô nhập, nút và trạng thái focus. Không thay đổi logic xác thực.
+
+Build và TypeScript đạt. Kiểm tra trực tiếp bằng Chromium với backend thật đạt: mở trang đăng nhập; màn hình 320/390/768 px không tràn ngang; hiện/ẩn mật khẩu; báo sai tài khoản/mật khẩu; đăng nhập đúng bằng mật khẩu + TOTP; đăng xuất; không có lỗi JavaScript trên trang. Không chạy lại toàn bộ 20 ca trong đợt sửa trình bày này; kết quả toàn bộ phía trên thuộc ngày 15/10/2026.
+
+Đã thay ảnh 01-login, 08-credentials và 09-totp. Ảnh tài khoản/TOTP được chụp trước khi nhập bí mật. Các ảnh nghiệp vụ khác giữ từ lần kiểm thử toàn bộ trước.
