@@ -1,11 +1,11 @@
 # Kiểm tra bản 0.5.0
 
 - Môi trường: Windows, Docker Linux containers, PostgreSQL 17, RabbitMQ 4.1, Keycloak 26.4.7; Node.js 24 và Chromium.
-- Bắt đầu: 16/10/2026 10:09:00 (Asia/Ho_Chi_Minh).
-- Lệnh: `npm test`; thời gian 73.8 giây.
-- Kết quả: **41/41 đạt**, gồm **21 ca tuần 5 + 20 ca hồi quy tuần 4**; không bỏ qua, không flaky.
+- Bắt đầu: 16/10/2026 17:14:52 (Asia/Ho_Chi_Minh).
+- Lệnh: `npm test`; thời gian 119.7 giây.
+- Kết quả: **45/45 đạt**, gồm **25 ca tuần 5 + 20 ca hồi quy tuần 4**; không bỏ qua, không flaky.
 - `npm run typecheck` và build Docker/Vite đã thành công cho mã được kiểm tra.
-- Test HTTP, browser và database thật, có dừng/chạy lại Finance, Business, Catalog.
+- Test HTTP, browser và database thật, có dừng/chạy lại Finance, Business, Catalog và RabbitMQ; thử mất binding và hàng đợi lỗi.
 
 | Mã | Nội dung | Kết quả |
 | --- | --- | --- |
@@ -26,9 +26,13 @@
 | W5-15 | Business gián đoạn: từ chối truy cập; Catalog gián đoạn: phiếu vẫn nháp, không tăng tồn. | Đạt |
 | W5-16 | Giao diện tạo sản phẩm, nhà cung cấp, phiếu nháp và ghi sổ qua backend thật. | Đạt |
 | W5-17 | Chiều rộng 390 px không tràn trang; thu ngân không có UI nhập hoặc sửa danh mục. | Đạt |
-| W5-18 | Bảng thuộc đúng database dịch vụ; projection nhận đúng phiên bản Catalog. | Đạt |
+| W5-18 | Tài khoản bị chặn kết nối DB khác; bảng đúng dịch vụ; projection nhận đúng phiên bản. | Đạt |
 | W5-19 | JWT người dùng hợp lệ nhưng giả chữ ký dịch vụ vẫn bị internal API trả 403. | Đạt |
 | W5-20 | Tràn độ chính xác một dòng khiến toàn bộ ghi sổ rollback, không ghi dở các dòng khác. | Đạt |
 | W5-21 | Hai hộ dùng cùng mã SKU/barcode/NCC được; khóa thành viên tác động phiên hiện tại. | Đạt |
+| W5-22 | Mở lại nháp trên UI, tải đủ đơn vị và đổi quy cách; lưu 2 thùng thành 48 đơn vị cơ sở. | Đạt |
+| W5-23 | Thông điệp sai và hết retry chỉ vào hàng đợi lỗi của Finance, không phát sang dịch vụ khác. | Đạt |
+| W5-24 | Mất tuyến nhận không đánh dấu Outbox đã gửi; phục hồi tuyến xử lý đúng một công nợ. | Đạt |
+| W5-25 | Dừng RabbitMQ, nhập vẫn commit; khởi động broker đồng bộ lại, không nhân đôi movement/nợ. | Đạt |
 
-Ảnh công khai chụp riêng trên bộ dữ liệu minh họa Hộ An Nhiên sau kiểm thử; các thao tác dùng backend thật. Ảnh kiểm thử thô và JSON máy chạy được giữ ngoài Git. Ngày báo cáo 23/10/2026 không thay ngày kiểm tra thực tế. Chưa kết luận về production, tải cao, disaster recovery hoặc toàn bộ nghiệp vụ cuối kỳ.
+Ảnh chính chụp trên bộ dữ liệu Hộ An Nhiên; ảnh sửa đơn vị nháp lấy từ ca W5-22 trên hộ kiểm thử An Mộc. Các thao tác dùng backend thật. Ảnh kiểm thử thô và JSON máy chạy được giữ ngoài Git. Ngày báo cáo 23/10/2026 không thay ngày kiểm tra thực tế. Chưa kết luận về production, tải cao, disaster recovery hoặc toàn bộ nghiệp vụ cuối kỳ.

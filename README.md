@@ -34,6 +34,8 @@ Gateway serves the frontend, manages login sessions, and routes requests to the 
 
 Each service runs as a separate process with its own PostgreSQL database and credentials. Business authorization and Catalog validation use authenticated internal HTTP calls. Receipt posting commits stock, valuation, and its Outbox events in one Inventory transaction; Finance consumes the event in a separate transaction with Inbox and receipt-level deduplication. Money is represented as integer strings and quantities as decimal strings, using PostgreSQL numeric types and exact fixed-point arithmetic.
 
+Event publication uses persistent messages, mandatory routing, and bounded publisher confirms. Unroutable events remain pending in the Outbox. Failed handlers retry with backoff and park messages in the owning service's dead queue. Events awaiting future consumers are retained in `storeluma.deferred`; queue monitoring and a backfill procedure are needed before enabling those consumers.
+
 Sales, Reporting, and Notification remain service scaffolding. Their workflows are not implemented. They can be started with `docker compose --profile full up -d --build`.
 
 ## Setup and startup

@@ -17,3 +17,5 @@ Hộp thoại dùng `dialog.showModal()` để quản lý focus và chặn tươ
 Tìm kiếm gửi tới API có phân trang, bộ chọn hàng/nhà cung cấp cũng có tìm và tải thêm. Các bảng cho phép cuộn ngang trong vùng riêng khi màn hình nhỏ; không làm tràn ngang toàn trang. Chuyển hộ hoặc thay vai trò/phiên bản quyền sẽ tạo lại vùng nghiệp vụ để bỏ dữ liệu cũ.
 
 Giá nhập theo đơn vị đã chọn; tổng dự tính dùng số nguyên chính xác, máy chủ tính lại trước lưu. Dữ liệu công nợ hiển thị thời điểm kiểm tra; mất kết nối Finance hiển thị chưa xác định, không chuyển thành số 0. Không có nhãn môi trường phát triển, tuần thực hiện hoặc thông tin sinh viên trong giao diện sản phẩm.
+
+Khi mở lại phiếu nháp, giao diện tải các đơn vị hiện tại từ `GET /skus/{id}`. Giữ giá/lượng đã lưu, cho chọn đơn vị hoạt động khác và tính lại lượng cơ sở trên backend khi lưu. Đơn vị cũ ngừng dùng vẫn hiện để người dùng nhận biết và thay; backend từ chối lưu/ghi sổ với đơn vị không còn hợp lệ. W5-22 kiểm thao tác sửa đơn vị qua giao diện thật.

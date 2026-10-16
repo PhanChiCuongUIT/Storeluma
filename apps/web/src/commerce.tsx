@@ -458,6 +458,36 @@ export function Commerce({
       clearTimeout(timer);
     };
   }, [modal, skuQuery]);
+  useEffect(() => {
+    if (modal !== "receipt" || !editing) return;
+    let alive = true;
+    void Promise.all(
+      editing.lines.map((line: Row) =>
+        apiRef.current(`${path}/skus/${line.sku_id}`),
+      ),
+    )
+      .then((items: Row[]) => {
+        if (alive)
+          setLines((current) =>
+            current.map((line) => {
+              const sku = items.find((s) => s.id === line.skuId);
+              if (!sku) return line;
+              return {
+                ...line,
+                units: sku.units.filter(
+                  (u: Row) => u.status === "ACTIVE" || u.id === line.unitId,
+                ),
+              };
+            }),
+          );
+      })
+      .catch((e) => {
+        if (alive) setError("Chưa tải được đơn vị hiện tại: " + e.message);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [modal, editing?.id, path]);
   async function run(fn: () => Promise<void>) {
     if (busyRef.current) return;
     busyRef.current = true;

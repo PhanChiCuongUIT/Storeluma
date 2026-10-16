@@ -8,6 +8,7 @@ The URLs below extend the tenant-prefixed API established by the application. Pu
 | --- | --- | --- |
 | GET `/categories`, `/products`, `/skus` | `q`, `status`, `limit`, `cursor`; `{items,nextCursor}` | All active member roles |
 | GET `/products/{id}` | Product with SKUs and units | All active member roles |
+| GET `/skus/{id}` | SKU with current units and parent product status; 404 outside tenant | All active member roles |
 | POST `/categories` | `{code,name}` | OWNER, MANAGER |
 | PATCH `/categories/{id}` | `{name,status,version}` | OWNER, MANAGER |
 | POST `/products` | `{name,categoryId?,sku}`; creates first SKU and base unit atomically | OWNER, MANAGER |
@@ -53,6 +54,10 @@ Purchase prices on receipts are available to receiving roles because they enter 
 
 Domain events: `catalog.sku-updated.v1`, `inventory.receipt-posted.v1`, `inventory.stock-changed.v1`. Envelope fields: `eventId,eventType,schemaVersion,occurredAt,producer,tenantId,siteId,aggregateId,aggregateType,aggregateVersion,correlationId,causationId,data`. No user JWT or login secret is included. Payload contracts are in `packages/platform/events.ts`. Catalog projection ignores lower versions; receipt payables are unique by tenant and receipt as well as deduplicated by event ID.
 
-Existing location-provisioning events retain their version-1 envelope for compatibility. Publisher confirms plus durable queues provide at-least-once delivery to registered consumers. Failed consumers retry five times with backoff, then dead-letter for operator investigation. Replaying a corrected event requires preserving its identity. Stock-change events are emitted, but the reporting consumer is not yet implemented; Outbox history is retained for later backfill.
+Existing location-provisioning events retain their version-1 envelope for compatibility. Persistent publications use publisher confirms and `mandatory`; a returned, rejected, closed-channel or timed-out publication leaves the Outbox pending. Confirm waits are bounded to five seconds. A broker restart reconnects workers; consumer transactions and Inbox provide deduplication after redelivery.
+
+Failed handlers retry at most five times with backoff. Malformed events and exhausted retries are published with confirmation to the owning service's `<service>.dead` queue before acknowledging the original. Failure reason and original routing key are preserved in headers. Legacy queue arguments retain `storeluma.dead` for compatibility, but dead queues are no longer bound to its fanout exchange. Existing parked messages are retained; deployment does not purge queues. Replaying a corrected event requires preserving its identity and targeting the owning queue after investigating the cause.
+
+`site.activated` and `inventory.stock-changed.v1` currently route to durable `storeluma.deferred` while later-week consumers are absent. Outbox history is also retained. Operators must monitor queue growth; future consumers need an explicit identity-preserving transfer/backfill plan. This queue does not implement Reporting or Notifications, and old events published before this binding require Outbox backfill.
 
 Errors: 400 validation or numeric bounds; 401 invalid session/token; 403 missing role, CSRF or service identity; 404 resource outside the tenant/site or unavailable Catalog item; 409 duplicate code, stale version, conflicting key or invalid business state; 503 dependency unavailable. Error responses contain `message`, with validation `fields` when relevant. PostgreSQL numeric and check-constraint failures roll back the full transaction.

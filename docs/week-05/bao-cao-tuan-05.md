@@ -13,7 +13,7 @@ Theo đề cương, tuần 5 (19/10-25/10/2026) thực hiện danh mục, nhà c
 | Nhà cung cấp | Tạo, tìm, sửa liên hệ, ngừng giao dịch; lịch sử nhập và khoản phải trả theo địa điểm/quyền. |
 | Nhập hàng | Phiếu nháp, sửa/hủy, ghi sổ; snapshot, tồn cơ sở, movement và bình quân gia quyền. |
 | Phối hợp dịch vụ | Catalog xác thực hàng; Inventory ghi nhận nhập; Finance tạo phải trả từ sự kiện mua. |
-| Giao diện và kiểm tra | React gọi API thật, ảnh chụp ứng dụng; 21 kiểm thử mới và 20 ca hồi quy tuần 4. |
+| Giao diện và kiểm tra | React gọi API thật, ảnh chụp ứng dụng; 25 kiểm thử mới và 20 ca hồi quy tuần 4. |
 
 Tiêu chí hoàn thành
 
@@ -109,7 +109,7 @@ Các số onHand, reserved, quarantined được lưu riêng; available = onHand
 
 ![Hình 7. Lịch sử nhập và công nợ được truy vấn từ dịch vụ sở hữu dữ liệu.](evidence/screenshots/supplier-history.png)
 
-Sau commit nhập, Outbox phát inventory.receipt-posted.v1 bằng publisher confirms. Finance nhận PURCHASE, lưu Inbox và payable trong một transaction; unique theo tenant/receipt chặn cả phát lại với event ID khác. OPENING_STOCK được xử lý nhưng không tạo khoản nợ.
+Sau commit nhập, Outbox phát inventory.receipt-posted.v1 bằng publisher confirms và mandatory; không đánh dấu đã gửi khi broker trả về do thiếu tuyến nhận. Finance nhận PURCHASE, lưu Inbox và payable trong một transaction; unique theo tenant/receipt chặn cả phát lại với event ID khác. OPENING_STOCK được xử lý nhưng không tạo khoản nợ.
 
 Khi Finance dừng, phiếu nhập vẫn POSTED, hàng vẫn có trong kho. Hàng đợi bền giữ sự kiện để xử lý sau khởi động lại. Giao diện tự kiểm tra công nợ đang chờ và hiển thị thời điểm truy vấn. Khoản phải trả không phải tiền đã trả: paidVnd vẫn bằng 0.
 
@@ -141,7 +141,7 @@ Giao diện tham khảo bố cục bảng và chứng từ của Tabler [4]-[6],
 
 ## 10. Kết quả kiểm thử - dữ liệu và nghiệp vụ
 
-Lần chạy ngày 16/10/2026: 41/41 ca đạt, không bỏ qua và không flaky; thời gian 73.8 giây. Gồm 21 ca tuần 5 và 20 ca hồi quy nền tuần 4. Chromium gọi hệ thống Docker thật: Keycloak, Gateway, Business, Catalog, Inventory, Finance, PostgreSQL và RabbitMQ.
+Lần chạy ngày 16/10/2026: 45/45 ca đạt, không bỏ qua và không flaky; thời gian 119.7 giây. Gồm 25 ca tuần 5 và 20 ca hồi quy nền tuần 4. Chromium gọi hệ thống Docker thật: Keycloak, Gateway, Business, Catalog, Inventory, Finance, PostgreSQL và RabbitMQ.
 
 | Mã | Nội dung kiểm tra | Kết quả |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ Không chỉ kiểm phản hồi HTTP: các ca còn đối chiếu số dòng mo
 | W5-15 | Business gián đoạn: từ chối truy cập; Catalog gián đoạn: phiếu vẫn nháp, không tăng tồn. | Đạt |
 | W5-16 | Giao diện tạo sản phẩm, nhà cung cấp, phiếu nháp và ghi sổ qua backend thật. | Đạt |
 | W5-17 | Chiều rộng 390 px không tràn trang; thu ngân không có UI nhập hoặc sửa danh mục. | Đạt |
-| W5-18 | Bảng thuộc đúng database dịch vụ; projection nhận đúng phiên bản Catalog. | Đạt |
+| W5-18 | Tài khoản bị chặn kết nối DB khác; bảng đúng dịch vụ; projection nhận đúng phiên bản. | Đạt |
 | W5-19 | JWT người dùng hợp lệ nhưng giả chữ ký dịch vụ vẫn bị internal API trả 403. | Đạt |
 | W5-20 | Tràn độ chính xác một dòng khiến toàn bộ ghi sổ rollback, không ghi dở các dòng khác. | Đạt |
 | W5-21 | Hai hộ dùng cùng mã SKU/barcode/NCC được; khóa thành viên tác động phiên hiện tại. | Đạt |
@@ -181,7 +181,27 @@ Hồi quy và lỗi đã xử lý
 
 Trong quá trình thử giao diện đã bổ sung tên truy cập rõ cho bộ chọn nhà cung cấp; tự cập nhật công nợ sau khi sự kiện đến; sửa menu ở 390 px để cuộn trong vùng riêng thay vì làm tràn trang. Các ca được chạy lại sau sửa, kết quả cuối cùng nêu ở trên.
 
-Chưa kiểm thử tải cao, mất toàn PostgreSQL/RabbitMQ, nhiều trình duyệt hoặc kiểm thử thâm nhập đầy đủ. Việc có workflow CI không đồng nghĩa đã có kết quả CI từ GitHub tại thời điểm lập báo cáo. Các kết quả này chứng minh phạm vi cục bộ đã liệt kê.
+Chưa kiểm thử tải cao, mất toàn PostgreSQL, mất dữ liệu broker, nhiều trình duyệt hoặc kiểm thử thâm nhập đầy đủ. Việc có workflow CI không đồng nghĩa đã có kết quả CI từ GitHub tại thời điểm lập báo cáo. Các kết quả này chứng minh phạm vi cục bộ đã liệt kê.
+
+
+## 11.1. Rà soát bổ sung và thử gián đoạn
+
+| Mã | Nội dung kiểm tra | Kết quả |
+| --- | --- | --- |
+| W5-22 | Mở lại nháp trên UI, tải đủ đơn vị và đổi quy cách; lưu 2 thùng thành 48 đơn vị cơ sở. | Đạt |
+| W5-23 | Thông điệp sai và hết retry chỉ vào hàng đợi lỗi của Finance, không phát sang dịch vụ khác. | Đạt |
+| W5-24 | Mất tuyến nhận không đánh dấu Outbox đã gửi; phục hồi tuyến xử lý đúng một công nợ. | Đạt |
+| W5-25 | Dừng RabbitMQ, nhập vẫn commit; khởi động broker đồng bộ lại, không nhân đôi movement/nợ. | Đạt |
+
+Các chỉnh sửa sau rà soát
+
+Sửa bộ chọn đơn vị khi mở lại phiếu nháp: đọc SKU và toàn bộ đơn vị hiện tại từ Catalog, giữ giá/lượng người dùng đã nhập. SKU khác hộ không được trả dữ liệu. Ảnh kiểm thử mới bên dưới chụp thao tác thật.
+
+![Hình 8. Mở lại nháp và chọn đơn vị quy đổi từ Catalog.](evidence/screenshots/edit-units.png)
+
+Sửa hàng đợi lỗi từng dịch vụ để tránh phát tán qua fanout. Chỉ ack bản gốc khi bản chuyển đã được broker xác nhận. Publisher dùng mandatory, nhận basic.return và giới hạn chờ confirm 5 giây; lỗi vẫn giữ Outbox để thử lại. Worker kết nối lại khi broker phục hồi.
+
+Sự kiện site.activated và inventory.stock-changed.v1 được giữ tại storeluma.deferred trong lúc consumer các tuần sau chưa có. Cần theo dõi dung lượng và bổ sung quy trình chuyển/phát lại theo identity khi có consumer; chưa khẳng định hoàn tất nghiệp vụ Reporting.
 
 
 ## 12. Sản phẩm bàn giao và kế hoạch tiếp theo
@@ -225,6 +245,6 @@ Các nguồn [4]-[9] được tra cứu ngày 16/10/2026. Bố cục tham khảo
 
 Nguồn ảnh và phạm vi kết luận
 
-Hình 1 là sơ đồ triển khai của bản 0.5.0. Hình 2-7 được chụp bằng Playwright từ ứng dụng thật ngày 16/10/2026, với dữ liệu minh họa Hộ An Nhiên: bốn sản phẩm, hai nhà cung cấp, phiếu mua, tồn đầu kỳ và nháp. Không có mật khẩu, TOTP secret hay mã lời mời trong ảnh công khai.
+Hình 1 là sơ đồ triển khai của bản 0.5.0. Hình 2-7 được chụp bằng Playwright từ ứng dụng thật ngày 16/10/2026, với dữ liệu minh họa Hộ An Nhiên: bốn sản phẩm, hai nhà cung cấp, phiếu mua, tồn đầu kỳ và nháp. Hình 8 chụp ca W5-22 trên hộ kiểm thử An Mộc. Không có mật khẩu, TOTP secret hay mã lời mời trong ảnh công khai.
 
 Kết quả đầy đủ được lưu trên máy chạy; bản tóm tắt công khai nằm tại docs/week-05/evidence/verification.md. Báo cáo không giả định có đánh giá của giảng viên, khách hàng thật hoặc triển khai máy chủ Internet. Bìa không dùng ảnh logo; logo chỉ hiện trong ảnh chụp giao diện sản phẩm.

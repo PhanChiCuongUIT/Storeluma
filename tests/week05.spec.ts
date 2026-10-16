@@ -15,6 +15,8 @@ import {
 import { execFileSync } from "node:child_process";
 import { Pool } from "pg";
 import amqp from "amqplib";
+import { EventEmitter } from "node:events";
+import { publishConfirmed } from "../packages/platform/publish";
 import { baseQuantity, lineCost } from "../packages/platform/decimal";
 const evidence = process.env.WEEK05_SCREENSHOTS ?? "tmp/week05/screenshots";
 const origin = "http://localhost:4100",
@@ -1103,6 +1105,27 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
     ).toHaveCount(0);
   });
   test("W5-18 Local database isolation and schema ownership boundaries", async () => {
+    for (const [source, target] of [
+      ["catalog", "inventory"],
+      ["inventory", "finance"],
+      ["finance", "business"],
+    ]) {
+      const forbidden = new Pool({
+        host: "127.0.0.1",
+        port: 55432,
+        user: source,
+        password: env[`${source.toUpperCase()}_DB_PASSWORD`],
+        database: target + "_db",
+        connectionTimeoutMillis: 3000,
+      });
+      try {
+        await expect(forbidden.query("SELECT 1")).rejects.toMatchObject({
+          code: "42501",
+        });
+      } finally {
+        await forbidden.end();
+      }
+    }
     const tables = async (db: Pool) =>
       (
         await db.query(
@@ -1299,5 +1322,242 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
       403,
     );
     await role("CASHIER");
+  });
+  test("W5-22 Reopened draft loads current units and saves the chosen conversion", async () => {
+    const current = await good(await api(owner, path("skus/" + sku.id)));
+    expect(current.units.some((u: any) => u.id === unit.id)).toBe(true);
+    const other = (await good(await api(outsider, "/v1/me"))).memberships.find(
+      (m: any) => m.role === "OWNER",
+    );
+    expect(
+      (
+        await api(outsider, `/v1/tenants/${other.tenant_id}/skus/${sku.id}`)
+      ).status(),
+    ).toBe(404);
+    const d = await good(
+      await command(
+        "receipts",
+        draft({
+          lines: [
+            {
+              skuId: sku.id,
+              unitId: current.units.find((u: any) => u.is_base).id,
+              qty: "2",
+              unitCostVnd: "120",
+            },
+          ],
+        }),
+      ),
+    );
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.reload();
+    await page
+      .getByLabel("Chọn hộ kinh doanh", { exact: true })
+      .selectOption(tenant);
+    await page.getByRole("button", { name: "Nhập hàng", exact: true }).click();
+    await page.getByLabel("Địa điểm nhập hàng").selectOption(site.id);
+    await page.getByLabel("Tìm trong danh sách").fill(d.code);
+    await page.getByRole("button", { name: d.code, exact: true }).click();
+    await page.getByRole("button", { name: "Sửa phiếu", exact: true }).click();
+    const dialog = page.getByRole("dialog"),
+      select = dialog.getByLabel("Đơn vị " + current.name, { exact: true });
+    await expect(select.locator("option")).toHaveCount(current.units.length);
+    await select.selectOption(unit.id);
+    await page.screenshot({
+      path: evidence + "/07-edit-units.png",
+      fullPage: true,
+    });
+    await dialog.getByRole("button", { name: "Lưu phiếu nháp" }).click();
+    await expect(dialog).toHaveCount(0);
+    const saved = await good(await api(owner, path("receipts/" + d.id)));
+    expect(saved.lines[0].qty_base).toBe("48.000");
+    expect(saved.lines[0].unit_id).toBe(unit.id);
+    expect(
+      (
+        await inventory.query(
+          "SELECT * FROM stock_movements WHERE receipt_id=$1",
+          [d.id],
+        )
+      ).rowCount,
+    ).toBe(0);
+    await good(
+      await command("receipts/" + d.id + "/cancel", { version: saved.version }),
+    );
+  });
+  test("W5-23 Malformed and exhausted events are parked only in the failed service queue", async () => {
+    const connection = await amqp.connect(
+      `amqp://storeluma:${env.RABBIT_PASSWORD}@127.0.0.1:5673`,
+    );
+    const ch = await connection.createConfirmChannel();
+    try {
+      const probe = (await ch.assertQueue("", { exclusive: true })).queue;
+      await ch.bindQueue(probe, "storeluma.dead", "");
+      const before = (await ch.checkQueue("finance.dead")).messageCount;
+      await publishConfirmed(ch, "", "finance", Buffer.from("{invalid"), {
+        messageId: randomUUID(),
+      });
+      await expect
+        .poll(async () => (await ch.checkQueue("finance.dead")).messageCount)
+        .toBe(before + 1);
+      const e = (
+        await inventory.query(
+          "SELECT payload FROM outbox WHERE type='inventory.receipt-posted.v1' AND payload->>'aggregateId'=$1",
+          [receipt.id],
+        )
+      ).rows[0].payload;
+      const invalid = {
+        ...e,
+        eventId: randomUUID(),
+        producer: "catalog-service",
+      };
+      await publishConfirmed(
+        ch,
+        "",
+        "finance",
+        Buffer.from(JSON.stringify(invalid)),
+        { headers: { "x-retry-count": 4 } },
+      );
+      await expect
+        .poll(async () => (await ch.checkQueue("finance.dead")).messageCount, {
+          timeout: 20000,
+        })
+        .toBe(before + 2);
+      expect((await ch.checkQueue(probe)).messageCount).toBe(0);
+      expect(
+        (
+          await finance.query("SELECT * FROM inbox WHERE id=$1", [
+            invalid.eventId,
+          ])
+        ).rowCount,
+      ).toBe(0);
+    } finally {
+      await connection.close();
+    }
+  });
+  test("W5-24 Missing route keeps Outbox pending; confirm timeout releases listeners", async () => {
+    const stalled = new EventEmitter() as any;
+    stalled.publish = () => true;
+    await expect(
+      publishConfirmed(stalled, "", "missing", Buffer.from("x"), {}, 30),
+    ).rejects.toThrow("timed out");
+    expect(
+      stalled.listenerCount("return") + stalled.listenerCount("close"),
+    ).toBe(0);
+    const connection = await amqp.connect(
+        `amqp://storeluma:${env.RABBIT_PASSWORD}@127.0.0.1:5673`,
+      ),
+      ch = await connection.createConfirmChannel();
+    let d: any;
+    try {
+      await expect(
+        publishConfirmed(ch, "", "missing-" + randomUUID(), Buffer.from("x")),
+      ).rejects.toThrow("no route");
+      await ch.unbindQueue(
+        "finance",
+        "storeluma",
+        "inventory.receipt-posted.v1",
+      );
+      d = await good(await command("receipts", draft()));
+      await good(
+        await command("receipts/" + d.id + "/post", { version: d.version }),
+      );
+      await expect
+        .poll(
+          async () =>
+            (
+              await inventory.query(
+                "SELECT lease_until < now()+interval '13 seconds' AND delivered_at IS NULL AS pending FROM outbox WHERE type='inventory.receipt-posted.v1' AND payload->>'aggregateId'=$1",
+                [d.id],
+              )
+            ).rows[0]?.pending,
+        )
+        .toBe(true);
+      expect(
+        (
+          await finance.query("SELECT * FROM payables WHERE receipt_id=$1", [
+            d.id,
+          ])
+        ).rowCount,
+      ).toBe(0);
+    } finally {
+      await ch.bindQueue("finance", "storeluma", "inventory.receipt-posted.v1");
+      await connection.close();
+    }
+    await expect
+      .poll(
+        async () =>
+          (
+            await finance.query("SELECT * FROM payables WHERE receipt_id=$1", [
+              d.id,
+            ])
+          ).rowCount,
+        { timeout: 30000 },
+      )
+      .toBe(1);
+    await expect
+      .poll(
+        async () =>
+          (
+            await inventory.query(
+              "SELECT delivered_at IS NOT NULL AS delivered FROM outbox WHERE type='inventory.receipt-posted.v1' AND payload->>'aggregateId'=$1",
+              [d.id],
+            )
+          ).rows[0]?.delivered,
+      )
+      .toBe(true);
+  });
+  test("W5-25 Broker outage retains committed receipt and reconnect delivers once", async () => {
+    let d: any;
+    try {
+      docker("stop", "rabbitmq");
+      d = await good(await command("receipts", draft()));
+      await good(
+        await command("receipts/" + d.id + "/post", { version: d.version }),
+      );
+      expect(
+        (
+          await inventory.query(
+            "SELECT * FROM stock_movements WHERE receipt_id=$1",
+            [d.id],
+          )
+        ).rowCount,
+      ).toBe(1);
+      expect(
+        (
+          await finance.query("SELECT * FROM payables WHERE receipt_id=$1", [
+            d.id,
+          ])
+        ).rowCount,
+      ).toBe(0);
+      expect(
+        (
+          await inventory.query(
+            "SELECT delivered_at FROM outbox WHERE type='inventory.receipt-posted.v1' AND payload->>'aggregateId'=$1",
+            [d.id],
+          )
+        ).rows[0].delivered_at,
+      ).toBeNull();
+    } finally {
+      docker("start", "rabbitmq");
+    }
+    await expect
+      .poll(
+        async () =>
+          (
+            await finance.query("SELECT * FROM payables WHERE receipt_id=$1", [
+              d.id,
+            ])
+          ).rowCount,
+        { timeout: 45000 },
+      )
+      .toBe(1);
+    expect(
+      (
+        await inventory.query(
+          "SELECT * FROM stock_movements WHERE receipt_id=$1",
+          [d.id],
+        )
+      ).rowCount,
+    ).toBe(1);
   });
 });

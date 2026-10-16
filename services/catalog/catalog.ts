@@ -465,6 +465,30 @@ export class Catalog {
       }),
     );
   }
+  @Get("tenants/:tenant/skus/:id") async sku(
+    @Req() r: ActorRequest,
+    @Param("tenant") t: string,
+    @Param("id") id: string,
+  ) {
+    await authorize(r, t, "catalog.read");
+    z.uuid().parse(id);
+    const row = (
+      await db.query(
+        "SELECT s.*,p.name AS product_name,p.status AS product_status FROM skus s JOIN products p ON p.tenant_id=s.tenant_id AND p.id=s.product_id WHERE s.tenant_id=$1 AND s.id=$2",
+        [t, id],
+      )
+    ).rows[0];
+    if (!row) throw new NotFoundException("Không tìm thấy mã hàng.");
+    return {
+      ...row,
+      units: (
+        await db.query(
+          "SELECT * FROM units WHERE tenant_id=$1 AND sku_id=$2 ORDER BY is_base DESC,name",
+          [t, id],
+        )
+      ).rows,
+    };
+  }
   @Get("tenants/:tenant/skus") async skus(
     @Req() r: ActorRequest,
     @Param("tenant") t: string,
