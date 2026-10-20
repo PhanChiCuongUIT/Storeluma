@@ -12,7 +12,7 @@ jobs:
       - run: npm run setup
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: docker compose up -d --build
+      - run: docker compose up -d --build --wait
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()
@@ -21,6 +21,8 @@ jobs:
           path: |
             docs/week-04/evidence/
             docs/week-05/evidence/
+            docs/week-06/evidence/
+            tmp/week06/screenshots/
             tmp/playwright-results.json
             playwright-report/
       - run: docker compose down

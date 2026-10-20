@@ -340,7 +340,7 @@ await start([], false, (app) => {
     }
     try {
       const resource = req.path.match(
-        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|payables)(?:\/|$)/,
+        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|payables)(?:\/|$)/,
       )?.[1];
       const target =
         resource && ["categories", "products", "skus"].includes(resource)

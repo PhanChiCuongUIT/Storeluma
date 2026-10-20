@@ -36,6 +36,7 @@ import {
   serviceCall,
 } from "../../packages/platform/service-client.js";
 import type { ActorRequest } from "../../packages/platform/http.js";
+import { lockBalance, applyBalance } from "./stock-ledger.js";
 const supplierInput = z
   .object({
     name: nameInput,
@@ -517,53 +518,39 @@ export class Inventory {
           for (const l of [...draft.lines].sort((a, b) =>
             a.sku_id.localeCompare(b.sku_id),
           )) {
-            await c.query(
-              "INSERT INTO stock_balances(id,tenant_id,warehouse_id,sku_id) VALUES($1,$2,$3,$4) ON CONFLICT(tenant_id,warehouse_id,sku_id) DO NOTHING",
-              [randomUUID(), t, old.warehouse_id, l.sku_id],
+            const oldBalance = await lockBalance(
+              c,
+              t,
+              old.warehouse_id,
+              l.sku_id,
             );
-            const balance = (
+            const values = (
               await c.query(
-                "UPDATE stock_balances SET avg_cost=round((inventory_value+$5::numeric)/(on_hand+$4::numeric),6),on_hand=on_hand+$4::numeric,inventory_value=inventory_value+$5::numeric,version=version+1,updated_at=now() WHERE tenant_id=$1 AND warehouse_id=$2 AND sku_id=$3 RETURNING *",
-                [t, old.warehouse_id, l.sku_id, l.qty_base, l.total_vnd],
+                "SELECT ($1::numeric+$2::numeric)::text qty,($3::numeric+$4::numeric)::text value",
+                [
+                  oldBalance.on_hand,
+                  l.qty_base,
+                  oldBalance.inventory_value,
+                  l.total_vnd,
+                ],
               )
             ).rows[0];
-            await c.query(
-              "INSERT INTO stock_movements(id,tenant_id,warehouse_id,sku_id,receipt_id,line_id,qty_base,value_vnd) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-              [
-                randomUUID(),
-                t,
-                old.warehouse_id,
-                l.sku_id,
-                id,
-                l.id,
-                l.qty_base,
-                l.total_vnd,
-              ],
-            );
-            const available = (
-              await c.query(
-                "SELECT (on_hand-reserved-quarantined)::text AS available FROM stock_balances WHERE id=$1",
-                [balance.id],
-              )
-            ).rows[0].available;
-            await domainOutbox(
+            await applyBalance(
               c,
-              "inventory.stock-changed.v1",
-              t,
-              old.site_id,
-              balance.id,
-              balance.version,
+              oldBalance,
               {
-                warehouseId: old.warehouse_id,
-                skuId: l.sku_id,
-                onHand: balance.on_hand,
-                reserved: balance.reserved,
-                quarantined: balance.quarantined,
-                available,
-                inventoryValue: balance.inventory_value,
-                balanceVersion: balance.version,
+                onHand: values.qty,
+                quarantined: oldBalance.quarantined,
+                value: values.value,
               },
-              id,
+              {
+                kind: "RECEIPT",
+                id,
+                code: old.code,
+                line: l,
+                siteId: old.site_id,
+                reason: old.note,
+              },
             );
           }
           await c.query(
@@ -659,38 +646,6 @@ export class Inventory {
           return row;
         },
       ),
-    );
-  }
-  @Get("tenants/:tenant/stock-balances") async balances(
-    @Req() r: ActorRequest,
-    @Param("tenant") t: string,
-    @Query() q: unknown,
-  ) {
-    const p = z
-        .object({
-          siteId: z.uuid(),
-          skuId: z.uuid().optional(),
-          cursor: z.uuid().optional(),
-          limit: z.coerce.number().int().min(1).max(200).default(50),
-        })
-        .strict()
-        .parse(q),
-      grant = await authorize(r, t, "stock.read", p.siteId);
-    const rows = (
-      await db.query(
-        "SELECT b.*,s.code,s.name,s.base_unit,(b.on_hand-b.reserved-b.quarantined)::text AS available FROM stock_balances b LEFT JOIN sku_projection s ON s.tenant_id=b.tenant_id AND s.sku_id=b.sku_id WHERE b.tenant_id=$1 AND b.warehouse_id=$2 AND ($3::uuid IS NULL OR b.sku_id=$3) AND ($4::uuid IS NULL OR b.id>$4) ORDER BY b.id LIMIT $5",
-        [t, grant.warehouseId, p.skuId ?? null, p.cursor ?? null, p.limit + 1],
-      )
-    ).rows;
-    return pageResult(
-      rows.map((row) => {
-        if (!grant.costRead) {
-          delete row.inventory_value;
-          delete row.avg_cost;
-        }
-        return row;
-      }),
-      p.limit,
     );
   }
 }

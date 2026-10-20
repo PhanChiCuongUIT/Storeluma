@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate{
 export class Errors implements ExceptionFilter{
   catch(error:unknown,host:ArgumentsHost){
     const res=host.switchToHttp().getResponse();
-    if(error instanceof HttpException){res.status(error.getStatus()).json({message:error.message});return;}
+    if(error instanceof HttpException){const body=error.getResponse() as string|{message?:string;code?:string};res.status(error.getStatus()).json({message:typeof body==='string'?body:body.message??error.message,...(typeof body==='object'&&typeof body.code==='string'?{code:body.code}:{})});return;}
     if(error instanceof ZodError){res.status(400).json({message:'Dữ liệu không hợp lệ.',fields:error.issues.map(i=>({path:i.path.join('.'),message:i.message}))});return;}
     const code=(error as {code?:string})?.code;
     if(code==='23505'){res.status(409).json({message:'Mã đã tồn tại trong phạm vi này.'});return;}
@@ -38,7 +38,7 @@ let extraReady=()=>true;
 export function setReadiness(fn:()=>boolean){extraReady=fn;}
 @Controller()
 class Health{
-  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:'0.5.0'};}
+  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:'0.6.0'};}
 }
 export async function start(controllers:any[]=[],secure=true,configure?:(app:INestApplication)=>Promise<void>|void){
   @Module({controllers:[Health,...controllers]})class App{}

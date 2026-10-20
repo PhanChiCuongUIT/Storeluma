@@ -48,18 +48,18 @@ async function createSite(c:PoolClient,tenantId:string,input:z.infer<typeof site
 class Business{
   @Post('internal/authorize')async authorize(@Req()r:ActorRequest,@Body()body:unknown){
     await verifyService(r,['catalog','inventory','finance']);
-    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read'])}).strict().parse(body);
+    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel'])}).strict().parse(body);
     const m=await membership(db,r.actor.sub!,input.tenantId);
     const roles:Record<string,string[]>={
       'catalog.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'catalog.write':['OWNER','MANAGER'],
       'supplier.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'supplier.write':['OWNER','MANAGER','STOCK'],
       'receipt.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'receipt.write':['OWNER','MANAGER','STOCK'],
-      'receipt.post':['OWNER','MANAGER'],'receipt.opening':['OWNER'],'stock.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'payable.read':['OWNER','ACCOUNTANT']
+      'receipt.post':['OWNER','MANAGER'],'receipt.opening':['OWNER'],'stock.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'payable.read':['OWNER','ACCOUNTANT'],'stock.count.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'stock.count.write':['OWNER','MANAGER','STOCK'],'stock.count.approve':['OWNER','MANAGER'],'stock.count.cancel':['OWNER','MANAGER','STOCK'],'stock.adjust.read':['OWNER','MANAGER','STOCK','ACCOUNTANT'],'stock.adjust.write':['OWNER','MANAGER','STOCK'],'stock.adjust.approve':['OWNER','MANAGER'],'stock.adjust.cancel':['OWNER','MANAGER','STOCK']
     };
     if(!roles[input.action].includes(m.role))throw new ForbiddenException('Vai trò hiện tại không được thực hiện thao tác này.');
     let site;
     if(input.siteId){const result=await siteAccess(db,r.actor.sub!,input.tenantId,input.siteId);site=result.s;
-      if(/write|post|opening/.test(input.action)&&site.status!=='ACTIVE')throw new ConflictException('Địa điểm chưa sẵn sàng hoặc đã tạm ngừng.');
+      if(/write|post|opening|approve/.test(input.action)&&site.status!=='ACTIVE')throw new ConflictException('Địa điểm chưa sẵn sàng hoặc đã tạm ngừng.');
     }
     if(!input.siteId&&m.role!=='OWNER'&&/write/.test(input.action)){
       if(!(await db.query("SELECT 1 FROM sites WHERE tenant_id=$1 AND id=ANY($2::uuid[]) AND status='ACTIVE' LIMIT 1",[input.tenantId,m.site_ids])).rowCount)throw new ForbiddenException('Không có địa điểm hoạt động trong phạm vi.');

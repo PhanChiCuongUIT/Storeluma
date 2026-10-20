@@ -651,6 +651,26 @@ export class Catalog {
       ),
     );
   }
+  @Post("internal/catalog/stock-skus") async stockSkus(
+    @Req() r: ActorRequest,
+    @Body() body: unknown,
+  ) {
+    await verifyService(r, ["inventory"]);
+    const p = z
+      .object({ tenantId: z.uuid(), skuIds: z.array(z.uuid()).min(1).max(100) })
+      .strict()
+      .parse(body);
+    await authorize(r, p.tenantId, "catalog.read");
+    const rows = (
+      await db.query(
+        "SELECT id,code,name,base_unit FROM skus WHERE tenant_id=$1 AND id=ANY($2::uuid[])",
+        [p.tenantId, p.skuIds],
+      )
+    ).rows;
+    if (rows.length !== new Set(p.skuIds).size)
+      throw new NotFoundException("Không tìm thấy mã hàng trong hộ này.");
+    return rows;
+  }
   @Post("internal/catalog/snapshots") async snapshots(
     @Req() r: ActorRequest,
     @Body() b: unknown,
