@@ -1,5 +1,7 @@
 # Kiểm chứng phiên bản 0.6.0
 
+Kết quả dưới đây là mốc bàn giao ngày 20/10/2026. Xem [rà soát ngày 21/10](../review-weeks-03-06.md) cho 4 ca bổ sung và cấu hình CI mới; không thay kết quả lịch sử 22 ca bằng số lượng test hiện tại.
+
 - Cục bộ: Windows/Docker Linux containers, PostgreSQL 17, RabbitMQ 4.1, Keycloak 26.4.7, Node.js 24, Chromium.
 - Typecheck và build: đạt.
 - Tuần 6: `npx playwright test tests/week06.spec.ts`, bắt đầu 20/10/2026 17:11:31 (Asia/Ho_Chi_Minh), 48.4 giây: **22/22 đạt**.

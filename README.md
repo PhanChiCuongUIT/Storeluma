@@ -98,6 +98,10 @@ Start the services before running `npm test`. The test suite uses real backend s
 
 Authentication tests wait for a fresh TOTP window before each login to avoid reusing a code across suites. Keep one test process per account set; the suite runs with one worker.
 
+The suite also checks upgrades from an existing receiving schema to stocktaking. It creates a uniquely named disposable database, runs the actual migration runner, verifies preserved history and rollback, then drops only that test database. Run the build before the tests so the compiled migration runner is available.
+
+GitHub Actions builds the application and runs the full suite on a fresh Docker environment for pushes and pull requests. Workflow artifacts retain test results, screenshots, failure context, and container status for seven days. Deployment is not automated yet.
+
 ## Project structure
 
 | Path | Contents |

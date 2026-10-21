@@ -1124,4 +1124,106 @@ test.describe
       ).rowCount,
     ).toBe(0);
   });
+  test("W6-23 Revocation and scope changes deny cached commands in an existing session", async () => {
+    await role("MANAGER");
+    const key = randomUUID(), body = {
+      siteId: site.id, warehouseId: site.warehouse_id,
+      note: "Kiểm quyền hiện tại khi thử lại", adjustmentType: "QUARANTINE",
+      lines: [{ skuId: sku.id, qty: "1" }],
+    };
+    const draft = await good(await cmd("stock-adjustments", body, staff, key));
+    let counting: any;
+    const before = await balance();
+    try {
+      await role("CASHIER");
+      expect((await cmd("stock-adjustments", body, staff, key)).status()).toBe(403);
+      expect((await get(`stock-adjustments/${draft.id}`, staff)).status()).toBe(403);
+      await role("STOCK");
+      counting = await transition(await createCount([sku], staff), "start", staff);
+      member = await good(await api(owner, path("memberships/" + member.id), "PATCH", {
+        role: "STOCK", status: "BLOCKED", siteIds: [site.id], version: member.version,
+      }));
+      expect((await get(`stock-balances?siteId=${site.id}`, staff)).status()).toBe(403);
+      expect((await cmd(`stock-counts/${counting.id}/cancel`, { version: counting.version }, staff)).status()).toBe(403);
+      expect((await cmd("stock-adjustments", body, staff, key)).status()).toBe(403);
+      member = await good(await api(owner, path("memberships/" + member.id), "PATCH", {
+        role: "MANAGER", status: "ACTIVE", siteIds: [otherSite.id], version: member.version,
+      }));
+      expect((await get(`stock-counts/${counting.id}`, staff)).status()).toBe(404);
+      expect((await cmd(`stock-adjustments/${draft.id}/post`, { version: draft.version }, staff)).status()).toBe(404);
+      expect((await balance()).on_hand).toBe(before.on_hand);
+      expect((await inventory.query('SELECT 1 FROM stock_movements WHERE document_id=ANY($1::uuid[])', [[draft.id, counting.id]])).rowCount).toBe(0);
+    } finally {
+      await role("STOCK");
+      if (counting) await transition(counting, "cancel");
+      await transition(draft, "cancel");
+    }
+    expect((await balance()).frozen_by).toBeNull();
+  });
+  test("W6-24 Dependency outages fail closed; saved snapshots survive Catalog downtime", async () => {
+    const s = await product("Kiểm kho khi dịch vụ gián đoạn");
+    await seed(s, "10");
+    let d = await createCount([s]);
+    const key = randomUUID(), body = {
+      siteId: site.id, warehouseId: site.warehouse_id,
+      note: "Phiếu thử lại sau khi danh mục phục hồi",
+      lines: [{ skuId: s.id }],
+    };
+    const docker = (...args: string[]) => execFileSync('docker', ['compose', ...args], { timeout: 60000, stdio: 'pipe' });
+    const initial = (await inventory.query('SELECT count(*)::int n FROM stock_documents WHERE tenant_id=$1', [tenant])).rows[0].n;
+    docker('stop', 'catalog');
+    try {
+      expect((await cmd('stock-counts', body, owner, key)).status()).toBe(503);
+      expect((await inventory.query('SELECT count(*)::int n FROM stock_documents WHERE tenant_id=$1', [tenant])).rows[0].n).toBe(initial);
+      expect((await inventory.query('SELECT 1 FROM idempotency WHERE key=$1', [key])).rowCount).toBe(0);
+      d = await transition(d, 'start');
+      d = await record(d, [{ skuId: s.id, good: '9', quarantined: '0' }]);
+      d = await transition(d, 'submit');
+    } finally { docker('start', 'catalog'); }
+    await expect.poll(async () => (await get('products')).status(), { timeout: 45000 }).toBe(200);
+    const created = await good(await cmd('stock-counts', body, owner, key));
+    expect((await good(await cmd('stock-counts', body, owner, key))).id).toBe(created.id);
+    await transition(created, 'cancel');
+    const approveKey = randomUUID(), approveBody = { version: d.version };
+    docker('stop', 'business');
+    try {
+      expect((await get(`stock-counts/${d.id}`)).status()).toBe(503);
+      expect((await cmd(`stock-counts/${d.id}/approve`, approveBody, owner, approveKey)).status()).toBe(503);
+      expect((await inventory.query('SELECT status FROM stock_documents WHERE id=$1', [d.id])).rows[0].status).toBe('SUBMITTED');
+      expect((await inventory.query('SELECT 1 FROM stock_movements WHERE document_id=$1', [d.id])).rowCount).toBe(0);
+      expect((await inventory.query('SELECT 1 FROM stock_freezes WHERE document_id=$1', [d.id])).rowCount).toBe(1);
+    } finally { docker('start', 'business'); }
+    await expect.poll(async () => (await get(`stock-counts/${d.id}`)).status(), { timeout: 45000 }).toBe(200);
+    await good(await cmd(`stock-counts/${d.id}/approve`, approveBody, owner, approveKey));
+    await good(await cmd(`stock-counts/${d.id}/approve`, approveBody, owner, approveKey));
+    expect((await balance(s)).on_hand).toBe('9.000');
+    expect((await balance(s)).frozen_by).toBeNull();
+    expect((await inventory.query('SELECT 1 FROM stock_movements WHERE document_id=$1', [d.id])).rowCount).toBe(1);
+  });
+  test("W6-25 Broker outage retains approved count and its stock event without creating debt", async () => {
+    const s = await product("Kiểm kho chờ gửi sự kiện");
+    await seed(s, '10');
+    let d = await transition(await createCount([s]), 'start');
+    d = await record(d, [{ skuId: s.id, good: '8', quarantined: '1' }]);
+    d = await transition(d, 'submit');
+    const key = randomUUID(), body = { version: d.version };
+    const docker = (...args: string[]) => execFileSync('docker', ['compose', ...args], { timeout: 60000, stdio: 'pipe' });
+    const events = () => inventory.query("SELECT * FROM outbox WHERE payload->>'correlationId'=$1", [d.id]);
+    docker('stop', 'rabbitmq');
+    try {
+      await good(await cmd(`stock-counts/${d.id}/approve`, body, owner, key));
+      await good(await cmd(`stock-counts/${d.id}/approve`, body, owner, key));
+      const rows = (await events()).rows;
+      expect(rows).toHaveLength(1);
+      expect(rows[0].delivered_at).toBeNull();
+      expect(rows[0].payload).toMatchObject({ eventType: 'inventory.stock-changed.v1', tenantId: tenant, siteId: site.id,
+        data: { skuId: s.id, onHand: '9.000', quarantined: '1.000', available: '8.000', inventoryValue: '90000' } });
+      expect((await balance(s)).frozen_by).toBeNull();
+    } finally { docker('start', 'rabbitmq'); }
+    await expect.poll(async () => (await events()).rows[0]?.delivered_at != null, { timeout: 45000 }).toBe(true);
+    expect((await inventory.query('SELECT 1 FROM stock_movements WHERE document_id=$1', [d.id])).rowCount).toBe(1);
+    expect((await finance.query('SELECT 1 FROM payables WHERE receipt_id=$1', [d.id])).rowCount).toBe(0);
+    expect((await balance(s)).on_hand).toBe('9.000');
+    expect((await events()).rowCount).toBe(1);
+  });
 });

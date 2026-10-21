@@ -7,6 +7,7 @@ Kỳ kế hoạch: **26/10-01/11/2026**. Ngày báo cáo: **30/10/2026**. Phiên
 - [Hợp đồng API, quyền và dữ liệu](api-contract.md)
 - [Thiết kế giao diện](ui-design.md)
 - [Kiểm thử và minh chứng](evidence/verification.md)
+- [Rà soát tuần 3-6 và kiểm thử bổ sung ngày 21/10](review-weeks-03-06.md)
 
 Phạm vi: tồn kho theo địa điểm, lịch sử nhập và điều chỉnh, kiểm đếm, duyệt chênh lệch, cách ly và xuất hủy. Nhập hàng đã dùng chung cơ chế khóa kiểm kho. Chưa có xuất bán, giữ hàng từ đơn bán, điều chuyển hoặc trả hàng; các luồng này tiếp tục theo tiến độ các tuần sau.
 
