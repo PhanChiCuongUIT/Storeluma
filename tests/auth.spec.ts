@@ -67,6 +67,8 @@ test.beforeAll(async () => {
       { timeout: 90000 },
     )
     .toBe(200);
+  const health = await (await fetch(origin + "/health")).json();
+  expect(health.version).toBe(JSON.parse(readFileSync("package.json", "utf8")).version);
 });
 
 test("AUTH-01 Expired login attempt returns to usable sign-in and can authenticate again", async ({

@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { ZodError } from 'zod';
 import { db } from './db.js';
+import { appVersion } from './version.js';
 import type { Request } from 'express';
 export type ActorRequest=Request & {actor:JWTPayload};
 const jwks=createRemoteJWKSet(new URL(`${process.env.OIDC_INTERNAL ?? 'http://localhost:8180/realms/storeluma'}/protocol/openid-connect/certs`));
@@ -38,7 +39,7 @@ let extraReady=()=>true;
 export function setReadiness(fn:()=>boolean){extraReady=fn;}
 @Controller()
 class Health{
-  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:'0.6.0'};}
+  @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:appVersion};}
 }
 export async function start(controllers:any[]=[],secure=true,configure?:(app:INestApplication)=>Promise<void>|void){
   @Module({controllers:[Health,...controllers]})class App{}

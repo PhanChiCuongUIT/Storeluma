@@ -15,6 +15,7 @@ import { resolve } from "node:path";
 import * as oidc from "openid-client";
 import { db, migrate } from "../../packages/platform/db.js";
 import { start } from "../../packages/platform/http.js";
+import { appVersion } from "../../packages/platform/version.js";
 const origin = process.env.WEB_ORIGIN!;
 const issuer = process.env.OIDC_ISSUER!;
 const internal = process.env.OIDC_INTERNAL!;
@@ -152,7 +153,7 @@ await start([], false, (app) => {
     try {
       await db.query("SELECT 1");
       await provider();
-      res.json({ service: "gateway", status: "ok", version: "0.5.0" });
+      res.json({ service: "gateway", status: "ok", version: appVersion });
     } catch {
       res.status(503).json({ status: "waiting" });
     }

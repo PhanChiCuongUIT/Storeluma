@@ -36,6 +36,7 @@ Các giới hạn vận hành còn lại: một máy Docker, HTTP, Keycloak star
 Ngày 21/10/2026, trên Windows/Docker Linux containers:
 
 - Build (bao gồm kiểm tra kiểu TypeScript backend/frontend): đạt.
+- Sau sửa metadata và dựng lại image: health của Gateway, Business, Catalog, Inventory và Finance đều trả `status=ok`, `version=0.6.0` khớp package.
 - `npx playwright test tests/migration.spec.ts`: **1/1 đạt**.
 - `npx playwright test tests/week06.spec.ts`: **25/25 đạt**; không bỏ qua, không retry/flaky.
 - Hai lần chạy trên là riêng biệt. Bộ đầy đủ trên CI gồm **77 ca**: 6 AUTH + 1 MIG + 20 W4 + 25 W5 + 25 W6. Mỗi commit được kiểm tra bằng [Verify Storeluma](https://github.com/PhanChiCuongUIT/Storeluma/actions/workflows/verify.yml); kết quả JSON/HTML và ảnh được đính kèm vào đúng workflow run.
@@ -43,6 +44,8 @@ Ngày 21/10/2026, trên Windows/Docker Linux containers:
 Không chạy lại toàn bộ W4 trên bộ dữ liệu trình diễn đã gần giới hạn số hộ của tài khoản bootstrap. CI dựng môi trường mới để chạy toàn bộ; không tăng quota hoặc xóa dữ liệu người dùng nhằm làm test đạt.
 
 ## Điều chỉnh CI theo phạm vi hiện tại
+
+Phát hiện `/health` của Gateway còn trả `0.5.0` dù ứng dụng đã là `0.6.0`. Đã bỏ phiên bản viết cứng tại Gateway và health chung, lấy cùng giá trị từ `package.json`. Phần chuẩn bị của bộ AUTH đối chiếu phiên bản health với package để phát hiện lần nâng cấp bị lệch. Đây là sửa thông tin vận hành, không thay luồng đăng nhập hoặc nghiệp vụ kho.
 
 - Giữ build và tích hợp trên PostgreSQL/RabbitMQ/Keycloak thật, không bỏ ca cũ để giảm thời gian. Migration test nằm trong `npm test` nên chạy ở mọi push/PR.
 - Token chỉ có `contents: read`; checkout không lưu credential. Ba action được cố định bằng commit SHA lấy từ repository chính thức.
