@@ -16,9 +16,9 @@ Theo kế hoạch tuần 6 (26/10-01/11/2026), công việc tập trung vào t�
 
 Kế thừa và giới hạn phạm vi
 
-Kế thừa nền đăng nhập/phân quyền tuần 4 và danh mục/nhập hàng tuần 5. Không dựng lại dữ liệu nền, không thay nghiệp vụ bằng màn hình tĩnh. Phần xuất trong tuần này là xuất hủy hoặc điều chỉnh giảm; xuất bán, giữ hàng từ đơn bán, trả hàng và điều chuyển chưa được nhận là hoàn thành.
+Chức năng tồn kho kế thừa đăng nhập, phân quyền tuần 4 và danh mục, nhập hàng tuần 5. Tuần này triển khai xuất hủy và điều chỉnh giảm; xuất bán, giữ hàng từ đơn bán, trả hàng và điều chuyển thuộc các giai đoạn tiếp theo.
 
-Ngày báo cáo 30/10/2026 thuộc kỳ kế hoạch. Các lần kiểm tra thực tế ghi ngày riêng trong mục 11-12, không thay ngày kiểm thử bằng ngày trên bìa.
+Kết quả kiểm thử chức năng, hồi quy và tích hợp được trình bày tại mục 11-12.
 
 
 ## 2. Phân công trách nhiệm dịch vụ
@@ -134,7 +134,7 @@ Lập/sửa/hủy nháp chưa đổi tồn. OWNER/MANAGER ghi sổ; POSTED bất
 
 ![Hình 7. Màn hình 390 px; bảng cuộn trong vùng riêng.](evidence/screenshots/mobile.png)
 
-Bộ lọc xuống dòng và form chọn hàng chuyển một cột trên màn hình nhỏ. Không đưa nhãn môi trường phát triển vào sản phẩm. Logo gốc được dùng nhất quán với các tuần trước. Khi chuyển tab, dữ liệu bảng cũ được xóa ngay để không render sai cấu trúc.
+Bộ lọc xuống dòng và form chọn hàng chuyển một cột trên màn hình nhỏ. Logo gốc được dùng nhất quán với các tuần trước. Khi chuyển tab, dữ liệu bảng cũ được xóa ngay để không render sai cấu trúc.
 
 
 ## 11. Kiểm thử chức năng và đồng thời
@@ -155,7 +155,7 @@ Chạy 22 ca tuần 6 qua Playwright trên Docker cục bộ; bắt đầu 20/10
 | W6-10 | Hai phiên kiểm và nhập/bắt đầu kiểm đồng thời được tuần tự hóa, kể cả balance mới. | Đạt |
 | W6-11 | Tăng tồn từ 0 cần vốn; người duyệt trả lại để đếm lại, giữ nguyên khóa. | Đạt |
 
-Các kiểm tra gọi HTTP thật, đăng nhập TOTP, đối chiếu database riêng của từng dịch vụ và thử trạng thái lỗi. Không dùng dữ liệu hardcode để thay kết quả nghiệp vụ.
+Các kiểm tra gọi HTTP thật, đăng nhập TOTP, đối chiếu database riêng của từng dịch vụ và thử trạng thái lỗi.
 
 
 ## 12. Hồi quy và kết quả tích hợp
@@ -174,7 +174,7 @@ Các kiểm tra gọi HTTP thật, đăng nhập TOTP, đối chiếu database r
 | W6-21 | Làm tròn phần xuất ở nửa đồng; sửa số lượng không xóa giá vốn bị ẩn. | Đạt |
 | W6-22 | Toàn bộ movement cộng lại khớp balance; phiếu kho không tạo payable. | Đạt |
 
-Chạy hồi quy cục bộ riêng: 6 AUTH + 25 tuần 5 = 31/31 đạt, bắt đầu 20/10/2026 17:14:43, không skipped/flaky. Đây là lần chạy khác với 22 ca tuần 6, không ghi thành một lượt chạy chung.
+Chạy hồi quy cục bộ riêng: 6 AUTH + 25 tuần 5 = 31/31 đạt, bắt đầu 20/10/2026 17:14:43, không skipped/flaky. Bộ hồi quy được chạy độc lập với 22 ca kiểm thử tuần 6.
 
 GitHub Actions chạy toàn bộ 73/73 ca trên Ubuntu/Docker mới: 6 AUTH + 20 tuần 4 + 25 tuần 5 + 22 tuần 6. Run 39407137328, commit 881ee644d55d; kết quả success. Link đầy đủ trong evidence/verification.md. Bộ kiểm tra ghi lượng reserved trực tiếp chỉ là fixture để thử bất biến, không chứng minh đã có chức năng giữ hàng từ đơn bán.
 
@@ -191,11 +191,11 @@ GitHub Actions chạy toàn bộ 73/73 ca trên Ubuntu/Docker mới: 6 AUTH + 20
 
 Đánh giá hoàn thành
 
-Đã triển khai theo dõi tồn, lịch sử nhập/điều chỉnh, kiểm kho và đối chiếu số lượng có duyệt. Dữ liệu và thao tác đi qua backend thật. Kết quả kiểm thử xác nhận phạm vi hiện có, không phải chứng nhận production.
+Đã triển khai theo dõi tồn, lịch sử nhập/điều chỉnh, kiểm kho và đối chiếu số lượng có duyệt. Dữ liệu và thao tác đi qua backend thật. Các kiểm tra được thực hiện trong môi trường Docker cục bộ và CI.
 
 Chuẩn bị tuần 7
 
-Tiếp tục đơn bán và phối hợp kho/tài chính. Lệnh reserve/commit/release phải dùng khóa và kiểm freeze chung; cần tách rõ thanh toán, công nợ và phục hồi lỗi. Chưa tạo POS, ca, trả hàng hoặc báo cáo doanh thu chỉ để hoàn thiện hình thức màn hình.
+Triển khai đơn bán và phối hợp kho, tài chính. Các lệnh giữ hàng, xuất bán và giải phóng hàng dùng chung cơ chế khóa với kiểm kho; xử lý riêng trạng thái thanh toán và phục hồi gián đoạn.
 
 Giới hạn vận hành
 

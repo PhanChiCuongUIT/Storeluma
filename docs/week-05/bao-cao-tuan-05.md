@@ -19,7 +19,7 @@ Tiêu chí hoàn thành
 
 Tạo được hàng có đơn vị/giá, thêm nhà cung cấp, lập và ghi sổ phiếu tại đúng địa điểm. Ghi sổ lặp chỉ tăng hàng một lần; nhập mua tạo một khoản phải trả; tồn đầu kỳ không tạo nợ. Finance ngừng không làm mất kết quả nhập đã xác nhận. Quyền được kiểm tại backend, không chỉ bằng việc ẩn nút.
 
-Ngày báo cáo: 23/10/2026, thuộc kỳ kế hoạch. Bản 0.5.0 và các minh chứng trong báo cáo được thực hiện, kiểm tra thực tế ngày 16/10/2026; không dùng ngày trên bìa để thay ngày kiểm thử. Dữ liệu trong ảnh là dữ liệu trình diễn, không phải giao dịch cửa hàng thực tế.
+Phiên bản 0.5.0 được kiểm tra ngày 16/10/2026. Ảnh minh chứng sử dụng bộ dữ liệu thử nghiệm của hệ thống.
 
 Phạm vi tuần này chưa gồm bán hàng, thanh toán NCC, thẻ kho/kiểm kho đầy đủ, trả hàng hay triển khai production. Phần balance và giá vốn là nền cần có để nhập hàng hoạt động đúng.
 
@@ -261,10 +261,10 @@ Tài liệu kỹ thuật và bố cục giao diện
 
 [7] PostgreSQL 17. Numeric Types. [postgresql.org/docs/17/datatype-numeric.html](https://www.postgresql.org/docs/17/datatype-numeric.html).<br/>[8] RabbitMQ. Reliability Guide. [rabbitmq.com/docs/reliability](https://www.rabbitmq.com/docs/reliability).<br/>[9] RabbitMQ. Consumer Acknowledgements and Publisher Confirms. [rabbitmq.com/docs/confirms](https://www.rabbitmq.com/docs/confirms).
 
-Các nguồn [4]-[9] được tra cứu ngày 16/10/2026. Bố cục tham khảo được tự triển khai bằng React/CSS; không thêm Tabler làm dependency. Tài liệu framework không được coi là bằng chứng rằng mọi tính năng của framework đã có trong sản phẩm.
+Các nguồn [4]-[9] được tra cứu ngày 16/10/2026. Bố cục tham khảo được tự triển khai bằng React/CSS; không thêm Tabler làm dependency.
 
 Nguồn ảnh và phạm vi kết luận
 
 Hình 1 là sơ đồ triển khai của bản 0.5.0. Hình 2-7 được chụp bằng Playwright từ ứng dụng thật ngày 16/10/2026, với dữ liệu minh họa Hộ An Nhiên: bốn sản phẩm, hai nhà cung cấp, phiếu mua, tồn đầu kỳ và nháp. Hình 8 chụp ca W5-22 trên hộ kiểm thử An Mộc; Hình 9 là giao diện phục hồi đăng nhập chụp sau sửa callback. Không có mật khẩu, TOTP secret hay mã lời mời trong ảnh công khai.
 
-Kết quả đầy đủ được lưu trên máy chạy; bản tóm tắt công khai nằm tại docs/week-05/evidence/verification.md. Báo cáo không giả định có đánh giá của giảng viên, khách hàng thật hoặc triển khai máy chủ Internet. Bìa không dùng ảnh logo; logo chỉ hiện trong ảnh chụp giao diện sản phẩm.
+Kết quả kiểm thử được tổng hợp tại docs/week-05/evidence/verification.md. Phạm vi đánh giá gồm chức năng nghiệp vụ, phân quyền, phục hồi gián đoạn và giao diện trong môi trường Docker cục bộ.

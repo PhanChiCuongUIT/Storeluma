@@ -10,15 +10,15 @@
 	</clipPath>
 	<g id="group" transform="scale(1,-1) translate(0,-265)" style="clip-path: url(#clip)">
 		<g transform="">
-			<rect x="160" y="230" width="160" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="160" y="230" width="160" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="192.0347900390625" y="243.5625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,487) scale(1,-1)">React / Gateway BFF</text>
-			<rect x="0" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="0" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="50.001708984375" y="175.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,351) scale(1,-1)">Catalog</text>
 			<text x="26.22802734375" y="162.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,325) scale(1,-1)">Hàng / đơn vị / giá</text>
-			<rect x="172" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="172" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="217.3336181640625" y="175.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,351) scale(1,-1)">Inventory</text>
 			<text x="200.1173095703125" y="162.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,325) scale(1,-1)">NCC / phiếu / tồn</text>
-			<rect x="345" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="345" y="151" width="135" height="44" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="394.70947265625" y="175.625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,351) scale(1,-1)">Finance</text>
 			<text x="394.273681640625" y="162.5" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,325) scale(1,-1)">Phải trả</text>
 			<path d="M 240,230 L 240,217 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
@@ -33,14 +33,14 @@
 			<path d="M 240,217 L 412,217 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
 			<path d="M 412,217 L 412,195 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
 			<polygon points="412 195, 409.3902 200.4027, 414.6098 200.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
-			<rect x="172" y="85" width="135" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="172" y="85" width="135" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="193.9931640625" y="98.5625" style="font-family: TNR-Bold; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,197) scale(1,-1)">RabbitMQ / Outbox</text>
 			<path d="M 239,151 L 239,120 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
 			<polygon points="239 120, 236.3902 125.4027, 241.6098 125.4027" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
 			<path d="M 307,103 L 412,103 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
 			<path d="M 412,103 L 412,151 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>
 			<polygon points="412 151, 414.6098 145.5973, 409.3902 145.5973" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.5; fill: rgb(38%,41%,43%); fill-rule: evenodd;"/>
-			<rect x="0" y="85" width="135" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(93%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="0" y="85" width="135" height="35" rx="4" ry="4" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
 			<text x="48.8302001953125" y="105.125" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,210) scale(1,-1)">Business</text>
 			<text x="36.5921630859375" y="92.0" style="font-family: TNR; font-size: 10.5px;fill: rgb(12%,14%,16%); stroke:none;" transform="translate(0,184) scale(1,-1)">Quyền hiện tại</text>
 			<path d="M 67,151 L 67,120 Z" style="stroke: rgb(38%,41%,43%); stroke-linecap: butt; stroke-width: 0.8;"/>

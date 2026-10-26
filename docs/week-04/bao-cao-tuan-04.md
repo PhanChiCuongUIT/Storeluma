@@ -217,7 +217,7 @@ Kết quả chứng minh các luồng nền được liệt kê hoạt động t
 Logo gốc được lưu trong apps/web/public/brand/ và dùng chung với theme Keycloak qua cấu hình Compose. Đã tạo Dockerfile, Compose, lockfile và workflow kiểm tra cho GitHub Actions. Mã nguồn và workflow đã được đẩy lên GitHub. Báo cáo chỉ xác nhận kết quả kiểm thử cục bộ; chưa xác minh kết quả CI trên GitHub và chưa phát hành môi trường từ xa.
 
 
-## 13. Hướng dẫn chạy và trình diễn
+## 13. Môi trường chạy và quy trình kiểm chứng
 
 Thiết lập tại thư mục gốc dự án
 
@@ -225,11 +225,9 @@ Yêu cầu Node.js 24 và Docker Desktop chạy Linux containers. Các cổng 41
 
 npm ci<br/>npm run setup<br/>docker compose up -d --build<br/>docker compose ps
 
-Chờ http://localhost:4100/health trả trạng thái ok; mở http://localhost:4100. Lấy mật khẩu và mã TOTP hiện tại bằng lệnh dưới trên máy cá nhân. Chỉ dùng dữ liệu này để đăng nhập demo, không đưa đầu ra vào tài liệu nộp.
+Điểm kiểm tra sức khỏe của Gateway là http://localhost:4100/health. Giao diện được truy cập tại http://localhost:4100; đăng nhập yêu cầu mật khẩu và mã TOTP.
 
-node tools/demo-login.mjs owner
-
-Kịch bản trình diễn cho giảng viên
+Quy trình kiểm chứng chức năng
 
 1. Đăng nhập owner bằng mật khẩu và mã TOTP. Tạo hộ, địa điểm đầu tiên CH01; chờ kho và quầy sẵn sàng.<br/>2. Thêm CH02, chọn nơi làm việc; thử tạm ngừng và kích hoạt lại.<br/>3. Mở cửa sổ riêng, đăng nhập cashier; lấy mã tài khoản và nhờ chủ hộ tạo lời mời cho CH01.<br/>4. Nhận lời mời; kiểm tra cashier chỉ thấy CH01 và không có chức năng quản lý nhân sự.<br/>5. Chủ hộ khóa rồi mở lại thành viên; xem nhật ký. Đăng xuất khi kết thúc.
 
@@ -237,7 +235,7 @@ Chạy lại kiểm tra và dừng hệ thống
 
 npx playwright install chromium<br/>npm run typecheck<br/>npm run build<br/>npm test<br/>docker compose down
 
-Bộ kiểm thử tạo dữ liệu mới và chủ động dừng/khởi động một số dịch vụ, nên chạy riêng với buổi trình diễn. docker compose down giữ volume dữ liệu; không thêm -v khi cần bảo toàn dữ liệu. Hướng dẫn đầy đủ nằm tại docs/week-04/README.md.
+Bộ kiểm thử tạo dữ liệu riêng và chủ động dừng, khởi động dịch vụ để kiểm tra phục hồi. Môi trường kiểm thử dùng volume PostgreSQL để lưu dữ liệu qua các lần khởi động.
 
 
 ## 14. Sản phẩm bàn giao và kế hoạch tiếp
@@ -254,13 +252,13 @@ Giới hạn còn lại
 
 Môi trường chỉ phục vụ phát triển cục bộ, Keycloak dùng start-dev; chưa triển khai HTTPS hay máy chủ Internet. Phiên hết hạn sau tối đa 15 phút và chưa tự làm mới. Tài khoản mẫu và mã TOTP sinh trên cùng máy chỉ thuận tiện cho trình diễn; sử dụng thật cần thiết bị xác thực riêng. Chưa gửi email lời mời, tự đăng ký, chuyển quyền sở hữu hoặc hoàn thiện vận hành hàng đợi lỗi.
 
-Inventory/Finance mới làm khởi tạo kho/quầy. Catalog, Sales, Reporting và Notification là khung dịch vụ. Chưa có nghiệp vụ danh mục, nhập/xuất, POS, thu chi, báo cáo hoặc thông báo. Chưa xác minh kết quả CI trên GitHub, kiểm thử tải hay sao lưu/phục hồi. Các nội dung này không được tính là sản phẩm hoàn thành tuần 4.
+Inventory/Finance mới làm khởi tạo kho/quầy. Catalog, Sales, Reporting và Notification là khung dịch vụ. Chưa có nghiệp vụ danh mục, nhập/xuất, POS, thu chi, báo cáo hoặc thông báo. Chưa xác minh kết quả CI trên GitHub, kiểm thử tải hay sao lưu/phục hồi.
 
 Tuần 5: 19/10-25/10/2026
 
 Theo đề cương, tiếp tục danh mục, nhà cung cấp và nhập hàng. Dự kiến triển khai nhóm hàng, mặt hàng/biến thể, đơn vị tính; danh sách nhà cung cấp; phiếu nhập và dòng hàng; kiểm tra quyền theo hộ/địa điểm trên nền hiện có. Phối hợp Catalog với Inventory để ghi nhận nhập kho, chống gửi lặp và lưu lịch sử.
 
-Tiêu chí tuần kế tiếp: tạo được mặt hàng và nhà cung cấp, lập phiếu nhập đúng địa điểm, kiểm tra số lượng/giá trị hợp lệ và ghi nhận kết quả nhập một lần. Đây là kế hoạch triển khai tiếp, chưa phải kết quả của báo cáo này.
+Tiêu chí tuần kế tiếp: tạo được mặt hàng và nhà cung cấp, lập phiếu nhập đúng địa điểm, kiểm tra số lượng/giá trị hợp lệ và ghi nhận kết quả nhập một lần.
 
 
 ## 15. Tài liệu tham khảo và minh chứng
@@ -271,22 +269,22 @@ Tài liệu trong tiến trình đồ án
 
 Tài liệu kỹ thuật đã tham khảo
 
-[4] NestJS. Authentication và Authorization. <link href="https://docs.nestjs.com/security/authentication" color="#17635b">docs.nestjs.com/security/authentication</link>; <link href="https://docs.nestjs.com/security/authorization" color="#17635b">docs.nestjs.com/security/authorization</link>.
+[4] NestJS. Authentication và Authorization. <link href="https://docs.nestjs.com/security/authentication" color="#17658b">docs.nestjs.com/security/authentication</link>; <link href="https://docs.nestjs.com/security/authorization" color="#17658b">docs.nestjs.com/security/authorization</link>.
 
-[5] Keycloak. Running Keycloak in a container; Importing and exporting realms. <link href="https://www.keycloak.org/server/containers" color="#17635b">keycloak.org/server/containers</link>; <link href="https://www.keycloak.org/server/importExport" color="#17635b">keycloak.org/server/importExport</link>.
+[5] Keycloak. Running Keycloak in a container; Importing and exporting realms. <link href="https://www.keycloak.org/server/containers" color="#17658b">keycloak.org/server/containers</link>; <link href="https://www.keycloak.org/server/importExport" color="#17658b">keycloak.org/server/importExport</link>.
 
-[6] openid-client. Tài liệu thư viện và ví dụ Authorization Code Flow. <link href="https://github.com/panva/openid-client" color="#17635b">github.com/panva/openid-client</link>.
+[6] openid-client. Tài liệu thư viện và ví dụ Authorization Code Flow. <link href="https://github.com/panva/openid-client" color="#17658b">github.com/panva/openid-client</link>.
 
-[7] RabbitMQ. Consumer Acknowledgements and Publisher Confirms. <link href="https://www.rabbitmq.com/docs/confirms" color="#17635b">rabbitmq.com/docs/confirms</link>.
+[7] RabbitMQ. Consumer Acknowledgements and Publisher Confirms. <link href="https://www.rabbitmq.com/docs/confirms" color="#17658b">rabbitmq.com/docs/confirms</link>.
 
-[8] Keycloak. Working with themes. <link href="https://www.keycloak.org/ui-customization/themes" color="#12679a">keycloak.org/ui-customization/themes</link>. Tham khảo ngày 15/10/2026 để đồng bộ nhận diện màn hình đăng nhập.
+[8] Keycloak. Working with themes. <link href="https://www.keycloak.org/ui-customization/themes" color="#17658b">keycloak.org/ui-customization/themes</link>. Tham khảo ngày 15/10/2026 để đồng bộ nhận diện màn hình đăng nhập.
 
-[9] Tabler. Dashboard UI. <link href="https://github.com/tabler/tabler" color="#12679a">github.com/tabler/tabler</link>.<br/>[10] shadcn/ui. Dashboard blocks. <link href="https://ui.shadcn.com/blocks?category=dashboard" color="#12679a">ui.shadcn.com/blocks</link>. Tham khảo bố cục ngày 15/10/2026; tự triển khai bằng React/CSS hiện có, không tích hợp hai thư viện.
+[9] Tabler. Dashboard UI. <link href="https://github.com/tabler/tabler" color="#17658b">github.com/tabler/tabler</link>.<br/>[10] shadcn/ui. Dashboard blocks. <link href="https://ui.shadcn.com/blocks?category=dashboard" color="#17658b">ui.shadcn.com/blocks</link>. Tham khảo bố cục ngày 15/10/2026; tự triển khai bằng React/CSS hiện có, không tích hợp hai thư viện.
 
-Các tài liệu [4]-[7] được tham khảo trong quá trình triển khai ngày 14/10/2026. Quyết định và phạm vi thực hiện được ghi theo mã nguồn của bản 0.4.0, không coi toàn bộ khả năng của framework là chức năng đã làm.
+Các tài liệu [4]-[7] được tham khảo trong quá trình triển khai ngày 14/10/2026. Các nguồn này phục vụ thiết kế xác thực, phân quyền và xử lý sự kiện của phiên bản 0.4.0.
 
 Đối chiếu minh chứng
 
 Hình 2 chụp lại ngày 16/10/2026 sau khi hoàn thiện màn hình đăng nhập. Hình 3-8 giữ từ lần kiểm thử ngày 15/10/2026. Các ảnh đều do Playwright chụp trên ứng dụng thật. Hình 2 gồm hai bước nhập mật khẩu và mã xác thực, chụp trước khi nhập thông tin bí mật. Hình 8 là ảnh cùng giao diện tại chiều rộng 390 px. Hình 1 là sơ đồ triển khai của bản tuần 4. Ảnh dùng dữ liệu trình diễn; không chứa mật khẩu, bí mật TOTP hay mã lời mời.
 
-Kết quả được lưu kèm mã nguồn để có thể chạy lại. Báo cáo ghi nhận tiến độ đến ngày 16/10/2026, không giả định có triển khai production, đánh giá của giảng viên hoặc sử dụng thực tế ngoài những minh chứng đã nêu.
+Kết quả kiểm thử và ảnh minh chứng được lưu kèm mã nguồn phiên bản 0.4.0, ghi nhận tiến độ đến ngày 16/10/2026.

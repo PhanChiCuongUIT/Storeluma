@@ -127,8 +127,10 @@ export function SalesRoom({
     ]);
     setRows(res.items);
     setMore(res.nextCursor);
-    setShift(s.items.find((x: Row) => x.status === "OPEN") ?? null);
+    const latest = s.items.find((x: Row) => x.status === "OPEN") ?? null;
+    setShift(latest);
     setLoaded(true);
+    return latest;
   }
   useEffect(() => {
     if (!sites.some((s) => s.id === siteId))
@@ -236,7 +238,8 @@ export function SalesRoom({
     setQuote(null);
   }, [cart, discount, discountType]);
   useEffect(() => {
-    if (order && ['COMPLETED', 'CANCELLED'].includes(order.status)) setNotice('');
+    if (order && ["COMPLETED", "CANCELLED"].includes(order.status))
+      setNotice("");
   }, [order?.status]);
   async function open(id: string) {
     await run(async () => {
@@ -352,8 +355,14 @@ export function SalesRoom({
               }
               onClick={() =>
                 void run(async () => {
-                  await refresh();
-                  setShiftForm(shift ? "close" : "open");
+                  const latest = await refresh();
+                  if (
+                    latest &&
+                    role === "CASHIER" &&
+                    latest.cashier_id !== subjectId
+                  )
+                    throw new Error("Ca hiện tại do người khác mở.");
+                  setShiftForm(latest ? "close" : "open");
                   setCounted("");
                   setShiftNote("");
                 })

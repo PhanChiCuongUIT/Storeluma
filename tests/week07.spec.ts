@@ -197,9 +197,9 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
     await expect
       .poll(
         async () => {
-          const response = await get('orders/' + d.id);
+          const response = await get("orders/" + d.id);
           // A restarted service may briefly be unreachable; all other HTTP errors still fail.
-          if(response.status() === 503) return 'SERVICE_STARTING';
+          if (response.status() === 503) return "SERVICE_STARTING";
           x = await good(response);
           return x.status;
         },
@@ -943,7 +943,9 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
     await page.getByLabel("Chọn hộ kinh doanh").selectOption(tenant);
     await page.getByRole("button", { name: "Đơn bán", exact: true }).click();
     await page.getByLabel("Địa điểm bán hàng").selectOption(site.id);
-    expect((await page.getByLabel('Tìm mã đơn bán').boundingBox())!.width).toBeGreaterThan(200);
+    expect(
+      (await page.getByLabel("Tìm mã đơn bán").boundingBox())!.width,
+    ).toBeGreaterThan(200);
     await page.getByRole("button", { name: "Tạo đơn bán" }).click();
     await page.getByLabel("Tìm hàng bán").fill(sku.code);
     await page
@@ -1014,6 +1016,29 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
       path: evidence + "/05-order-list.png",
       fullPage: true,
     });
+    // Another session can close the displayed shift before this user opens its form.
+    const liveShift = (
+      await good(await get("shifts?siteId=" + site.id))
+    ).items.find((s: any) => s.status === "OPEN");
+    await good(
+      await cmd(`shifts/${liveShift.id}/close`, {
+        siteId: site.id,
+        version: liveShift.version,
+        countedCash: liveShift.expected_now,
+        note: "",
+      }),
+    );
+    await page.getByRole("button", { name: "Đóng ca", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Mở ca thu ngân", exact: true }),
+    ).toBeVisible();
+    await page.getByLabel("Tiền đầu ca", { exact: true }).fill("200000");
+    await page
+      .getByRole("button", { name: "Xác nhận mở ca", exact: true })
+      .click();
+    await expect(
+      page.getByText("Đã mở ca thu ngân.", { exact: true }),
+    ).toBeVisible();
   });
   test("W7-22 Shift close records exact cash variance and blocks later checkout", async () => {
     const s = (await good(await get("shifts?siteId=" + site.id))).items.find(

@@ -4,9 +4,9 @@ Phan Chí Cường - 23520207. GVHD: ThS. Trần Anh Dũng.
 
 Kỳ báo cáo: 05/10/2026 - 11/10/2026. Ngày lập: 14/10/2026.
 
-## 1. Mục tiêu, công việc và cách đọc báo cáo
+## 1. Mục tiêu và công việc tuần 3
 
-Tiếp nối đề cương tuần 1 và kết quả khảo sát tuần 2, tuần 3 chuyển 24 yêu cầu chức năng cốt lõi thành thiết kế nghiệp vụ, tương tác dịch vụ, dữ liệu và mẫu màn hình đầu tiên. Kỳ kế hoạch là 05/10-11/10/2026; bộ sản phẩm được tổng hợp và hoàn thiện ngày 14/10/2026. Báo cáo ghi nhận kết quả thiết kế tại thời điểm lập, không dựng lại nhật ký công việc cho từng ngày trong tuần.
+Tiếp nối đề cương tuần 1 và kết quả khảo sát tuần 2, tuần 3 chuyển 24 yêu cầu chức năng cốt lõi thành thiết kế nghiệp vụ, tương tác dịch vụ, dữ liệu và mẫu màn hình đầu tiên. Kỳ kế hoạch là 05/10-11/10/2026; bộ sản phẩm được tổng hợp và hoàn thiện ngày 14/10/2026.
 
 | Nhiệm vụ tuần 3 | Công việc đã thực hiện | Sản phẩm |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Tiếp nối đề cương tuần 1 và kết quả khảo sát tuần 2, tuần
 | Phác thảo UI | Thiết kế đường đi và trạng thái quan trọng của người dùng | 7 mẫu màn hình bằng hình vector |
 | Rà soát thiết kế | Đối chiếu 24 yêu cầu; kiểm tra tình huống tiền và hàng | Ma trận truy vết và 12 tình huống rà soát |
 
-Phương pháp: phân tích từ yêu cầu tuần 2, mô hình hóa và đi từng bước qua các tình huống giả định. Các mẫu màn hình là wireframe tĩnh trong báo cáo, chưa phải ứng dụng chạy hoặc nguyên mẫu đã kiểm thử với người dùng. Chưa có buổi phỏng vấn bổ sung hay xác nhận của cán bộ hướng dẫn được ghi nhận.
+Phương pháp: phân tích từ yêu cầu tuần 2, mô hình hóa và đi từng bước qua các tình huống giả định. Các mẫu màn hình là wireframe tĩnh trong báo cáo, chưa phải ứng dụng chạy hoặc nguyên mẫu đã kiểm thử với người dùng. Các thiết kế chưa được đánh giá qua phỏng vấn hoặc thử nghiệm với người sử dụng.
 
 | Nội dung | Trang nội dung |
 | --- | --- |
