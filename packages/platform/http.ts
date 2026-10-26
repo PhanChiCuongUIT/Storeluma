@@ -5,6 +5,7 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { ZodError } from 'zod';
 import { db } from './db.js';
 import { appVersion } from './version.js';
+import { verifyWorkflow } from './workflow-client.js';
 import type { Request } from 'express';
 export type ActorRequest=Request & {actor:JWTPayload};
 const jwks=createRemoteJWKSet(new URL(`${process.env.OIDC_INTERNAL ?? 'http://localhost:8180/realms/storeluma'}/protocol/openid-connect/certs`));
@@ -13,6 +14,10 @@ export class AuthGuard implements CanActivate{
   async canActivate(context:ExecutionContext){
     const req=context.switchToHttp().getRequest<ActorRequest>();
     if(req.path==='/health')return true;
+    if(req.path.startsWith('/v1/internal/workflows/')){
+      const caller=await verifyWorkflow(req,['sales','inventory','finance']);
+      req.actor={sub:'service:'+caller};return true;
+    }
     const value=req.headers.authorization;
     if(!value?.startsWith('Bearer '))throw new UnauthorizedException('Cần đăng nhập.');
     try{

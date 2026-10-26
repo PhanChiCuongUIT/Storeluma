@@ -81,7 +81,7 @@ export async function serviceCall<T = any>(
   const result = await response.json();
   if (!response.ok)
     throw new HttpException(
-      result.message ?? "Dịch vụ liên quan từ chối yêu cầu.",
+      result ?? "Dịch vụ liên quan từ chối yêu cầu.",
       response.status,
     );
   return result as T;
@@ -90,6 +90,7 @@ export type Grant = {
   role: string;
   siteIds: string[];
   warehouseId?: string;
+  registerId?: string;
   siteName?: string;
   costRead: boolean;
   permissionVersion: number;

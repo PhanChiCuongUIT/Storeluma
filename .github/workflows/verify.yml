@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: {node-version: '24', cache: npm}
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run setup
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -35,7 +36,9 @@ jobs:
             docs/week-04/evidence/
             docs/week-05/evidence/
             docs/week-06/evidence/
+            docs/week-07/evidence/
             tmp/week06/screenshots/
+            tmp/week07/screenshots/
             tmp/playwright-results.json
             playwright-report/
             test-results/

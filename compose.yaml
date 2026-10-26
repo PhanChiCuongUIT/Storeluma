@@ -20,6 +20,7 @@ x-env: &env
   CATALOG_URL: http://catalog:4100
   INVENTORY_URL: http://inventory:4100
   FINANCE_URL: http://finance:4100
+  SALES_URL: http://sales:4100
 services:
   postgres:
     image: postgres:17-alpine
@@ -66,6 +67,7 @@ services:
       CATALOG_SERVICE_KEY: ${CATALOG_SERVICE_KEY}
       INVENTORY_SERVICE_KEY: ${INVENTORY_SERVICE_KEY}
       FINANCE_SERVICE_KEY: ${FINANCE_SERVICE_KEY}
+      SALES_SERVICE_KEY: ${SALES_SERVICE_KEY}
       DATABASE_URL: postgres://business:${BUSINESS_DB_PASSWORD}@postgres:5432/business_db
   inventory:
     <<: *app
@@ -74,6 +76,8 @@ services:
       <<: *env
       SERVICE_NAME: inventory
       INVENTORY_SERVICE_KEY: ${INVENTORY_SERVICE_KEY}
+      SALES_SERVICE_KEY: ${SALES_SERVICE_KEY}
+      FINANCE_SERVICE_KEY: ${FINANCE_SERVICE_KEY}
       DATABASE_URL: postgres://inventory:${INVENTORY_DB_PASSWORD}@postgres:5432/inventory_db
   finance:
     <<: *app
@@ -81,7 +85,9 @@ services:
     environment:
       <<: *env
       SERVICE_NAME: finance
+      INVENTORY_SERVICE_KEY: ${INVENTORY_SERVICE_KEY}
       FINANCE_SERVICE_KEY: ${FINANCE_SERVICE_KEY}
+      SALES_SERVICE_KEY: ${SALES_SERVICE_KEY}
       DATABASE_URL: postgres://finance:${FINANCE_DB_PASSWORD}@postgres:5432/finance_db
   gateway:
     <<: *app
@@ -98,12 +104,11 @@ services:
   catalog:
     <<: *app
     build: {context: ., args: {SERVICE: catalog}}
-    environment: {<<: *env, SERVICE_NAME: catalog, DATABASE_URL: 'postgres://catalog:${CATALOG_DB_PASSWORD}@postgres:5432/catalog_db', CATALOG_SERVICE_KEY: '${CATALOG_SERVICE_KEY}', INVENTORY_SERVICE_KEY: '${INVENTORY_SERVICE_KEY}'}
+    environment: {<<: *env, SERVICE_NAME: catalog, DATABASE_URL: 'postgres://catalog:${CATALOG_DB_PASSWORD}@postgres:5432/catalog_db', CATALOG_SERVICE_KEY: '${CATALOG_SERVICE_KEY}', INVENTORY_SERVICE_KEY: '${INVENTORY_SERVICE_KEY}', SALES_SERVICE_KEY: '${SALES_SERVICE_KEY}'}
   sales:
     <<: *app
-    profiles: [full]
     build: {context: ., args: {SERVICE: sales}}
-    environment: {<<: *env, SERVICE_NAME: sales, DATABASE_URL: 'postgres://sales:${SALES_DB_PASSWORD}@postgres:5432/sales_db'}
+    environment: {<<: *env, SERVICE_NAME: sales, DATABASE_URL: 'postgres://sales:${SALES_DB_PASSWORD}@postgres:5432/sales_db', SALES_SERVICE_KEY: '${SALES_SERVICE_KEY}'}
   reporting:
     <<: *app
     profiles: [full]

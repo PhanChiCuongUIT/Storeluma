@@ -25,6 +25,7 @@ AGENTS.md
 /docs/local/TIEN_DO_THUC_HIEN_TUNG_TUAN.md
 /docs/week-05/evidence/*.json
 /docs/week-06/evidence/*.json
+/docs/week-07/evidence/*.json
 /tools/*
 !/tools/dev-setup.mjs
 !/tools/demo-login.mjs

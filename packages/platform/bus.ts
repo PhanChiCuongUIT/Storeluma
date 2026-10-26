@@ -75,7 +75,7 @@ export async function worker(
       await ch.unbindQueue(`${name}.dead`, "storeluma.dead", "");
       // Retain events whose read-model consumers are scheduled for later weeks.
       await ch.assertQueue("storeluma.deferred", { durable: true });
-      for (const route of ["site.activated", "inventory.stock-changed.v1"])
+      for (const route of ["site.activated", "inventory.stock-changed.v1", "sales.order-completed.v1", "finance.payment-succeeded.v1"])
         await ch.bindQueue("storeluma.deferred", "storeluma", route);
       await ch.assertQueue(name, {
         durable: true,

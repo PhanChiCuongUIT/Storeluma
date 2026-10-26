@@ -3,6 +3,7 @@ import {worker} from '../../packages/platform/bus.js';
 import {start} from '../../packages/platform/http.js';
 import {Inventory} from './inventory.js';
 import {Stock} from './stock.js';
+import {Reservations, expireReservations} from './reservations.js';
 await migrate('inventory');
 await worker('inventory',['site.provision.requested','catalog.sku-updated.v1'],async(c,e)=>{
   if('data' in e){if(e.eventType!=='catalog.sku-updated.v1'||e.producer!=='catalog-service')throw new Error('Unexpected catalog event');const d=e.data;await c.query('INSERT INTO sku_projection(tenant_id,sku_id,code,name,base_unit,status,version) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(tenant_id,sku_id) DO UPDATE SET code=excluded.code,name=excluded.name,base_unit=excluded.base_unit,status=excluded.status,version=excluded.version WHERE sku_projection.version<excluded.version',[e.tenantId,d.skuId,d.code,d.name,d.baseUnit,d.status,d.version]);return;}
@@ -11,4 +12,5 @@ await worker('inventory',['site.provision.requested','catalog.sku-updated.v1'],a
   if(row.tenant_id!==e.tenantId||row.site_id!==e.siteId)throw new Error('Provision identity conflict');
   await outbox(c,'warehouse.ready',{tenantId:e.tenantId,siteId:e.siteId,warehouseId:e.warehouseId,registerId:e.registerId});
 });
-await start([Inventory,Stock]);
+await start([Inventory,Stock,Reservations]);
+setInterval(()=>void expireReservations().catch(()=>console.warn('reservation_expiry_pending')),1000);

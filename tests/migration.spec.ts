@@ -74,6 +74,13 @@ test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a
     await migrate();
     expect((await fixture.query('SELECT * FROM stock_balances')).rows).toEqual(before);
     expect((await fixture.query('SELECT * FROM stock_movements ORDER BY created_at')).rows).toEqual(movements);
+    // Upgrade an occupied stock ledger to reservations without rebuilding history.
+    copyFileSync('services/inventory/migrations/004.sql', join(directory, '004.sql'));
+    await Promise.all([migrate(), migrate()]);
+    expect((await fixture.query('SELECT * FROM stock_balances')).rows).toEqual(before);
+    expect((await fixture.query('SELECT * FROM stock_movements ORDER BY created_at')).rows).toEqual(movements);
+    expect((await fixture.query("SELECT to_regclass('reservations') AS object")).rows[0].object).toBe('reservations');
+    expect((await fixture.query('SELECT count(*) FROM reservations')).rows[0].count).toBe('0');
   } finally {
     await fixture.end();
     if (created && /^storeluma_migration_[a-f0-9]{32}$/.test(name)) await admin.query(`DROP DATABASE "${name}"`);

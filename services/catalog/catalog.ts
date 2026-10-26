@@ -651,6 +651,13 @@ export class Catalog {
       ),
     );
   }
+  @Post("internal/catalog/sale-prices") async salePrices(@Req() r:ActorRequest,@Body() b:unknown){
+    await verifyService(r,['sales']);
+    const p=z.object({tenantId:z.uuid(),lines:z.array(z.object({skuId:z.uuid(),unitId:z.uuid()}).strict()).min(1).max(100)}).strict().parse(b);
+    await authorize(r,p.tenantId,'catalog.read');
+    const rows=(await db.query(`SELECT s.id sku_id,s.code,s.name,s.base_unit,s.version sku_version,u.id unit_id,u.name unit_name,u.factor::text,u.price_vnd::text,u.version price_version FROM skus s JOIN products p ON p.tenant_id=s.tenant_id AND p.id=s.product_id JOIN units u ON u.tenant_id=s.tenant_id AND u.sku_id=s.id WHERE s.tenant_id=$1 AND s.id=ANY($2::uuid[]) AND s.status='ACTIVE' AND p.status='ACTIVE' AND u.status='ACTIVE'`,[p.tenantId,p.lines.map(l=>l.skuId)])).rows;
+    return p.lines.map(l=>{const row=rows.find(s=>s.sku_id===l.skuId&&s.unit_id===l.unitId);if(!row)throw new NotFoundException('Hàng hoặc đơn vị không còn được bán.');return row;});
+  }
   @Post("internal/catalog/stock-skus") async stockSkus(
     @Req() r: ActorRequest,
     @Body() body: unknown,

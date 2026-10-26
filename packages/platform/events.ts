@@ -12,12 +12,14 @@ const envelope = z.object({
   tenantId: id,
   siteId: id.nullable(),
   aggregateId: id,
-  aggregateType: z.enum(["Sku", "Receipt", "StockBalance"]),
+  aggregateType: z.enum(["Sku", "Receipt", "StockBalance", "Order", "Payment"]),
   aggregateVersion: z.number().int().positive(),
   correlationId: id,
   causationId: id,
 });
 export const domainEventSchema = z.discriminatedUnion("eventType", [
+  envelope.extend({eventType:z.literal('finance.payment-succeeded.v1'),data:z.object({paymentId:id,orderId:id,shiftId:id,amountVnd:amount,method:z.literal('CASH')}).strict()}).strict(),
+  envelope.extend({eventType:z.literal('sales.order-completed.v1'),data:z.object({orderId:id,orderCode:z.string().max(64),paymentId:id,reservationId:id,payableVnd:amount,lines:z.array(z.object({lineId:id,skuId:id,qtyBase:qty,netVnd:amount,costVnd:amount}).strict()).min(1).max(100)}).strict()}).strict(),
   envelope
     .extend({
       eventType: z.literal("catalog.sku-updated.v1"),
@@ -105,7 +107,7 @@ export async function domainOutbox(
         ? "Sku"
         : type === "inventory.receipt-posted.v1"
           ? "Receipt"
-          : "StockBalance",
+          : type === 'sales.order-completed.v1' ? 'Order' : type === 'finance.payment-succeeded.v1' ? 'Payment' : "StockBalance",
     aggregateVersion,
     correlationId,
     causationId: correlationId,

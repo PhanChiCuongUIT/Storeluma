@@ -4,14 +4,14 @@ const target='infra/generated';
 if (existsSync('.env')) {
   if (!existsSync(`${target}/storeluma-realm.json`)) throw new Error('Existing .env: restore infra/generated from the same setup; no secrets overwritten.');
   const current=readFileSync('.env','utf8');
-  for(const service of ['catalog','inventory','finance']){const key=service.toUpperCase()+'_SERVICE_KEY';if(!new RegExp('^'+key+'=','m').test(current))appendFileSync('.env',`\n${key}=${randomBytes(32).toString('hex')}\n`);}
+  for(const service of ['catalog','inventory','finance','sales']){const key=service.toUpperCase()+'_SERVICE_KEY';if(!new RegExp('^'+key+'=','m').test(current))appendFileSync('.env',`\n${key}=${randomBytes(32).toString('hex')}\n`);}
   console.log('Existing local configuration preserved.'); process.exit(0);
 }
 mkdirSync(target,{recursive:true});
 const secret=()=>randomBytes(24).toString('hex');
 const env={PG_ADMIN_PASSWORD:secret(),RABBIT_PASSWORD:secret(),KEYCLOAK_ADMIN_PASSWORD:secret(),OIDC_SECRET:secret(),SESSION_KEY:randomBytes(32).toString('hex')};
 const services=['business','inventory','finance','catalog','sales','reporting','notification','gateway','keycloak'];
-for(const s of ['catalog','inventory','finance'])env[`${s.toUpperCase()}_SERVICE_KEY`]=randomBytes(32).toString('hex');
+for(const s of ['catalog','inventory','finance','sales'])env[`${s.toUpperCase()}_SERVICE_KEY`]=randomBytes(32).toString('hex');
 for (const s of services) env[`${s.toUpperCase()}_DB_PASSWORD`]=secret();
 writeFileSync('.env',Object.entries(env).map(([k,v])=>`${k}=${v}`).join('\n')+'\n');
 writeFileSync('.env.example',Object.keys(env).map(k=>`${k}=GENERATED_BY_NPM_RUN_SETUP`).join('\n')+'\n');
