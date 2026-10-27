@@ -163,3 +163,28 @@ Chuẩn bị tuần 8
 Hoàn thiện thao tác POS, ca, biên nhận và trả hàng. Hiện chỉ CASH/khách lẻ, một quầy mặc định; chưa có provider điện tử, credit, in biên nhận, trả hàng hoặc read model báo cáo doanh thu. Reporting/Notification vẫn là scaffold.
 
 Môi trường đã thử là Docker cục bộ và CI; chưa triển khai production/HTTPS, phân tách quyền migration, xoay key, backup/restore hoặc tải lớn. Tham khảo giao diện: Tabler Form elements và Invoice; URL đầy đủ ở ui-design.md.
+
+
+## 11. Rà soát bổ sung ngày 27/10/2026
+
+Đối chiếu sản phẩm với kế hoạch tuần 1-7 và chạy lại các luồng nghiệp vụ. Phát hiện yêu cầu tạo hoặc sửa đơn nháp gửi lại sau khi báo giá hết hạn bị trả lỗi, dù lần trước đã lưu thành công. Đã chuyển kiểm tra hạn báo giá vào bước ghi mới; yêu cầu lặp trả kết quả đã lưu và vẫn kiểm quyền hiện hành.
+
+| Nội dung kiểm chứng | Kết quả |
+| --- | --- |
+| Build và TypeScript | Đạt sau sửa; kiểm tra thư viện runtime không ghi nhận lỗ hổng. |
+| Hồi quy trước sửa | 85/85 đạt; bắt đầu 27/10/2026 13:30:47, 509.5 giây. |
+| Tuần 7 sau sửa | 29/29 đạt; bắt đầu 27/10/2026 13:40:44, 185.7 giây. |
+| Đối chiếu dữ liệu | 9 kiểm tra đạt: tồn, lượng giữ, tiền, vốn, công nợ, sự kiện và quyền database. |
+| CI hiện tại | Tổng 106 ca: 6 AUTH, 1 MIG, 20 W4, 25 W5, 25 W6 và 29 W7; kết quả theo từng commit trong GitHub Actions. |
+
+Kiểm thử bổ sung
+
+W7-28: khởi động lại Sales khi đơn đang PREPARED và chưa thu tiền; giữ nguyên payment/reservation, chưa phát sinh ledger hoặc xuất kho. Sau xác nhận tiền, đơn hoàn tất với một dòng tiền và một lần xuất.
+
+W7-29: tạo/sửa nháp thành công rồi làm hết hạn báo giá và gửi lại cùng yêu cầu; nhận lại đúng đơn, phiên bản. Đổi nội dung với cùng key bị từ chối. Báo giá hết hạn không được tạo đơn mới; thành viên mất quyền không được lấy kết quả lặp.
+
+Điều kiện chuyển sang tuần 8
+
+Các chức năng cốt lõi đến tuần 7 đã có giao diện và backend hoạt động, đủ làm nền cho POS, ca, biên nhận và trả hàng. Luồng bán hiện hỗ trợ tiền mặt cho khách lẻ. Reporting/Notification, HTTPS, phát hành và sao lưu/phục hồi tiếp tục theo giai đoạn tương ứng; chưa nghiệm thu toàn bộ hệ thống production.
+
+Ảnh đơn hoàn tất được cập nhật từ lượt kiểm thử sau sửa. Kết quả chi tiết và đối chiếu từng tuần: review-weeks-01-07.md. Các lượt kiểm tra được ghi riêng để phân biệt trạng thái trước và sau sửa.

@@ -937,6 +937,154 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
       ).rows[0].count,
     ).toBe("0");
   });
+  test("W7-28 Unpaid prepared checkout survives Sales restart without collecting cash", async () => {
+    test.setTimeout(150000);
+    const d = await checkout(await draft());
+    const paymentId = d.checkout.payment.id;
+    const reservationId = d.checkout.payment.reservation_id;
+    const before = await balance();
+    compose("restart", "sales");
+    await expect
+      .poll(async () => (await get("orders/" + d.id)).status(), {
+        timeout: 30000,
+      })
+      .toBe(200);
+    const resumed = await pending(d);
+    expect(resumed.checkout.payment.id).toBe(paymentId);
+    expect(resumed.checkout.payment.reservation_id).toBe(reservationId);
+    expect(resumed.checkout.payment.status).toBe("PENDING");
+    expect((await balance()).on_hand).toBe(before.on_hand);
+    expect((await balance()).reserved).toBe(before.reserved);
+    expect(
+      (
+        await fin.query(
+          "SELECT count(*) FROM cash_ledger WHERE payment_id=$1",
+          [paymentId],
+        )
+      ).rows[0].count,
+    ).toBe("0");
+    expect(
+      (
+        await inv.query("SELECT status FROM reservations WHERE id=$1", [
+          reservationId,
+        ])
+      ).rows[0].status,
+    ).toBe("PREPARED");
+    await good(await confirm(resumed));
+    await terminal(d);
+    expect(
+      (
+        await fin.query(
+          "SELECT count(*) FROM cash_ledger WHERE payment_id=$1",
+          [paymentId],
+        )
+      ).rows[0].count,
+    ).toBe("1");
+    expect(
+      (
+        await inv.query(
+          "SELECT count(*) FROM stock_movements WHERE document_type='SALE' AND document_id=$1",
+          [d.id],
+        )
+      ).rows[0].count,
+    ).toBe("1");
+    expect(
+      (
+        await sales.query(
+          "SELECT count(*) FROM checkout_sagas WHERE order_id=$1",
+          [d.id],
+        )
+      ).rows[0].count,
+    ).toBe("1");
+  });
+  test("W7-29 Draft command retries survive quote expiry without new orders", async () => {
+    const q = await good(await cmd("sales/quotes", quoteBody()));
+    const key = randomUUID();
+    const body = { quoteId: q.id, note: "Giữ yêu cầu khi mất phản hồi" };
+    const d = await good(await cmd("orders", body, owner, key));
+    await sales.query(
+      "UPDATE quotes SET expires_at=now()-interval '1 second' WHERE id=$1",
+      [q.id],
+    );
+    const replay = await good(await cmd("orders", body, owner, key));
+    expect(replay.id).toBe(d.id);
+    expect(
+      (
+        await cmd("orders", { ...body, note: "Nội dung khác" }, owner, key)
+      ).status(),
+    ).toBe(409);
+    const next = await good(await cmd("sales/quotes", quoteBody(sku, "2")));
+    const editKey = randomUUID();
+    const edit = { quoteId: next.id, version: d.version, note: "Đã sửa nháp" };
+    const updated = await good(
+      await cmd("orders/" + d.id, edit, owner, editKey, "PATCH"),
+    );
+    await sales.query(
+      "UPDATE quotes SET expires_at=now()-interval '1 second' WHERE id=$1",
+      [next.id],
+    );
+    const editReplay = await good(
+      await cmd("orders/" + d.id, edit, owner, editKey, "PATCH"),
+    );
+    expect(editReplay.id).toBe(d.id);
+    expect(editReplay.version).toBe(updated.version);
+    expect(
+      (
+        await cmd(
+          "orders/" + d.id,
+          { ...edit, note: "Nội dung khác" },
+          owner,
+          editKey,
+          "PATCH",
+        )
+      ).status(),
+    ).toBe(409);
+    // Expiry still rejects a genuinely new command, and replay still checks live permissions.
+    const unused = await good(await cmd("sales/quotes", quoteBody()));
+    await sales.query(
+      "UPDATE quotes SET expires_at=now()-interval '1 second' WHERE id=$1",
+      [unused.id],
+    );
+    expect((await cmd("orders", { quoteId: unused.id })).status()).toBe(409);
+    expect(
+      (
+        await sales.query(
+          "SELECT count(*) FROM orders WHERE tenant_id=$1 AND quote_id=$2",
+          [tenant, unused.id],
+        )
+      ).rows[0].count,
+    ).toBe("0");
+    expect(
+      (
+        await sales.query(
+          "SELECT count(*) FROM orders WHERE tenant_id=$1 AND quote_id=$2",
+          [tenant, next.id],
+        )
+      ).rows[0].count,
+    ).toBe("1");
+    await cancel(updated);
+    const staffQuote = await good(
+      await cmd("sales/quotes", quoteBody(), staff),
+    );
+    const staffKey = randomUUID();
+    const staffBody = { quoteId: staffQuote.id };
+    const staffDraft = await good(
+      await cmd("orders", staffBody, staff, staffKey),
+    );
+    await sales.query(
+      "UPDATE quotes SET expires_at=now()-interval '1 second' WHERE id=$1",
+      [staffQuote.id],
+    );
+    await role("STOCK");
+    try {
+      expect((await cmd("orders", staffBody, staff, staffKey)).status()).toBe(
+        403,
+      );
+    } finally {
+      await role("CASHIER");
+      await cancel(staffDraft);
+    }
+  });
   test("W7-21 Real UI quote, draft, cash confirmation and mobile layout", async () => {
     test.setTimeout(150000);
     await page.goto("/");

@@ -83,7 +83,7 @@ Use **Hàng hóa** to add a product and its first SKU, then add packaging units 
 
 Open **Kho hàng** for stock balances, movements, counts, and adjustments. A count follows draft → counting → submitted → posted; starting the count freezes its selected SKUs until approval or cancellation. Owners and assigned managers approve; stock staff maintain their own drafts and counts. Accountants can inspect valuation; cashiers can inspect quantities and movements without cost fields or restricted source documents.
 
-Use **??n b?n** to open a cash shift, choose products and selling units, obtain a quote, and save a draft. Start checkout to reserve stock, then confirm cash only after receiving payment and returning change. The completed order links to a sale movement in the stock card. Quotes expire after 120 seconds; use **S?a ??n / c?p nh?t gi?** if a quote expires or prices change. Cashiers may discount up to 5% and operate their own shift; authorized owners/managers can handle shifts in their location scope.
+Use **Đơn bán** to open a cash shift, choose products and selling units, obtain a quote, and save a draft. Start checkout to reserve stock, then confirm cash only after receiving payment and returning change. The completed order links to a sale movement in the stock card. Quotes expire after 120 seconds; use **Sửa đơn / cập nhật giá** if a quote expires or prices change. Cashiers may discount up to 5% and operate their own shift; authorized owners/managers can handle shifts in their location scope.
 
 ### Stop the application
 

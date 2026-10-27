@@ -47,12 +47,12 @@ function visible(d: any, cost: boolean) {
     }),
   };
 }
-async function quote(c: any, t: string, id: string) {
+async function quote(c: any, t: string, id: string, requireFresh = true) {
   const q = (
     await c.query("SELECT * FROM quotes WHERE tenant_id=$1 AND id=$2", [t, id])
   ).rows[0];
   if (!q) throw new NotFoundException("Không tìm thấy báo giá.");
-  if (new Date(q.expires_at).getTime() <= Date.now())
+  if (requireFresh && new Date(q.expires_at).getTime() <= Date.now())
     throw new ConflictException({
       code: "QUOTE_EXPIRED",
       message: "Báo giá đã hết hạn. Cập nhật giá trước khi tiếp tục.",
@@ -109,7 +109,9 @@ export class Orders {
       })
       .strict()
       .parse(b);
-    const q = await quote(db, t, p.quoteId),
+    // Replays still authorize against the quote's site, but freshness applies
+    // only when the idempotent callback actually writes a new draft.
+    const q = await quote(db, t, p.quoteId, false),
       g = await authorize(r, t, "sale.write", q.site_id);
     // A quote cannot be used by another role to bypass the discount cap.
     if (
@@ -179,7 +181,7 @@ export class Orders {
         .parse(b),
       d = await order(db, t, id),
       g = await authorize(r, t, "sale.write", d.site_id),
-      q = await quote(db, t, p.quoteId);
+      q = await quote(db, t, p.quoteId, false);
     if (q.site_id !== d.site_id)
       throw new ConflictException("Báo giá khác địa điểm.");
     if (

@@ -43,3 +43,7 @@ MIG-01 kiểm migration 001/002 có dữ liệu → 003 kiểm kho → 004 giữ
 Ảnh minh chứng được chụp từ ứng dụng với bộ dữ liệu thử nghiệm; thao tác qua API và UI.
 
 Đã cập nhật dependency theo bản vá [body-parser](https://github.com/expressjs/body-parser/security/advisories/GHSA-27r3-jxmh-p828) và [multer](https://github.com/expressjs/multer/security/advisories/GHSA-q7qp-rjg7-q26m); không hạ phiên bản framework. CI bổ sung audit runtime và lưu ảnh tuần 7. Chưa có CD production, provider thanh toán điện tử, khôi phục mất DB hay nghiệp vụ trả hàng.
+
+## Rà soát bổ sung ngày 27/10/2026
+
+Xem [đối chiếu tuần 1-7](../review-weeks-01-07.md): 85/85 ca hồi quy trước sửa; 29/29 ca tuần 7 sau sửa; bổ sung W7-28 và W7-29. Bộ CI hiện tại gồm 106 ca. Các kết quả ở trên là mốc kiểm chứng ngày 26/10, được giữ để đối chiếu.

@@ -16,6 +16,8 @@ Gateway phục vụ React, kiểm CSRF/session và định tuyến. Mọi URL `/
 
 Các đường dẫn dưới đây có tiền tố `/v1/tenants/:tenant`. POST/PATCH nghiệp vụ cần `Idempotency-Key` 16-64 ký tự; lặp cùng key/body trả kết quả cũ, đổi body bị từ chối. Các bước có version từ chối phiên bản cũ. Giá trị tiền và số lượng đều là chuỗi thập phân, không dùng số thực JS.
 
+Tạo/sửa nháp đã lưu thành công có thể gửi lại cùng key/body sau khi quote hết hạn và nhận lại kết quả cũ. Quyền hiện hành vẫn được kiểm trước khi trả kết quả. Thao tác ghi mới và bắt đầu checkout vẫn yêu cầu quote còn hạn; cơ chế replay không kéo dài hiệu lực báo giá.
+
 | Method / path | Nội dung chính |
 | --- | --- |
 | POST `/sales/quotes` | `{siteId, lines:[{skuId,unitId,quantity}], discount:{type:AMOUNT hoặc PERCENT,value}}` |
