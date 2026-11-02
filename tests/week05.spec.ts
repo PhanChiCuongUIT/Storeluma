@@ -26,7 +26,7 @@ const env = Object.fromEntries(
 const pool = (s: string) =>
   new Pool({
     host: "127.0.0.1",
-    port: 55432,
+    port: Number(env.PG_HOST_PORT ?? 55432),
     user: s,
     password: env[`${s.toUpperCase()}_DB_PASSWORD`],
     database: s + "_db",
@@ -1091,7 +1091,7 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
     ]) {
       const forbidden = new Pool({
         host: "127.0.0.1",
-        port: 55432,
+        port: Number(env.PG_HOST_PORT ?? 55432),
         user: source,
         password: env[`${source.toUpperCase()}_DB_PASSWORD`],
         database: target + "_db",

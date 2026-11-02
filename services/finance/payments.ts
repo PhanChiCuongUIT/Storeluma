@@ -184,13 +184,27 @@ export class Payments {
             throw new ConflictException(
               "Còn đơn chờ thu tiền. Hoàn tất hoặc hủy trước khi đóng ca.",
             );
-          const total = (
+          const total =
+            // Refund intents assigned to this drawer must resolve before closing.
+            (
+              await c.query(
+                "SELECT count(*)::int AS count FROM refunds WHERE tenant_id=$1 AND shift_id=$2 AND status='PENDING'",
+                [t, id],
+              )
+            ).rows[0].count;
+          if (total)
+            throw new ConflictException({
+              code: "SHIFT_HAS_PENDING_REFUND",
+              message:
+                "Còn yêu cầu hoàn tiền chưa xác nhận chi. Hoàn tất trước khi đóng ca.",
+            });
+          const ledgerTotal = (
             await c.query(
               "SELECT COALESCE(sum(amount_vnd),0)::text value FROM cash_ledger WHERE tenant_id=$1 AND shift_id=$2",
               [t, id],
             )
           ).rows[0].value;
-          const expected = BigInt(d.opening_cash) + BigInt(total),
+          const expected = BigInt(d.opening_cash) + BigInt(ledgerTotal),
             diff = BigInt(p.countedCash) - expected;
           if (diff !== 0n && !p.note)
             throw new ConflictException("Cần ghi lý do chênh lệch tiền.");

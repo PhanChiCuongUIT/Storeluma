@@ -9,7 +9,7 @@ const evidence=process.env.WEEK04_SCREENSHOTS??'tmp/week04/screenshots';
 const origin='http://localhost:4100';
 const accounts=JSON.parse(readFileSync('infra/generated/accounts.json','utf8')) as {username:string,subject:string,password:string,otpSecret:string}[];
 const env=Object.fromEntries(readFileSync('.env','utf8').trim().split(/\r?\n/).map(s=>s.split('=')));
-const pool=(service:string)=>new Pool({host:'127.0.0.1',port:55432,user:service,password:env[`${service.toUpperCase()}_DB_PASSWORD`],database:service+'_db',max:2});
+const pool=(service:string)=>new Pool({host:'127.0.0.1',port: Number(env.PG_HOST_PORT ?? 55432),user:service,password:env[`${service.toUpperCase()}_DB_PASSWORD`],database:service+'_db',max:2});
 const business=pool('business'),inventory=pool('inventory'),finance=pool('finance'),gateway=pool('gateway');
 async function login(page:Page,index:number){
   await page.goto('/');await page.getByRole('link',{name:/Đăng nhập vào Storeluma/}).click();
@@ -145,7 +145,7 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
     const rows=await good(await api(owner,`/v1/tenants/${tenant}/audit`));expect(rows.some((r:any)=>r.action==='MEMBERSHIP_UPDATED')).toBe(true);expect(rows.some((r:any)=>r.action==='SITE_ACTIVATED')).toBe(true);
   });
   test('W4-15 Database roles cannot connect to another service database',async()=>{
-    const denied=new Pool({host:'127.0.0.1',port:55432,user:'business',password:env.BUSINESS_DB_PASSWORD,database:'finance_db'});
+    const denied=new Pool({host:'127.0.0.1',port: Number(env.PG_HOST_PORT ?? 55432),user:'business',password:env.BUSINESS_DB_PASSWORD,database:'finance_db'});
     await expect(denied.query('SELECT 1')).rejects.toMatchObject({code:'42501'});await denied.end();
   });
   test('W4-16 Browser creates site, renders staff and audit; mobile layout',async()=>{

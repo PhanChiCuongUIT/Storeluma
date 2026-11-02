@@ -19,6 +19,7 @@ const labels: Record<string, string> = {
   COUNT: "Kiểm kho",
   ADJUSTMENT: "Điều chỉnh",
   SALE: "Xuất bán",
+  RETURN: "Nhận trả hàng",
   WRITE_OFF_GOOD: "Xuất hủy hàng tốt",
   WRITE_OFF_QUARANTINE: "Xuất hủy hàng cách ly",
   QUARANTINE: "Đưa vào cách ly",
@@ -226,6 +227,7 @@ export function StockRoom({
   }
   async function open(kind: string, id: string) {
     if(kind==='SALE'){onOpenOrder(id);return;}
+    if(kind==='RETURN'){await run(async()=>{const d=await api(`/v1/tenants/${tenant}/returns/${id}`);onOpenOrder(d.order_id);});return;}
     await run(async () => {
       setDetail({
         ...(await api(`/v1/tenants/${tenant}/${resource(kind)}/${id}`)),
@@ -487,7 +489,7 @@ export function StockRoom({
                       ["FROZEN", "Đang kiểm kho"],
                     ]
                   : view === "movements"
-                    ? ["RECEIPT", "COUNT", "ADJUSTMENT", "SALE"].map((k) => [
+                    ? ["RECEIPT", "COUNT", "ADJUSTMENT", "SALE", "RETURN"].map((k) => [
                         k,
                         labels[k],
                       ])

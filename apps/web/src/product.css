@@ -1,16 +1,16 @@
 /* Product layout: neutral workspace, Storeluma blue and teal accents. */
 .shell{display:flex;min-height:100dvh}
-aside{position:fixed;inset:0 auto 0 0;width:236px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:23px 18px;z-index:2}
-aside .brand{margin:0 3px 27px}
+.app-sidebar{position:fixed;inset:0 auto 0 0;width:236px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:23px 18px;z-index:2}
+.app-sidebar .brand{margin:0 3px 27px}
 .tenant-picker{padding:13px 11px 12px;background:#f8fafb;border:1px solid var(--line);border-radius:9px}
 .tenant-picker label{margin:0 0 7px;font-size:12px;font-weight:500;color:var(--muted)}
 .tenant-picker select{border:0;background:transparent;padding:0 15px 0 0;box-shadow:none;border-radius:0;font-size:13px;font-weight:600;text-overflow:ellipsis}
 .nav-label{font-size:10px;font-weight:600;letter-spacing:1.1px;color:#8a96a4;margin:30px 12px 12px}
-nav{display:flex;flex-direction:column;gap:5px}
-nav button{display:flex;align-items:center;gap:12px;background:transparent;border:1px solid transparent;border-radius:8px;padding:12px;color:#687789;font-size:13px;text-align:left;font-weight:500}
-nav button:hover{background:#f5f8fa;color:var(--brand-dark)}
-nav button.active{color:#087ca2;background:#edf7fa;border-color:#e0f0f5;font-weight:650}
-nav button.active .icon{color:#1293a4}
+.app-nav{display:flex;flex-direction:column;gap:5px}
+.app-nav button{display:flex;align-items:center;gap:12px;background:transparent;border:1px solid transparent;border-radius:8px;padding:12px;color:#687789;font-size:13px;text-align:left;font-weight:500}
+.app-nav button:hover{background:#f5f8fa;color:var(--brand-dark)}
+.app-nav button.active{color:#087ca2;background:#edf7fa;border-color:#e0f0f5;font-weight:650}
+.app-nav button.active .icon{color:#1293a4}
 .sidebar-account{display:flex;gap:10px;align-items:center;border-top:1px solid var(--line);margin-top:auto;padding:20px 7px 0}
 .sidebar-account>div{min-width:0}
 .sidebar-account strong{font-size:12px;font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis}
@@ -159,8 +159,8 @@ details[open] code{display:block;max-width:210px;overflow-wrap:anywhere;font-siz
 .topbar{padding:0 25px}
 }
 
-@media(max-width:950px){aside{width:205px;padding:20px 13px}
-aside .brand{width:175px;height:46px}
+@media(max-width:950px){.app-sidebar{width:205px;padding:20px 13px}
+.app-sidebar .brand{width:175px;height:46px}
 .workspace{margin-left:205px}
 .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
 .stat strong{font-size:25px}
@@ -185,15 +185,15 @@ aside .brand{width:175px;height:46px}
 }
 
 @media(max-width:640px){.shell{display:block}
-aside{position:static;width:100%;padding:12px 16px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;border-right:0}
-.brand,aside .brand{width:155px;height:42px;margin:0}
+.app-sidebar{position:static;width:100%;padding:12px 16px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;border-right:0}
+.brand,.app-sidebar .brand{width:155px;height:42px;margin:0}
 .tenant-picker{padding:7px 9px;min-width:0}
 .tenant-picker label{font-size:9px;margin-bottom:3px}
 .tenant-picker select{font-size:12px}
 .nav-label,.sidebar-account{display:none}
-nav{grid-column:1/-1;min-width:0;overflow-x:auto;flex-direction:row;gap:3px;border-top:1px solid #eef2f6;padding:7px 0;justify-content:space-between}
-nav button{font-size:12px;padding:10px 8px;gap:7px;white-space:nowrap;flex-shrink:0}
-nav .icon{width:17px;height:17px}
+.app-nav{grid-column:1/-1;min-width:0;overflow-x:auto;flex-direction:row;gap:3px;border-top:1px solid #eef2f6;padding:7px 0;justify-content:space-between}
+.app-nav button{font-size:12px;padding:10px 8px;gap:7px;white-space:nowrap;flex-shrink:0}
+.app-nav .icon{width:17px;height:17px}
 .workspace{margin-left:0}
 .topbar{height:46px;padding:0 16px}
 .breadcrumb{font-size:10px;gap:7px}
@@ -249,4 +249,4 @@ th,td{padding:14px}
 .breadcrumb strong{max-width:70px;overflow:hidden;text-overflow:ellipsis}
 }
 
-@media(max-width:360px){nav .icon{display:none}nav button{padding:10px 7px}}
+@media(max-width:360px){.app-nav .icon{display:none}.app-nav button{padding:10px 7px}}

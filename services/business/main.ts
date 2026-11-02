@@ -48,9 +48,10 @@ async function createSite(c:PoolClient,tenantId:string,input:z.infer<typeof site
 class Business{
   @Post('internal/authorize')async authorize(@Req()r:ActorRequest,@Body()body:unknown){
     await verifyService(r,['catalog','inventory','finance','sales']);
-    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm'])}).strict().parse(body);
+    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm','return.read','return.request','return.approve','refund.confirm','cash.write','cash.reverse','shift.approve'])}).strict().parse(body);
     const m=await membership(db,r.actor.sub!,input.tenantId);
     const roles:Record<string,string[]>={
+      'return.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'return.request':['OWNER','MANAGER','CASHIER'],'return.approve':['OWNER','MANAGER'],'refund.confirm':['OWNER','MANAGER','CASHIER'],'cash.write':['OWNER','MANAGER','CASHIER'],'cash.reverse':['OWNER','MANAGER'],'shift.approve':['OWNER','MANAGER'],
       'sale.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'sale.write':['OWNER','MANAGER','CASHIER'],'sale.checkout':['OWNER','MANAGER','CASHIER'],'sale.cancel':['OWNER','MANAGER','CASHIER'],
       'shift.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'shift.open':['OWNER','MANAGER','CASHIER'],'shift.close':['OWNER','MANAGER','CASHIER'],'payment.confirm':['OWNER','MANAGER','CASHIER'],
       'catalog.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'catalog.write':['OWNER','MANAGER'],
@@ -61,12 +62,14 @@ class Business{
     if(!roles[input.action].includes(m.role))throw new ForbiddenException('Vai trò hiện tại không được thực hiện thao tác này.');
     let site;
     if(input.siteId){const result=await siteAccess(db,r.actor.sub!,input.tenantId,input.siteId);site=result.s;
-      if(/write|post|opening|approve|checkout|shift.open|payment.confirm/.test(input.action)&&site.status!=='ACTIVE')throw new ConflictException('Địa điểm chưa sẵn sàng hoặc đã tạm ngừng.');
+      if(/write|post|opening|approve|return.request|checkout|shift.open|payment.confirm|refund.confirm/.test(input.action)&&site.status!=='ACTIVE')throw new ConflictException('Địa điểm chưa sẵn sàng hoặc đã tạm ngừng.');
     }
     if(!input.siteId&&m.role!=='OWNER'&&/write/.test(input.action)){
       if(!(await db.query("SELECT 1 FROM sites WHERE tenant_id=$1 AND id=ANY($2::uuid[]) AND status='ACTIVE' LIMIT 1",[input.tenantId,m.site_ids])).rowCount)throw new ForbiddenException('Không có địa điểm hoạt động trong phạm vi.');
     }
-    return {role:m.role,siteIds:m.site_ids,warehouseId:site?.warehouse_id,registerId:site?.register_id,siteName:site?.name,costRead:['OWNER','ACCOUNTANT'].includes(m.role),permissionVersion:m.version};
+    const approvers=(await db.query("SELECT count(*)::int AS count FROM memberships WHERE tenant_id=$1 AND status='ACTIVE' AND (role='OWNER' OR (role='MANAGER' AND $2::uuid=ANY(site_ids)))",[input.tenantId,input.siteId??null])).rows[0].count;
+    const tenantName=(await db.query('SELECT name FROM tenants WHERE id=$1',[input.tenantId])).rows[0].name;
+    return {selfApprovalAllowed:m.role==='OWNER'&&approvers===1,tenantName,siteAddress:site?.address,role:m.role,siteIds:m.site_ids,warehouseId:site?.warehouse_id,registerId:site?.register_id,siteName:site?.name,costRead:['OWNER','ACCOUNTANT'].includes(m.role),permissionVersion:m.version};
   }
   @Get('me')async me(@Req()r:ActorRequest){
     const memberships=(await db.query(`SELECT m.*,t.name AS tenant_name FROM memberships m JOIN tenants t ON t.id=m.tenant_id WHERE subject_id=$1 ORDER BY t.created_at`,[r.actor.sub])).rows;

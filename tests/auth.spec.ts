@@ -15,7 +15,7 @@ const env = Object.fromEntries(
 );
 const gateway = new Pool({
   host: "127.0.0.1",
-  port: 55432,
+  port: Number(env.PG_HOST_PORT ?? 55432),
   user: "gateway",
   password: env.GATEWAY_DB_PASSWORD,
   database: "gateway_db",

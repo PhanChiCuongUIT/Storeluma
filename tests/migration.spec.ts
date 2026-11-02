@@ -14,7 +14,7 @@ const env = Object.fromEntries(readFileSync('.env', 'utf8').split(/\r?\n/)
 test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a failed migration', async () => {
   // An isolated disposable database, never the application's inventory_db.
   const name = 'storeluma_migration_' + randomUUID().replaceAll('-', '');
-  const connection = { host: '127.0.0.1', port: 55432, user: 'postgres', password: env.PG_ADMIN_PASSWORD };
+  const connection = { host: '127.0.0.1', port: Number(env.PG_HOST_PORT ?? 55432), user: 'postgres', password: env.PG_ADMIN_PASSWORD };
   const admin = new Pool({ ...connection, database: 'postgres', max: 1 });
   const fixture = new Pool({ ...connection, database: name, max: 1 });
   mkdirSync('tmp', { recursive: true });
@@ -22,7 +22,7 @@ test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a
   const directory = join(workspace, 'services/inventory/migrations');
   mkdirSync(directory, { recursive: true });
   const moduleUrl = pathToFileURL(resolve('dist/packages/platform/db.js')).href;
-  const url = new URL('postgresql://127.0.0.1:55432/' + name);
+  const url = new URL('postgresql://127.0.0.1:' + (env.PG_HOST_PORT ?? '55432') + '/' + name);
   url.username = 'postgres'; url.password = env.PG_ADMIN_PASSWORD;
   const migrate = () => exec(process.execPath, ['--input-type=module', '-e',
     `const {migrate,db}=await import(${JSON.stringify(moduleUrl)}); try{await migrate('inventory')}finally{await db.end()}`],
@@ -81,6 +81,11 @@ test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a
     expect((await fixture.query('SELECT * FROM stock_movements ORDER BY created_at')).rows).toEqual(movements);
     expect((await fixture.query("SELECT to_regclass('reservations') AS object")).rows[0].object).toBe('reservations');
     expect((await fixture.query('SELECT count(*) FROM reservations')).rows[0].count).toBe('0');
+    copyFileSync('services/inventory/migrations/005.sql', join(directory, '005.sql'));
+    await Promise.all([migrate(), migrate()]);
+    expect((await fixture.query('SELECT * FROM stock_balances')).rows).toEqual(before);
+    expect((await fixture.query('SELECT * FROM stock_movements ORDER BY created_at')).rows).toEqual(movements);
+    expect((await fixture.query("SELECT to_regclass('return_receipts') AS object")).rows[0].object).toBe('return_receipts');
   } finally {
     await fixture.end();
     if (created && /^storeluma_migration_[a-f0-9]{32}$/.test(name)) await admin.query(`DROP DATABASE "${name}"`);

@@ -37,8 +37,10 @@ jobs:
             docs/week-05/evidence/
             docs/week-06/evidence/
             docs/week-07/evidence/
+            docs/week-08/evidence/
             tmp/week06/screenshots/
             tmp/week07/screenshots/
+            tmp/week08/screenshots/
             tmp/playwright-results.json
             playwright-report/
             test-results/

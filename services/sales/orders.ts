@@ -239,6 +239,8 @@ export class Orders {
             ])
             .optional(),
           q: z.string().trim().max(100).default(""),
+          from: z.iso.datetime({ offset: true }).optional(),
+          to: z.iso.datetime({ offset: true }).optional(),
           cursor: z.uuid().optional(),
           limit: z.coerce.number().int().min(1).max(100).default(50),
         })
@@ -247,7 +249,7 @@ export class Orders {
       g = await authorize(r, t, "sale.read", p.siteId);
     const rows = (
       await db.query(
-        "SELECT * FROM orders WHERE tenant_id=$1 AND site_id=$2 AND ($3::text IS NULL OR status=$3) AND code ILIKE $4 AND ($5::uuid IS NULL OR id>$5) ORDER BY id LIMIT $6",
+        "SELECT * FROM orders WHERE tenant_id=$1 AND site_id=$2 AND ($3::text IS NULL OR status=$3) AND code ILIKE $4 AND ($5::uuid IS NULL OR id>$5) AND ($7::timestamptz IS NULL OR created_at>=$7) AND ($8::timestamptz IS NULL OR created_at<$8) ORDER BY id LIMIT $6",
         [
           t,
           p.siteId,
@@ -255,6 +257,8 @@ export class Orders {
           "%" + p.q + "%",
           p.cursor ?? null,
           p.limit + 1,
+          p.from ?? null,
+          p.to ?? null,
         ],
       )
     ).rows;

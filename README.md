@@ -24,6 +24,10 @@ Storeluma is a business management application for household business owners and
 - Hold stock atomically across all order lines, confirm actual cash receipt, and complete orders only after payment and stock commit.
 - Open a cash shift, record opening cash separately from sales, and close it with counted cash and variance.
 - Recover checkout after service outages or restarts using durable workflow state and stable reservation/payment identifiers.
+- Add items by exact SKU/barcode with Enter, focus product search with F2, and find orders by code, date range, or status.
+- View and print completed-sale receipts at 80 mm, with immutable snapshots and an explicit reprint label.
+- Request and approve partial or full returns; restore original cost to sellable or quarantined stock and explicitly confirm cash refunds.
+- Track drawer sales, refunds and separate cash entries; close shifts, approve cash variances, and reverse cash entries into an open shift without editing closed history.
 - Use a Vietnamese interface that supports desktop and mobile screens.
 
 ## Technology and architecture
@@ -53,6 +57,8 @@ Reporting and Notification remain service scaffolding. Their workflows are not i
 ## Setup and startup
 
 Requirements: Node.js 24 or later and Docker with support for Linux containers. Ports `4100`, `8180`, `55432`, `5673`, and `15673` must be available.
+
+The PostgreSQL host port defaults to `55432`. If Windows reserves that port or it is in use, set `PG_HOST_PORT` to an available port in `.env`, then run Compose again. The test suite reads this setting. Service-to-service database connections continue to use the internal port `5432`.
 
 ```sh
 git clone https://github.com/PhanChiCuongUIT/Storeluma.git
@@ -85,6 +91,10 @@ Open **Kho hàng** for stock balances, movements, counts, and adjustments. A cou
 
 Use **Đơn bán** to open a cash shift, choose products and selling units, obtain a quote, and save a draft. Start checkout to reserve stock, then confirm cash only after receiving payment and returning change. The completed order links to a sale movement in the stock card. Quotes expire after 120 seconds; use **Sửa đơn / cập nhật giá** if a quote expires or prices change. Cashiers may discount up to 5% and operate their own shift; authorized owners/managers can handle shifts in their location scope.
 
+Completed orders offer **Xem / in biên nhận** and **Lập phiếu trả**. Receipts are internal sales receipts, not electronic tax invoices. Printing never repeats checkout. A return records original order lines, quantity, reason and stock disposition. A manager approves before Inventory receives the goods; Finance then prepares a refund. Select an open drawer and confirm only after physically handing the cash to the customer. Returns retain their identifiers through interruptions, and the original sale stays completed. One active return per order serializes partial returns; later returns become available after completion or cancellation of an unapproved request. Returns requested more than seven days after sale completion require an approval reason. A sole eligible owner may self-approve with an audit record; when another eligible manager exists, a different approver is required.
+
+Open **Ca thu ngân** to inspect opening cash, sales receipts, cash refunds, other drawer movements and expected cash. Pending payments or refunds assigned to the drawer block closing. Counted cash and any variance reason are stored at closing; a manager approves discrepancies separately. Reversals create a new linked entry in an open drawer, preserving the original document and any closed-shift totals.
+
 ### Stop the application
 
 ```sh
@@ -106,7 +116,7 @@ Start the services before running `npm test`. The test suite uses real backend s
 
 Authentication tests wait for a fresh TOTP window before each login to avoid reusing a code across suites. Keep one test process per account set; the suite runs with one worker.
 
-The suite also checks upgrades from an existing receiving schema to stocktaking and sales reservations. It creates a uniquely named disposable database, runs the actual migration runner, verifies preserved history and rollback, then drops only that test database. Run the build before the tests so the compiled migration runner is available.
+The suite also checks upgrades from existing inventory and finance schemas to stocktaking, reservations, returns and cash refunds. It creates uniquely named disposable databases, runs the actual migration runner, verifies preserved history and rollback, then drops only those test databases. Run the build before the tests so the compiled migration runner is available.
 
 GitHub Actions builds the application and audits runtime dependencies, and runs the full suite on a fresh Docker environment for pushes and pull requests. Workflow artifacts retain test results, screenshots, failure context, and container status for seven days. Deployment is not automated yet.
 
@@ -128,7 +138,7 @@ The application currently runs locally with Docker Compose, HTTP, and Keycloak i
 
 Each sign-in attempt has a separate five-minute state and browser cookie. Expired attempts return to the sign-in screen with a retry action; revisiting a callback preserves an existing valid session. Start from `http://localhost:4100/`, rather than bookmarking a temporary identity-provider or callback URL.
 
-The current release is `0.7.0`. Sales orders currently support walk-in cash sales and basic shift opening/closing. Full POS operations, printed receipts, returns, electronic payments, customer credit, transfers, supplier payments, financial reporting, and notifications remain planned. CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size.
+The current release is `0.8.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Electronic payments, customer credit, transfers, supplier payments, financial reporting and notifications remain planned. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
 
 Migrations preserve existing receipt history. Pre-upgrade movement balances are reconstructed in recorded-time order and marked in the stock card; new movements capture their actual locked before/after values. New databases apply the same numbered migrations at startup. Do not reset Docker volumes when upgrading an existing installation.
 

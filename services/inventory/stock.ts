@@ -211,7 +211,7 @@ export class Stock {
         siteId: z.uuid(),
         skuId: z.uuid().optional(),
         q: z.string().trim().max(120).default(""),
-        type: z.enum(["RECEIPT", "COUNT", "ADJUSTMENT", "SALE"]).optional(),
+        type: z.enum(["RECEIPT", "COUNT", "ADJUSTMENT", "SALE", "RETURN"]).optional(),
         from: z.iso.datetime({ offset: true }).optional(),
         to: z.iso.datetime({ offset: true }).optional(),
         cursor: z.string().max(200).optional(),
@@ -261,7 +261,7 @@ export class Stock {
       items: redact(
         rows.slice(0, p.limit).map(({ cursor_time, ...row }) => ({
           ...row,
-          canOpenSource: row.document_type === "SALE" ? g.role !== "STOCK" : g.role !== "CASHIER",
+          canOpenSource: ["SALE","RETURN"].includes(row.document_type) ? g.role !== "STOCK" : g.role !== "CASHIER",
         })),
         g,
       ),

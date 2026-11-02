@@ -114,13 +114,13 @@ function App(){
     </section>
   </main>;
   return <div className="shell">
-    <aside inert={Boolean(dialog)}>
+    <aside className="app-sidebar" inert={Boolean(dialog)}>
       <Brand/>
       <div className="tenant-picker"><label htmlFor="tenant">Hộ kinh doanh</label><select id="tenant" aria-label="Chọn hộ kinh doanh" value={tenant} onChange={e=>{setTenant(e.target.value);setNotice('');setError('');}}>
         {!tenant&&<option value="">Chưa có hộ</option>}{me?.memberships.filter(m=>m.status==='ACTIVE').map(m=><option key={m.id} value={m.tenant_id}>{m.tenant_name}</option>)}
       </select></div>
       <span className="nav-label">QUẢN LÝ</span>
-      <nav aria-label="Điều hướng">
+      <nav className="app-nav" aria-label="Điều hướng">
         {current&&<button aria-label="Hàng hóa" aria-current={tab==='products'?'page':undefined} className={tab==='products'?'active':''} onClick={()=>setTab('products')}><Icon name="grid"/>Hàng hóa</button>}
         {current&&current.role!=='CASHIER'&&<><button aria-label="Nhà cung cấp" aria-current={tab==='suppliers'?'page':undefined} className={tab==='suppliers'?'active':''} onClick={()=>setTab('suppliers')}><Icon name="people"/>Nhà cung cấp</button><button aria-label="Nhập hàng" aria-current={tab==='receipts'?'page':undefined} className={tab==='receipts'?'active':''} onClick={()=>setTab('receipts')}><Icon name="list"/>Nhập hàng</button></>}
         {current&&current.role!=='STOCK'&&<button aria-label="Đơn bán" aria-current={tab==='orders'?'page':undefined} className={tab==='orders'?'active':''} onClick={()=>{setOrderLink('');setTab('orders');}}><Icon name="list"/>Đơn bán</button>}

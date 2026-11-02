@@ -87,6 +87,9 @@ export async function serviceCall<T = any>(
   return result as T;
 }
 export type Grant = {
+  selfApprovalAllowed?: boolean;
+  tenantName?: string;
+  siteAddress?: string;
   role: string;
   siteIds: string[];
   warehouseId?: string;

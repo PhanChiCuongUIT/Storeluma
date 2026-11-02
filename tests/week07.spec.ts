@@ -22,7 +22,7 @@ const env = Object.fromEntries(
 const pool = (s: string) =>
   new Pool({
     host: "127.0.0.1",
-    port: 55432,
+    port: Number(env.PG_HOST_PORT ?? 55432),
     user: s,
     password: env[s.toUpperCase() + "_DB_PASSWORD"],
     database: s + "_db",

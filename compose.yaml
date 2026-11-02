@@ -26,7 +26,7 @@ services:
     image: postgres:17-alpine
     environment: {POSTGRES_PASSWORD: '${PG_ADMIN_PASSWORD}'}
     volumes: [pgdata:/var/lib/postgresql/data, './infra/generated/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro']
-    ports: ['127.0.0.1:55432:5432']
+    ports: ['127.0.0.1:${PG_HOST_PORT:-55432}:5432']
     healthcheck:
       test: [CMD-SHELL, pg_isready -U postgres]
       interval: 5s
@@ -108,7 +108,7 @@ services:
   sales:
     <<: *app
     build: {context: ., args: {SERVICE: sales}}
-    environment: {<<: *env, SERVICE_NAME: sales, DATABASE_URL: 'postgres://sales:${SALES_DB_PASSWORD}@postgres:5432/sales_db', SALES_SERVICE_KEY: '${SALES_SERVICE_KEY}'}
+    environment: {<<: *env, SERVICE_NAME: sales, DATABASE_URL: 'postgres://sales:${SALES_DB_PASSWORD}@postgres:5432/sales_db', SALES_SERVICE_KEY: '${SALES_SERVICE_KEY}', INVENTORY_SERVICE_KEY: '${INVENTORY_SERVICE_KEY}', FINANCE_SERVICE_KEY: '${FINANCE_SERVICE_KEY}'}
   reporting:
     <<: *app
     profiles: [full]
