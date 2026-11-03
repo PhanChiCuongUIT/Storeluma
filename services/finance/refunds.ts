@@ -24,6 +24,7 @@ import {
 } from "../../packages/platform/commands.js";
 import { domainOutbox } from "../../packages/platform/events.js";
 import type { ActorRequest } from "../../packages/platform/http.js";
+import { assertCashierAccess } from './cash-access.js';
 async function refund(c: any, t: string, id: string, lock = false) {
   z.uuid().parse(id);
   const d = (
@@ -163,6 +164,7 @@ export class Refunds {
     ).parse(b);
     const d = await refund(db, t, id),
       g = await authorize(r, t, "refund.confirm", d.site_id);
+    await assertCashierAccess(t, d.site_id, p.shiftId, r.actor.sub!, g.role);
     return transaction((c) =>
       idempotent(
         c,

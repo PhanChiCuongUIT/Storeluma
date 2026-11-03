@@ -409,7 +409,7 @@ export function ReturnDetail({
                   </button>
                 </>
               )}
-              {!shift && <p>Mở ca thu ngân để hoàn tiền mặt.</p>}
+              {!shift && <p>Cần ca đang mở mà bạn được phép xử lý để hoàn tiền mặt.</p>}
             </>
           )}
           {refund?.status === "SUCCEEDED" && (

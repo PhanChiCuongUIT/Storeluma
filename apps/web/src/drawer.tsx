@@ -23,6 +23,7 @@ export function ShiftDesk({
   onChange: () => Promise<unknown>;
 }) {
   const [rows, setRows] = useState<Row[]>([]),
+    [activeShift, setActiveShift] = useState<Row | null>(null),
     [detail, setDetail] = useState<Row | null>(null),
     [mode, setMode] = useState(""),
     [amount, setAmount] = useState(""),
@@ -32,11 +33,12 @@ export function ShiftDesk({
   const { command, run, error, busy } = useCommand(api, path),
     manager = ["OWNER", "MANAGER"].includes(role),
     writable = ["OWNER", "MANAGER", "CASHIER"].includes(role);
-  const current = rows.find((s) => s.status === "OPEN"),
+  const current = rows.find((s) => s.status === "OPEN") ?? activeShift,
     own = detail && (role !== "CASHIER" || detail.cashier_id === subjectId);
   async function load(id?: string) {
     const res = await api(path + "/shifts?siteId=" + siteId);
     setRows(res.items);
+    setActiveShift(res.activeShift ?? null);
     const readable = res.items.filter(
       (s: Row) => role !== "CASHIER" || s.cashier_id === subjectId,
     );
@@ -48,6 +50,7 @@ export function ShiftDesk({
   }
   useEffect(() => {
     setDetail(null);
+    setActiveShift(null);
     setMode("");
     if (siteId) void run(() => load());
   }, [siteId]);
@@ -82,6 +85,9 @@ export function ShiftDesk({
           )}
         </div>
       </div>
+      {role === 'CASHIER' && current && current.cashier_id !== subjectId && (
+        <p className="pos-card">Quầy đang có ca do người khác mở.</p>
+      )}
       {error && (
         <p className="alert error" role="alert">
           {error}

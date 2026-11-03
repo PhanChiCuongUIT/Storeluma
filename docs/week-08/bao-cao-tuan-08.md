@@ -158,7 +158,7 @@ MIG-01 kiểm nâng cấp Inventory đến 005, giữ tồn/thẻ kho cũ, chạ
 
 Build/TypeScript đạt; audit dependency runtime không có lỗ hổng tại lần kiểm tra. Đối chiếu dữ liệu sau chạy: 17 kiểm tra đạt về tồn, vốn, thu/hoàn, ca và quyền kết nối database. Lượt UI bắt đầu 02/11/2026 10:08:17: W8-26 đến W8-29 đạt 4/4, kiểm lại thao tác và chụp vùng nội dung cho báo cáo.
 
-Workflow GitHub Actions cấu hình chạy toàn bộ 136 ca trên Ubuntu/Docker mới, gồm thêm 20 ca tuần 4; audit runtime, build, tích hợp và lưu artifact 7 ngày. Kết quả CI gắn với từng commit trong workflow Verify Storeluma. Lượt cục bộ 116 ca nêu trên được ghi riêng, không thay cho bộ CI đầy đủ.
+Tại lần bàn giao ban đầu, workflow GitHub Actions cấu hình chạy toàn bộ 136 ca trên Ubuntu/Docker mới, gồm thêm 20 ca tuần 4; audit runtime, build, tích hợp và lưu artifact 7 ngày. Kết quả CI gắn với từng commit trong workflow Verify Storeluma. Lượt cục bộ 116 ca nêu trên được ghi riêng, không thay cho bộ CI đầy đủ.
 
 
 ## 11. Giao diện nhỏ và bàn giao
@@ -172,3 +172,39 @@ Giới hạn và bước tiếp theo
 Chưa tích hợp thanh toán điện tử, bán chịu, hóa đơn điện tử hoặc máy in phần cứng. Môi trường kiểm chứng là Docker cục bộ; chưa nghiệm thu production/HTTPS, tải lớn, nhiều replica hoặc khôi phục mất database.
 
 Tuần 9 tiếp tục báo cáo, thông báo và giao diện quản lý để chủ hộ theo dõi số liệu và công việc. Reporting/Notification hiện vẫn là scaffold. Tài liệu API, thiết kế và kết quả kiểm chứng đi kèm trong thư mục tuần 8; tham khảo giao diện Tabler Invoice và Card được dẫn tại ui-design.md.
+
+
+## 12. Rà soát phân quyền ca ngày 03/11/2026
+
+Rà soát trước khi chuyển sang tuần 9 phát hiện API danh sách ca còn trả số tiền của ca người khác cho thu ngân dù UI đã lọc. Finance được sửa để giới hạn ngay tại truy vấn; thông tin quầy đang bận chỉ gồm định danh, người mở, trạng thái và thời gian, không có tiền hoặc ghi chú.
+
+![Hình 8. Thu ngân thấy quầy đang bận nhưng không nhận số tiền của ca khác.](evidence/screenshots/10-cashier-shift-scope.png)
+
+Xác nhận thu, chuẩn bị/xác nhận hoàn và đóng ca nay kiểm sở hữu ca trước cả khi trả kết quả idempotency đã lưu. Ca thuộc người khác bị từ chối 403; người có quyền vẫn nhận kết quả cũ sau khi đóng ca. Việc tái hiện lỗi trước sửa không tạo thêm giao dịch tiền.
+
+| Mã | Kiểm tra bổ sung | Kết quả |
+| --- | --- | --- |
+| W8-30 | Danh sách ca theo người dùng, dữ liệu quầy tối thiểu; UI và quyền quản lý/kế toán. | Đạt |
+| W8-31 | Bốn lệnh tiền/ca kiểm sở hữu trước replay; giữ replay hợp lệ và đúng một lần ghi tiền. | Đạt |
+
+Lượt hồi quy bắt đầu 03/11/2026 17:28:56: 118/118 đạt trong 789.0 giây, không skipped/flaky/retry. Gồm 6 AUTH, 2 MIG, 25 W5, 25 W6, 29 W7 và 31 W8. Đối chiếu dữ liệu sau chạy: 17/17 đạt. CI hiện cấu hình chạy 138 ca trên môi trường mới, có thêm 20 W4; kết quả CI theo từng commit được công bố tại Verify Storeluma.
+
+
+## 13. Đối chiếu yêu cầu và chuẩn bị tuần 9
+
+Đề cương tuần 1, khảo sát tài liệu và yêu cầu tuần 2, thiết kế tuần 3 đã có đầu ra. Tuần 2 chưa phỏng vấn cửa hàng; tuần 3 là sơ đồ và phác thảo, không phải giao diện chạy backend. Chức năng tuần 4-8 đã có các luồng thực cho hộ, danh mục, nhập/tồn/kiểm kho, đơn bán và một ca bán tiền mặt.
+
+| Nhóm yêu cầu | Hiện trạng và phần còn lại |
+| --- | --- |
+| YC01-11, YC13, YC15-17, YC20 | Đã có trong phạm vi khách lẻ, CASH, một quầy mặc định mỗi địa điểm; chưa kiểm máy in phần cứng. |
+| YC12, YC18 | Giỏ, báo giá đã có; chưa chọn khách có hồ sơ, chưa có lịch sử mua theo khách. |
+| YC14, YC23 | Có xác nhận tiền, audit và phục hồi; chưa có bàn đối soát/lịch sử nghiệp vụ hợp nhất. |
+| YC19 | Có thu/chi quầy và đảo phiếu; chưa trả nhà cung cấp, phân bổ công nợ hoặc tài khoản ngoài quầy. |
+| YC21-22 | Reporting/Notification còn là scaffold; triển khai báo cáo, thông báo và giao diện quản lý ở tuần 9. |
+| YC24, CL04, CL07 | Chưa đo mục tiêu p95/tải 10 phiên; chưa nghiệm thu vận hành, HTTPS, backup/restore hoặc nhiều replica. |
+
+Nền dữ liệu và phối hợp dịch vụ đủ để tiếp tục tuần 9; chưa thể kết luận đã hoàn thành toàn bộ 24 yêu cầu cuối kỳ. Hồ sơ khách, trả nhà cung cấp và đối soát tổng hợp phải tiếp tục nằm trong danh sách việc còn lại, cần phân bổ công việc trước nghiệm thu.
+
+Tuần 9 cần phân biệt doanh thu, tiền thu/hoàn, giá vốn và thu/chi quầy; giới hạn quyền tại API và xuất dữ liệu. Consumer cần chống trùng, nạp dữ liệu lịch sử, xử lý sự kiện đang chờ và công bố thời điểm cập nhật. Tuần 10-11 tiếp tục kiểm quyền, tải và lỗi; tuần 12 hoàn thiện triển khai, CI/CD, HTTPS, sao lưu và khôi phục.
+
+Bảng đối chiếu đầy đủ được lưu trong docs/week-08/review-weeks-01-08.md. Các ngày thực thi và môi trường kiểm chứng được ghi riêng với kỳ kế hoạch trên bìa báo cáo.

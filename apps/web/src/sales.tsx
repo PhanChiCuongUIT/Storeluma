@@ -143,7 +143,7 @@ export function SalesRoom({
     ]);
     setRows(res.items);
     setMore(res.nextCursor);
-    const latest = s.items.find((x: Row) => x.status === "OPEN") ?? null;
+    const latest = s.items.find((x: Row) => x.status === "OPEN") ?? s.activeShift ?? null;
     setShift(latest);
     setLoaded(true);
     return latest;
@@ -174,7 +174,7 @@ export function SalesRoom({
           if (alive) {
             setRows(res.items);
             setMore(res.nextCursor);
-            setShift(s.items.find((x: Row) => x.status === "OPEN") ?? null);
+            setShift(s.items.find((x: Row) => x.status === "OPEN") ?? s.activeShift ?? null);
             setLoaded(true);
           }
         })
@@ -444,7 +444,7 @@ export function SalesRoom({
           path={path}
           siteId={siteId}
           role={role}
-          shift={shift}
+          shift={ownShift ? shift : null}
           openOrder={(id) => {
             setPane("orders");
             void open(id);
@@ -1199,7 +1199,7 @@ export function SalesRoom({
                 path={path}
                 order={order}
                 role={role}
-                shift={shift}
+                shift={ownShift ? shift : null}
               />
             )}
           </>

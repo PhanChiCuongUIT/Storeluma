@@ -44,12 +44,15 @@ Các đường dẫn có tiền tố `/v1/tenants/:tenant`. POST cần `Idempote
 | GET `/refunds/:id` | Trạng thái Finance hiện tại trong scope |
 | POST `/refunds/:id/prepare` | `{version,shiftId}`; gắn refund PENDING vào ca đang mở |
 | POST `/refunds/:id/confirm` | `{version,shiftId,cashPaid:true}`; ghi tiền chi một lần |
+| GET `/shifts?siteId=...` | `{items,activeShift}`; 50 ca gần nhất trong quyền đọc; CASHIER chỉ nhận ca của mình. `activeShift` chỉ gồm id/site_id/register_id/cashier_id/status/opened_at, hoặc null, để biết quầy đang bận mà không lộ tiền của ca khác |
 | GET `/shifts/:id` | Ca, tổng các nhóm tiền, 200 dòng ledger gần nhất, khoản đang chờ; snapshot đọc REPEATABLE READ |
 | POST `/shifts/:id/cash-entries` | `{kind:IN hoặc OUT,amountVnd,reason}`; thu/chi khác tại quầy, không là doanh thu bán hàng |
 | POST `/cash-entries/:id/reverse` | `{shiftId,reason}`; OWNER/MANAGER; một lần đảo vào ca OPEN cùng site |
 | POST `/shifts/:id/approve-variance` | `{version,note}`; OWNER/MANAGER, policy tách người; không đổi counted/expected |
 
 Các API mở/đóng ca, quote, draft, checkout và xác nhận thu tiền giữ hợp đồng tuần 7. Close khóa cùng shift với tạo payment, xác nhận thu/hoàn và cash entry; kiểm pending payment/refund rồi tính tổng và đóng trong một transaction. Ca chuyển từ OPEN sang CLOSED nguyên tử dưới khóa, không để lại trạng thái CLOSING trung gian đã commit. Close không sửa doanh thu để làm số đếm khớp quỹ. Ca CLOSED không mở lại; correction đi qua entry đảo ở ca hiện tại.
+
+Danh sách ca và thông tin quầy đang hoạt động được đọc trong cùng snapshot REPEATABLE READ. OWNER/MANAGER/ACCOUNTANT đọc lịch sử theo quyền tại địa điểm; CASHIER không nhận số tiền, chênh lệch hoặc ghi chú của ca người khác. Xác nhận thu tiền, chuẩn bị/xác nhận hoàn tiền và đóng ca kiểm quyền sở hữu ca trước cả khi trả lại kết quả idempotency đã lưu. Người có quyền vẫn nhận lại kết quả cũ sau khi ca đóng; thao tác lặp không ghi thêm tiền.
 
 ## Biên nhận và POS
 

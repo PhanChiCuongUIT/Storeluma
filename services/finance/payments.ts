@@ -26,6 +26,7 @@ import {
 } from "../../packages/platform/commands.js";
 import { domainOutbox } from "../../packages/platform/events.js";
 import type { ActorRequest } from "../../packages/platform/http.js";
+import { assertCashierAccess } from './cash-access.js';
 
 const intent = z
   .object({
@@ -80,15 +81,20 @@ export class Payments {
     @Query() q: unknown,
   ) {
     const p = z.object({ siteId: z.uuid() }).strict().parse(q);
-    await authorize(r, t, "shift.read", p.siteId);
-    return {
-      items: (
-        await db.query(
-          "SELECT s.*, (s.opening_cash+COALESCE((SELECT sum(l.amount_vnd) FROM cash_ledger l WHERE l.tenant_id=s.tenant_id AND l.shift_id=s.id),0))::text AS expected_now FROM shifts s WHERE tenant_id=$1 AND site_id=$2 ORDER BY opened_at DESC LIMIT 50",
-          [t, p.siteId],
-        )
-      ).rows,
-    };
+    const grant = await authorize(r, t, "shift.read", p.siteId);
+    return transaction(async (c) => {
+      await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
+      const items = (await c.query(
+        "SELECT s.*, (s.opening_cash+COALESCE((SELECT sum(l.amount_vnd) FROM cash_ledger l WHERE l.tenant_id=s.tenant_id AND l.shift_id=s.id),0))::text AS expected_now FROM shifts s WHERE tenant_id=$1 AND site_id=$2 AND ($3::text IS NULL OR cashier_id=$3) ORDER BY opened_at DESC LIMIT 50",
+        [t, p.siteId, grant.role === 'CASHIER' ? r.actor.sub : null],
+      )).rows;
+      // Register occupancy is needed to prevent a second open attempt, not to disclose another drawer's money.
+      const activeShift = (await c.query(
+        "SELECT id,site_id,register_id,cashier_id,status,opened_at FROM shifts WHERE tenant_id=$1 AND site_id=$2 AND status='OPEN' LIMIT 1",
+        [t, p.siteId],
+      )).rows[0] ?? null;
+      return { items, activeShift };
+    });
   }
   @Post("tenants/:tenant/shifts") async open(
     @Req() r: ActorRequest,
@@ -156,6 +162,7 @@ export class Payments {
         .strict()
         .parse(b),
       g = await authorize(r, t, "shift.close", p.siteId);
+    await assertCashierAccess(t, p.siteId, id, r.actor.sub!, g.role);
     return transaction((c) =>
       idempotent(
         c,
@@ -376,6 +383,7 @@ export class Payments {
       )
     ).rows[0];
     if (!d) throw new NotFoundException();
+    await assertCashierAccess(t, p.siteId, d.shift_id, r.actor.sub!, g.role);
     return transaction((c) =>
       idempotent(
         c,

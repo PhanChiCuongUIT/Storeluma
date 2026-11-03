@@ -6,7 +6,7 @@
 - Thành phần: 6 AUTH + 2 MIG + 25 W5 + 25 W6 + 29 W7 + 29 W8. Đây là một lượt liên tục sau các chỉnh sửa nghiệp vụ; phần hiển thị biên nhận được kiểm lại ở lượt UI bên dưới.
 - Kiểm lại UI và chụp vùng thao tác bắt đầu 02/11/2026 10:08:17: W8-26 đến W8-29 **4/4 đạt**, không retry; kết quả riêng không cộng thành số ca nghiệp vụ mới.
 - 17 kiểm tra đối chiếu dữ liệu đạt: tồn/thẻ kho, lượng giữ, vốn, tiền thu/hoàn, ca, sự kiện và database isolation.
-- CI cấu hình chạy **136 ca** trên Docker mới, gồm thêm 20 W4. Kết quả gắn với từng commit: [Verify Storeluma](https://github.com/PhanChiCuongUIT/Storeluma/actions/workflows/verify.yml). Lượt cục bộ 116 ca ở trên không được cộng thành kết quả CI.
+- Tại lần bàn giao ban đầu, CI cấu hình chạy **136 ca** trên Docker mới, gồm thêm 20 W4. Kết quả gắn với từng commit: [Verify Storeluma](https://github.com/PhanChiCuongUIT/Storeluma/actions/workflows/verify.yml). Lượt cục bộ 116 ca ở trên không được cộng thành kết quả CI.
 
 | Mã | Kiểm chứng | Kết quả |
 | --- | --- | --- |
@@ -43,3 +43,26 @@
 MIG-01 nâng Inventory tới 005 với dữ liệu cũ, concurrent startup/replay và rollback lỗi. MIG-02 nâng Finance 001-004 tới 005, giữ closed shift/payment/ledger, kiểm một nguồn ledger và refund âm.
 
 Ảnh được chụp từ ứng dụng thật trong lượt kiểm lại UI. In được kiểm qua window.print và CSS print 80 mm, chưa qua máy in vật lý. Kiểm phục hồi dừng dịch vụ/khởi động lại và broker outage không thay thế kiểm backup/restore hoặc tải production. Bộ test tuần 4 chạy ở CI môi trường mới; không dùng lượt cục bộ này để khẳng định 136 ca đã đạt.
+
+
+## Rà soát ngày 03/11/2026
+
+Hai ca W8-30/W8-31 tái hiện lỗi trên bản trước sửa: danh sách trả ca người khác và bốn lệnh có kết quả lưu trả 201 thay vì 403. Sau sửa, lượt riêng đạt 2/2; sau đó chạy hồi quy liên tục bắt đầu **03/11/2026 17:28:56 (Asia/Ho_Chi_Minh)**: **118/118 đạt** trong 789.0 giây, không skipped/flaky/retry.
+
+| Bộ kiểm thử | Số ca đạt cục bộ |
+| --- | --- |
+| AUTH | 6 |
+| Migration Inventory/Finance | 2 |
+| Tuần 5 | 25 |
+| Tuần 6 | 25 |
+| Tuần 7 | 29 |
+| Tuần 8 | 31 |
+| Tổng | 118 |
+
+W8-30 kiểm lọc ca tại API, trạng thái quầy không có tiền/ghi chú, chặn mở ca trùng trên UI, quyền đọc OWNER/MANAGER/ACCOUNTANT và CASHIER. W8-31 kiểm quyền trước cache cho xác nhận thu, chuẩn bị/xác nhận hoàn và đóng ca; vẫn replay hợp lệ sau đóng, chỉ ghi một lần thu và hoàn. Ảnh `10-cashier-shift-scope.png` được chụp từ ứng dụng trong lượt riêng W8-30 ngày 03/11; lượt 118 ca kiểm lại cùng thao tác.
+
+Build/TypeScript đạt. Đối chiếu dữ liệu sau chạy **17/17 đạt**: tồn/thẻ kho/giá vốn, reservation, đơn và payment, refund và hàng trả, ledger, ca đóng, khoản phải trả, sự kiện và quyền CONNECT giữa các database. Runtime dependency audit: 0 lỗ hổng tại lượt kiểm tra.
+
+Môi trường cục bộ hiện có dữ liệu tích lũy; 20 W4 được dành cho CI môi trường mới để không tăng hộ vượt giới hạn tài khoản thử nghiệm. Workflow hiện chạy **138 ca** (118 trên cộng 20 W4). Kiểm tra kết quả của đúng commit tại [Verify Storeluma](https://github.com/PhanChiCuongUIT/Storeluma/actions/workflows/verify.yml); các số 116/136 ở phần trước là phạm vi của lần bàn giao ban đầu.
+
+Các lượt riêng và lượt hồi quy không cộng dồn thành số ca mới. Không suy ra tải production, khả năng nhiều replica, máy in thật hoặc backup/restore từ các kết quả này. Xem [đối chiếu tuần 1-8](../review-weeks-01-08.md) để biết yêu cầu còn thiếu.

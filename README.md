@@ -95,6 +95,8 @@ Completed orders offer **Xem / in biên nhận** and **Lập phiếu trả**. Re
 
 Open **Ca thu ngân** to inspect opening cash, sales receipts, cash refunds, other drawer movements and expected cash. Pending payments or refunds assigned to the drawer block closing. Counted cash and any variance reason are stored at closing; a manager approves discrepancies separately. Reversals create a new linked entry in an open drawer, preserving the original document and any closed-shift totals.
 
+Cashiers can read financial details only for their own shifts. They can see whether another cashier occupies the register, without receiving that shift's cash totals or notes. Cash collection, refund and close requests check current permissions and shift ownership even when returning a previously saved idempotent result.
+
 ### Stop the application
 
 ```sh
@@ -138,7 +140,7 @@ The application currently runs locally with Docker Compose, HTTP, and Keycloak i
 
 Each sign-in attempt has a separate five-minute state and browser cookie. Expired attempts return to the sign-in screen with a retry action; revisiting a callback preserves an existing valid session. Start from `http://localhost:4100/`, rather than bookmarking a temporary identity-provider or callback URL.
 
-The current release is `0.8.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Electronic payments, customer credit, transfers, supplier payments, financial reporting and notifications remain planned. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
+The current release is `0.8.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Customer profiles and purchase history, electronic payments, customer credit, transfers, supplier payments, financial reporting and notifications remain planned. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
 
 Migrations preserve existing receipt history. Pre-upgrade movement balances are reconstructed in recorded-time order and marked in the stock card; new movements capture their actual locked before/after values. New databases apply the same numbered migrations at startup. Do not reset Docker volumes when upgrading an existing installation.
 

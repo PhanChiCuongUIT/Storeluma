@@ -1333,4 +1333,63 @@ test.describe.serial("Week 8 POS, returns and drawer settlement", () => {
     await expect(page.getByRole('tab', { name: 'Bán hàng', exact: true })).toHaveAttribute('aria-selected', 'true');
     await page.setViewportSize({ width: 1440, height: 1000 });
   });
+  test("W8-30 Cashier shift lists hide other drawers while showing register occupancy", async () => {
+    if ((await good(await get("shifts/" + shift.id))).status === 'OPEN') await closeShift();
+    shift = await good(await cmd('shifts', {siteId: site.id, openingCash: '321987'}));
+    const list = await good(await get('shifts?siteId=' + site.id, staff));
+    expect(list.items.every((s: any) => s.cashier_id === accounts[1].subject)).toBe(true);
+    expect(list.items.some((s: any) => s.id === shift.id)).toBe(false);
+    expect(list.activeShift).toMatchObject({id: shift.id, status: 'OPEN', cashier_id: accounts[0].subject});
+    for (const field of ['opening_cash','expected_now','counted_cash','difference_vnd','close_note','variance_approval_note'])
+      expect(list.activeShift).not.toHaveProperty(field);
+    expect((await get('shifts/' + shift.id, staff)).status()).toBe(403);
+    const p = await staff.newPage();
+    try {
+      await p.goto('/');
+      await p.getByLabel('Chọn hộ kinh doanh').selectOption(tenant);
+      await p.getByRole('button', {name: 'Đơn bán', exact: true}).click();
+      await p.getByLabel('Địa điểm bán hàng').selectOption(site.id);
+      await expect(p.locator('.shift-summary').getByRole('button', {name: 'Đóng ca', exact: true})).toBeDisabled();
+      await p.getByRole('tab', {name: 'Ca thu ngân', exact: true}).click();
+      await expect(p.getByText('Quầy đang có ca do người khác mở.', {exact: true})).toBeVisible();
+      await expect(p.getByRole('button', {name: 'Mở ca mới', exact: true})).toHaveCount(0);
+      await p.locator('.drawer-desk').screenshot({path: evidence + '/10-cashier-shift-scope.png'});
+    } finally { await p.close(); }
+    await closeShift();
+    const own = await openShift('123456');
+    const ownList = await good(await get('shifts?siteId=' + site.id, staff));
+    expect(ownList.items.find((s: any) => s.id === own.id)).toMatchObject({opening_cash: '123456', expected_now: '123456'});
+    expect(ownList.items.some((s: any) => s.opening_cash === '321987')).toBe(false);
+    await role('MANAGER');
+    expect((await good(await get('shifts?siteId=' + site.id, staff))).items.some((s: any) => s.opening_cash === '321987')).toBe(true);
+    await role('ACCOUNTANT');
+    expect((await good(await get('shifts?siteId=' + site.id, staff))).items.some((s: any) => s.opening_cash === '321987')).toBe(true);
+    await role('CASHIER');
+  });
+  test("W8-31 Cached cash commands still enforce current drawer ownership", async () => {
+    test.setTimeout(120000);
+    if ((await good(await get('shifts/' + shift.id))).status === 'OPEN') await closeShift();
+    shift = await good(await cmd('shifts', {siteId: site.id, openingCash: '300000'}));
+    let d = await checkout(await draft());
+    const paymentBody = {siteId: site.id, version: d.checkout.payment.version, cashReceived: true}, paymentKey = randomUUID();
+    const paid = await good(await cmd('payments/' + d.checkout.payment.id + '/confirm', paymentBody, owner, paymentKey));
+    expect.soft((await cmd('payments/' + paid.id + '/confirm', paymentBody, staff, paymentKey)).status()).toBe(403);
+    d = await terminal(d);
+    let ret = await good(await requestReturn(d)); await approve(ret); ret = await waitingRefund(ret);
+    const prepareBody = {shiftId: shift.id, version: ret.progress.refund.version}, prepareKey = randomUUID();
+    const prepared = await good(await cmd('refunds/' + ret.refund_id + '/prepare', prepareBody, owner, prepareKey));
+    expect.soft((await cmd('refunds/' + ret.refund_id + '/prepare', prepareBody, staff, prepareKey)).status()).toBe(403);
+    const refundBody = {shiftId: shift.id, version: prepared.version, cashPaid: true}, refundKey = randomUUID();
+    const refunded = await good(await cmd('refunds/' + ret.refund_id + '/confirm', refundBody, owner, refundKey));
+    expect.soft((await cmd('refunds/' + ret.refund_id + '/confirm', refundBody, staff, refundKey)).status()).toBe(403);
+    await returnState(ret, 'COMPLETED');
+    const current = await good(await get('shifts/' + shift.id));
+    const closeBody = {siteId: site.id, version: current.version, countedCash: current.expected_now, note: ''}, closeKey = randomUUID();
+    const closed = await good(await cmd('shifts/' + shift.id + '/close', closeBody, owner, closeKey));
+    expect.soft((await cmd('shifts/' + shift.id + '/close', closeBody, staff, closeKey)).status()).toBe(403);
+    expect(await good(await cmd('payments/' + paid.id + '/confirm', paymentBody, owner, paymentKey))).toEqual(paid);
+    expect(await good(await cmd('refunds/' + refunded.id + '/confirm', refundBody, owner, refundKey))).toEqual(refunded);
+    expect(await good(await cmd('shifts/' + shift.id + '/close', closeBody, owner, closeKey))).toEqual(closed);
+    expect((await fin.query('SELECT count(*) FROM cash_ledger WHERE payment_id=$1 OR refund_id=$2', [paid.id, refunded.id])).rows[0].count).toBe('2');
+  });
 });
