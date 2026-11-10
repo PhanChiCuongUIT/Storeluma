@@ -628,6 +628,7 @@ export function ReturnQueue({
   role,
   shift,
   openOrder,
+  initialReturnId,
 }: {
   api: Api;
   path: string;
@@ -635,11 +636,13 @@ export function ReturnQueue({
   role: string;
   shift: Row | null;
   openOrder: (id: string) => void;
+  initialReturnId?:string;
 }) {
   const [rows, setRows] = useState<Row[]>([]),
     [selected, setSelected] = useState<Row | null>(null),
     [filter, setFilter] = useState("");
   const { run, error } = useCommand(api, path);
+  const initialLoaded = useRef(false);
   const load = async () =>
     setRows(
       (
@@ -652,8 +655,16 @@ export function ReturnQueue({
       ).items,
     );
   useEffect(() => {
-    if (siteId) void run(load);
+    let alive=true;
+    if (siteId) void run(async()=>{
+      await load();
+      if(initialReturnId&&!initialLoaded.current){
+        const d=await api(path+'/returns/'+initialReturnId);
+        if(alive&&d.site_id===siteId){initialLoaded.current=true;setSelected(d);}
+      }
+    });
     setSelected(null);
+    return()=>{alive=false;};
   }, [siteId, filter]);
   return (
     <section>

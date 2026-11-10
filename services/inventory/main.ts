@@ -1,3 +1,4 @@
+import {ProjectionSource} from '../../packages/platform/projections.js';
 import {migrate,outbox} from '../../packages/platform/db.js';
 import {worker} from '../../packages/platform/bus.js';
 import {start} from '../../packages/platform/http.js';
@@ -13,5 +14,5 @@ await worker('inventory',['site.provision.requested','catalog.sku-updated.v1'],a
   if(row.tenant_id!==e.tenantId||row.site_id!==e.siteId)throw new Error('Provision identity conflict');
   await outbox(c,'warehouse.ready',{tenantId:e.tenantId,siteId:e.siteId,warehouseId:e.warehouseId,registerId:e.registerId});
 });
-await start([Inventory,Stock,Reservations,ReturnReceiving]);
+await start([ProjectionSource,Inventory,Stock,Reservations,ReturnReceiving]);
 setInterval(()=>void expireReservations().catch(()=>console.warn('reservation_expiry_pending')),1000);

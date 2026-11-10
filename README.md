@@ -1,6 +1,6 @@
 # Storeluma
 
-Storeluma is a business management application for household business owners and their staff, built with a microservices architecture. The current version supports business locations, staff access, a product catalog, suppliers, goods receiving, stock cards, stocktaking, approved inventory adjustments, sales orders, and cash checkout.
+Storeluma is a business management application for household business owners and their staff, built with a microservices architecture. The current version supports business locations, staff access, a product catalog, suppliers, goods receiving, stock cards, stocktaking, approved inventory adjustments, sales orders, cash checkout, returns, management reports, and an operational work inbox.
 
 ## Current features
 
@@ -28,6 +28,9 @@ Storeluma is a business management application for household business owners and
 - View and print completed-sale receipts at 80 mm, with immutable snapshots and an explicit reprint label.
 - Request and approve partial or full returns; restore original cost to sellable or quarantined stock and explicitly confirm cash refunds.
 - Track drawer sales, refunds and separate cash entries; close shifts, approve cash variances, and reverse cash entries into an open shift without editing closed history.
+- View sales and returns by completion date, net revenue, authorized cost and gross profit, top-selling items, current stock and drawer cash flows.
+- Export UTF-8 CSV asynchronously, with expiry, formula-safe labels and authorization checked again at download.
+- Track low stock, overdue cash collection/refunds, orders under review, returns awaiting approval and unapproved shift variances. Acknowledge work, configure location thresholds and open the source document.
 - Use a Vietnamese interface that supports desktop and mobile screens.
 
 ## Technology and architecture
@@ -48,11 +51,11 @@ Each service runs as a separate process with its own PostgreSQL database and cre
 
 Counts and adjustments belong to Inventory. Approval commits the document, balances, movements, audit, and stock-change Outbox events in one transaction. These documents do not create supplier payables. SKU locks also protect stock with no existing balance. Sales reservations and stock commits use the same locks and freeze checks; transfer workflows remain planned.
 
-Event publication uses persistent messages, mandatory routing, and bounded publisher confirms. Unroutable events remain pending in the Outbox. Failed handlers retry with backoff and park messages in the owning service's dead queue. Events awaiting future consumers are retained in `storeluma.deferred`; queue monitoring and a backfill procedure are needed before enabling those consumers.
+Event publication uses persistent messages, mandatory routing, and bounded publisher confirms. Unroutable events remain pending in the Outbox. Failed handlers retry with backoff and park messages in the owning service's dead queue. Events awaiting future consumers are retained in `storeluma.deferred`; this deferred queue is not used as the Reporting/Notification bootstrap source. Those consumers have dedicated queues and reconcile existing records through their source snapshot APIs.
 
 Sales coordinates reserve, prepare, cash confirmation, stock commit, and completion through authenticated service commands. Unknown outcomes enter review and retry with the same identifiers; prepared stock does not expire automatically. Cancellation voids the cash intent before releasing stock, and a successful cash confirmation wins over cancellation. Each service commits only its own data and Outbox.
 
-Reporting and Notification remain service scaffolding. Their workflows are not implemented. They can be started with `docker compose --profile full up -d --build`.
+Reporting and Notification run by default with their own databases. Source services atomically write revisioned projections and Outbox events alongside business changes. Both consumers deduplicate events and reconcile through authenticated, paginated source snapshots; they never query another service’s tables. Reports expose a conservative reconciliation timestamp and synchronization status. Work items resolve automatically when the source condition clears, while acknowledgment preserves the outstanding business action.
 
 ## Setup and startup
 
@@ -97,6 +100,16 @@ Open **Ca thu ngân** to inspect opening cash, sales receipts, cash refunds, oth
 
 Cashiers can read financial details only for their own shifts. They can see whether another cashier occupies the register, without receiving that shift's cash totals or notes. Cash collection, refund and close requests check current permissions and shift ownership even when returning a previously saved idempotent result.
 
+### Reports and operational work
+
+Open **Báo cáo** as an owner, manager or accountant. Select locations and dates, then switch between sales results, current inventory and drawer cash flow. Managers see only assigned locations and do not receive cost, inventory valuation or gross-profit fields. Owners and accountants with access can see those fields. Cashiers and stock staff do not have aggregate-report access.
+
+Select **Xuất CSV**, wait for completion, then **Tải tệp CSV**. Jobs expire after 15 minutes and belong to their requester. A changed role or location assignment invalidates the old download. Dates use Vietnam time; returns reduce revenue in the return completion period. Inventory is the current balance, not a historical reconstruction.
+
+Open **Công việc** to review pending work in the assigned scope. **Tiếp nhận** acknowledges an item; it does not settle payment, approve a return or change stock. Use the source link to perform the actual business action. Owners and managers can configure the available-stock threshold and pending-payment/refund delay by location. The inbox refreshes every 15 seconds. Notifications are in-app; email and push delivery are not implemented.
+
+After upgrading an existing environment, run `npm run setup` to add missing service credentials without replacing existing configuration, then rebuild and start Compose. Keep the database volumes. Initial snapshots may take time; exports are blocked until every source has completed its first reconciliation. A delayed-source message is shown when synchronization is behind. Source snapshots retain a consistent paginated cohort for one hour and reconcile every five minutes; capacity testing is needed before operating at larger scale.
+
 ### Stop the application
 
 ```sh
@@ -140,7 +153,7 @@ The application currently runs locally with Docker Compose, HTTP, and Keycloak i
 
 Each sign-in attempt has a separate five-minute state and browser cookie. Expired attempts return to the sign-in screen with a retry action; revisiting a callback preserves an existing valid session. Start from `http://localhost:4100/`, rather than bookmarking a temporary identity-provider or callback URL.
 
-The current release is `0.8.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Customer profiles and purchase history, electronic payments, customer credit, transfers, supplier payments, financial reporting and notifications remain planned. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
+The current release is `0.9.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Customer profiles and purchase history, electronic payments, customer credit, transfers, supplier payments, tax reporting and external email/push notifications remain planned. Management reports currently cover settled sales/returns, current inventory and cash movements at the register; gross profit is not net profit. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
 
 Migrations preserve existing receipt history. Pre-upgrade movement balances are reconstructed in recorded-time order and marked in the stock card; new movements capture their actual locked before/after values. New databases apply the same numbered migrations at startup. Do not reset Docker volumes when upgrading an existing installation.
 

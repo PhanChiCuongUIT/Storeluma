@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {verifyProjectionCaller} from './projections.js';
 import { Controller, Get, Catch, HttpException, Module, type ArgumentsHost, type ExceptionFilter, Injectable, UnauthorizedException, type CanActivate, type ExecutionContext, type INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
@@ -14,6 +15,7 @@ export class AuthGuard implements CanActivate{
   async canActivate(context:ExecutionContext){
     const req=context.switchToHttp().getRequest<ActorRequest>();
     if(req.path==='/health')return true;
+    if(req.path.startsWith('/v1/internal/projections/')){const caller=await verifyProjectionCaller(req);req.actor={sub:'service:'+caller};return true;}
     if(req.path.startsWith('/v1/internal/workflows/')){
       const caller=await verifyWorkflow(req,['sales','inventory','finance']);
       req.actor={sub:'service:'+caller};return true;

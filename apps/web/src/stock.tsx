@@ -82,6 +82,7 @@ export function StockRoom({
   api,
   subjectId,
   onOpenOrder,
+  initialSiteId,initialSearch,
 }: {
   tenant: string;
   role: string;
@@ -89,14 +90,15 @@ export function StockRoom({
   api: Api;
   subjectId: string;
   onOpenOrder: (id:string)=>void;
+  initialSiteId?:string;initialSearch?:string;
 }) {
   const [view, setView] = useState("balances"),
-    [siteId, setSiteId] = useState(""),
+    [siteId, setSiteId] = useState(initialSiteId??""),
     [rows, setRows] = useState<Row[]>([]),
     [next, setNext] = useState<string | null>(null),
     [asOf, setAsOf] = useState("");
-  const [search, setSearch] = useState(""),
-    [query, setQuery] = useState(""),
+  const [search, setSearch] = useState(initialSearch??""),
+    [query, setQuery] = useState(initialSearch??""),
     [filter, setFilter] = useState("ALL"),
     [from, setFrom] = useState(""),
     [to, setTo] = useState(""),

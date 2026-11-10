@@ -14,6 +14,7 @@ export function ShiftDesk({
   role,
   subjectId,
   onChange,
+  initialShiftId,
 }: {
   api: Api;
   path: string;
@@ -21,6 +22,7 @@ export function ShiftDesk({
   role: string;
   subjectId: string;
   onChange: () => Promise<unknown>;
+  initialShiftId?:string;
 }) {
   const [rows, setRows] = useState<Row[]>([]),
     [activeShift, setActiveShift] = useState<Row | null>(null),
@@ -52,7 +54,7 @@ export function ShiftDesk({
     setDetail(null);
     setActiveShift(null);
     setMode("");
-    if (siteId) void run(() => load());
+    if (siteId) void run(() => load(initialShiftId));
   }, [siteId]);
   const form = (value: string) => {
     setMode(value);

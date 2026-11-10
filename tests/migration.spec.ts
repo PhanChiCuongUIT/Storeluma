@@ -86,6 +86,16 @@ test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a
     expect((await fixture.query('SELECT * FROM stock_balances')).rows).toEqual(before);
     expect((await fixture.query('SELECT * FROM stock_movements ORDER BY created_at')).rows).toEqual(movements);
     expect((await fixture.query("SELECT to_regclass('return_receipts') AS object")).rows[0].object).toBe('return_receipts');
+    copyFileSync('services/inventory/migrations/006.sql', join(directory, '006.sql'));
+    await Promise.all([migrate(), migrate()]);
+    expect((await fixture.query('SELECT * FROM stock_balances')).rows).toEqual(before);
+    expect((await fixture.query("SELECT data->>'onHand' quantity,data->>'valueVnd' value,revision FROM projection_records")).rows).toEqual([{quantity:'15.000',value:'160000',revision:1}]);
+    expect((await fixture.query("SELECT count(*) FROM outbox WHERE type='inventory.projection-updated.v1'")).rows[0].count).toBe('1');
+    await fixture.query('BEGIN');
+    await fixture.query('UPDATE stock_balances SET on_hand=16');
+    expect((await fixture.query('SELECT revision FROM projection_records')).rows[0].revision).toBe(2);
+    await fixture.query('ROLLBACK');
+    expect((await fixture.query('SELECT revision FROM projection_records')).rows[0].revision).toBe(1);
   } finally {
     await fixture.end();
     if (created && /^storeluma_migration_[a-f0-9]{32}$/.test(name)) await admin.query(`DROP DATABASE "${name}"`);

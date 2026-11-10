@@ -45,3 +45,8 @@ Thumbs.db
 *.bak
 
 /docs/week-08/evidence/*.json
+/docs/week-09/evidence/*.json
+
+# Private system specification deliverables
+/output/pdf/Storeluma_Dac_ta_yeu_cau_va_thiet_ke_he_thong.docx
+/output/pdf/Storeluma_Dac_ta_yeu_cau_va_thiet_ke_he_thong.pdf

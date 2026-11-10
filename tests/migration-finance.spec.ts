@@ -31,5 +31,9 @@ test('MIG-02 Finance upgrade preserves historical closed drawer and adds isolate
     await fixture.query('INSERT INTO cash_ledger(id,tenant_id,site_id,shift_id,refund_id,amount_vnd,actor_id) VALUES($1,$2,$3,$4,$5,-50000,$6)',[randomUUID(),t,site,newShift,refund,actor]);
     expect((await fixture.query('SELECT amount_vnd FROM cash_ledger WHERE refund_id=$1',[refund])).rows[0].amount_vnd).toBe('-50000');
     expect((await fixture.query('SELECT expected_cash FROM shifts WHERE id=$1',[shift])).rows[0].expected_cash).toBe('700000');
+    copyFileSync('services/finance/migrations/006.sql',join(directory,'006.sql'));await Promise.all([migrate(),migrate()]);await migrate();
+    expect((await fixture.query('SELECT amount_vnd FROM cash_ledger ORDER BY amount_vnd')).rows.map(r=>r.amount_vnd)).toEqual(['-50000','200000']);
+    expect((await fixture.query("SELECT data->>'amountVnd' amount FROM projection_records WHERE kind='MONEY' ORDER BY (data->>'amountVnd')::numeric")).rows.map(r=>r.amount)).toEqual(['-50000','200000']);
+    expect((await fixture.query("SELECT count(*) FROM projection_records WHERE kind='SHIFT'")).rows[0].count).toBe('2');
   }finally{await fixture.end();if(created&&/^storeluma_migration_[a-f0-9]{32}$/.test(name))await admin.query(`DROP DATABASE "${name}"`);await admin.end();}
 });

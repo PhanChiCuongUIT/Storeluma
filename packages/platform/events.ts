@@ -12,12 +12,13 @@ const envelope = z.object({
   tenantId: id,
   siteId: id.nullable(),
   aggregateId: id,
-  aggregateType: z.enum(["Sku", "Receipt", "StockBalance", "Order", "Payment", "Return", "Refund"]),
+  aggregateType: z.enum(["Sku", "Receipt", "StockBalance", "Order", "Payment", "Return", "Refund", "Projection"]),
   aggregateVersion: z.number().int().positive(),
   correlationId: id,
   causationId: id,
 });
 export const domainEventSchema = z.discriminatedUnion("eventType", [
+  envelope.extend({eventType:z.enum(['catalog.projection-updated.v1','inventory.projection-updated.v1','sales.projection-updated.v1','finance.projection-updated.v1']),data:z.object({kind:z.enum(['SKU','STOCK','ORDER','RETURN','MONEY','SHIFT','PAYMENT','REFUND']),record:z.record(z.string(),z.unknown())}).strict()}).strict(),
   envelope.extend({eventType:z.literal('finance.refund-succeeded.v1'),data:z.object({refundId:id,returnId:id,paymentId:id,shiftId:id,amountVnd:amount}).strict()}).strict(),
   envelope.extend({eventType:z.literal('sales.return-completed.v1'),data:z.object({returnId:id,orderId:id,refundId:id,amountVnd:amount,lines:z.array(z.object({lineId:id,orderLineId:id,skuId:id,qtyBase:qty,refundVnd:amount,costVnd:amount,disposition:z.enum(['SELLABLE','QUARANTINE'])}).strict()).min(1).max(100)}).strict()}).strict(),
   envelope.extend({eventType:z.literal('finance.payment-succeeded.v1'),data:z.object({paymentId:id,orderId:id,shiftId:id,amountVnd:amount,method:z.literal('CASH')}).strict()}).strict(),

@@ -58,6 +58,8 @@ export async function worker(
       await ch.assertExchange("storeluma", "topic", { durable: true });
       await ch.assertExchange("storeluma.dead", "fanout", { durable: true });
       for (const [queue, routes] of Object.entries({
+        reporting: ['catalog.projection-updated.v1','inventory.projection-updated.v1','sales.projection-updated.v1','finance.projection-updated.v1'],
+        notification: ['catalog.projection-updated.v1','inventory.projection-updated.v1','sales.projection-updated.v1','finance.projection-updated.v1'],
         business: ["warehouse.ready", "register.ready"],
         inventory: ["site.provision.requested", "catalog.sku-updated.v1"],
         finance: ["site.provision.requested", "inventory.receipt-posted.v1"],
@@ -73,7 +75,7 @@ export async function worker(
       // Failed messages are confirmed into this service's own queue before ack.
       await ch.assertQueue(`${name}.dead`, { durable: true });
       await ch.unbindQueue(`${name}.dead`, "storeluma.dead", "");
-      // Retain events whose read-model consumers are scheduled for later weeks.
+      // Retain legacy domain events; current read models bootstrap from source snapshots.
       await ch.assertQueue("storeluma.deferred", { durable: true });
       for (const route of ["site.activated", "inventory.stock-changed.v1", "sales.order-completed.v1", "finance.payment-succeeded.v1", "sales.return-completed.v1", "finance.refund-succeeded.v1"])
         await ch.bindQueue("storeluma.deferred", "storeluma", route);

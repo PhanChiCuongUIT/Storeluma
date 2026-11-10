@@ -40,6 +40,7 @@ export function SalesRoom({
   sites,
   api,
   initialOrderId,
+  initialSiteId,initialPane,initialSourceId,
   subjectId,
 }: {
   tenant: string;
@@ -47,10 +48,11 @@ export function SalesRoom({
   sites: Row[];
   api: Api;
   initialOrderId?: string;
+  initialSiteId?:string;initialPane?:string;initialSourceId?:string;
   subjectId: string;
 }) {
   const path = "/v1/tenants/" + tenant;
-  const [pane, setPane] = useState("orders");
+  const [pane, setPane] = useState(initialPane??"orders");
   const [fromDate, setFromDate] = useState(""),
     [toDate, setToDate] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
@@ -64,7 +66,7 @@ export function SalesRoom({
     window.addEventListener("keydown", focus);
     return () => window.removeEventListener("keydown", focus);
   }, []);
-  const [siteId, setSiteId] = useState(""),
+  const [siteId, setSiteId] = useState(initialSiteId??""),
     [rows, setRows] = useState<Row[]>([]),
     [more, setMore] = useState<string | null>(null),
     [filter, setFilter] = useState(""),
@@ -428,6 +430,7 @@ export function SalesRoom({
       </div>
       {pane === "shifts" && (
         <ShiftDesk
+          initialShiftId={siteId===initialSiteId?initialSourceId:undefined}
           key={siteId}
           api={api}
           path={path}
@@ -439,6 +442,7 @@ export function SalesRoom({
       )}
       {pane === "returns" && (
         <ReturnQueue
+          initialReturnId={siteId===initialSiteId?initialSourceId:undefined}
           key={siteId}
           api={api}
           path={path}

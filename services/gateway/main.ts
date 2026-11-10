@@ -341,10 +341,12 @@ await start([], false, (app) => {
     }
     try {
       const resource = req.path.match(
-        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|payables|orders|sales|shifts|payments|returns|refunds|cash-entries)(?:\/|$)/,
+        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|payables|orders|sales|shifts|payments|returns|refunds|cash-entries|reports|report-exports|work-items|notification-rules)(?:\/|$)/,
       )?.[1];
       const target =
-        resource && ["categories", "products", "skus"].includes(resource)
+        resource && ["reports","report-exports"].includes(resource) ? process.env.REPORTING_URL
+        : resource && ["work-items","notification-rules"].includes(resource) ? process.env.NOTIFICATION_URL
+        : resource && ["categories", "products", "skus"].includes(resource)
           ? process.env.CATALOG_URL
           : resource && ["orders", "sales", "returns"].includes(resource)
             ? process.env.SALES_URL

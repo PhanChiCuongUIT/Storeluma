@@ -8,7 +8,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {persist-credentials: false}
@@ -38,9 +38,11 @@ jobs:
             docs/week-06/evidence/
             docs/week-07/evidence/
             docs/week-08/evidence/
+            docs/week-09/evidence/
             tmp/week06/screenshots/
             tmp/week07/screenshots/
             tmp/week08/screenshots/
+            tmp/week09/screenshots/
             tmp/playwright-results.json
             playwright-report/
             test-results/

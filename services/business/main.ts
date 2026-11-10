@@ -47,10 +47,12 @@ async function createSite(c:PoolClient,tenantId:string,input:z.infer<typeof site
 @Controller('v1')
 class Business{
   @Post('internal/authorize')async authorize(@Req()r:ActorRequest,@Body()body:unknown){
-    await verifyService(r,['catalog','inventory','finance','sales']);
-    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm','return.read','return.request','return.approve','refund.confirm','cash.write','cash.reverse','shift.approve'])}).strict().parse(body);
+    await verifyService(r,['catalog','inventory','finance','sales','reporting','notification']);
+    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm','return.read','return.request','return.approve','refund.confirm','cash.write','cash.reverse','shift.approve','report.read','report.export','notification.read','notification.ack','notification.manage'])}).strict().parse(body);
     const m=await membership(db,r.actor.sub!,input.tenantId);
     const roles:Record<string,string[]>={
+      'report.read':['OWNER','MANAGER','ACCOUNTANT'],'report.export':['OWNER','MANAGER','ACCOUNTANT'],
+      'notification.read':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'notification.ack':['OWNER','MANAGER','CASHIER','STOCK','ACCOUNTANT'],'notification.manage':['OWNER','MANAGER'],
       'return.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'return.request':['OWNER','MANAGER','CASHIER'],'return.approve':['OWNER','MANAGER'],'refund.confirm':['OWNER','MANAGER','CASHIER'],'cash.write':['OWNER','MANAGER','CASHIER'],'cash.reverse':['OWNER','MANAGER'],'shift.approve':['OWNER','MANAGER'],
       'sale.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'sale.write':['OWNER','MANAGER','CASHIER'],'sale.checkout':['OWNER','MANAGER','CASHIER'],'sale.cancel':['OWNER','MANAGER','CASHIER'],
       'shift.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'shift.open':['OWNER','MANAGER','CASHIER'],'shift.close':['OWNER','MANAGER','CASHIER'],'payment.confirm':['OWNER','MANAGER','CASHIER'],
