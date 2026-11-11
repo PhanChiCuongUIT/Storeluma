@@ -26,14 +26,19 @@
 .button:active{transform:translateY(1px)}
 input,select,textarea{border-color:#ccd9e2}
 input::placeholder,textarea::placeholder{color:#6f8190}
-:is(.c-tabs,.stock-tabs,.report-tabs){gap:5px;border:1px solid #dce5eb;border-radius:10px;background:#edf2f5;padding:4px;overflow-x:auto;width:fit-content;max-width:100%}
-:is(.c-tabs,.stock-tabs,.report-tabs) button{border:1px solid transparent;border-radius:7px;padding:10px 15px;min-height:40px;color:#506678;white-space:nowrap;font-size:13px}
-:is(.c-tabs,.stock-tabs,.report-tabs) button:is(.selected,.active){border-color:#d8e4e9;background:#fff;color:#086f87;box-shadow:0 1px 3px #263b4d0d}
+:is(.c-tabs,.stock-tabs,.report-tabs,.pos-tabs){gap:5px;border:1px solid #dce5eb;border-radius:10px;background:#edf2f5;padding:4px;overflow-x:auto;width:fit-content;max-width:100%}
+:is(.c-tabs,.stock-tabs,.report-tabs,.pos-tabs) button{border:1px solid transparent;border-radius:7px;padding:10px 15px;min-height:40px;color:#506678;white-space:nowrap;font-size:13px}
+:is(.c-tabs,.stock-tabs,.report-tabs,.pos-tabs) button:is(.selected,.active,[aria-selected=true]){border-color:#d8e4e9;background:#fff;color:#086f87;box-shadow:0 1px 3px #263b4d0d}
 :is(.c-sheet,.data-panel,.stock-panel,.report-table,.report-chart){box-shadow:0 2px 6px #203d5504;border-color:#dce5eb}
 :is(.c-toolbar,.report-toolbar){background:#f8fafc;padding:16px 20px;border:1px solid #e3eaf0;border-radius:10px;gap:12px}
 .c-sheet .c-toolbar{border-width:0 0 1px;border-radius:0}
 .report-toolbar label{margin:0}
 .report-toolbar .button{align-self:flex-end}
+.sales-filters{display:grid;grid-template-columns:140px 140px minmax(160px,1fr) 180px;align-items:end;background:#f8fafc}
+.sales-filters label{margin:0;min-width:0}
+.sales-filters input,.sales-filters select{width:100%;min-width:0;height:42px}
+.stock-filters{background:#f8fafc}
+.stock-filters select{width:auto;min-width:160px;max-width:100%}
 :is(.c-table,.stock-table,.report-table table,table) th{background:#f3f6f9;color:#52677a;font-size:12px;font-weight:600;letter-spacing:.1px}
 :is(.c-table,.stock-table,.report-table table,table) td{font-size:13px;color:#40566a}
 tbody tr:hover{background:#f4f9fb}
@@ -66,6 +71,7 @@ td strong{font-size:13px}
 .sign-in-help{text-align:left;font-size:12px;line-height:1.7;color:#607384}
 .sign-in-footnote{text-align:center;color:#607384;font-size:12px;line-height:1.7;max-width:360px}
 @media(max-width:950px) and (min-width:701px){.app-sidebar{width:216px}.workspace{margin-left:216px}}
+@media(max-width:1100px){.sales-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){
  .app-sidebar{padding:12px 16px 0;gap:10px;background:#fff}
  .app-sidebar .brand{margin:0;width:160px;height:44px}
@@ -88,8 +94,11 @@ td strong{font-size:13px}
  .page-heading h1{font-size:25px}
  .stat{padding:16px}
  .stat strong{font-size:27px}
- :is(.c-tabs,.stock-tabs,.report-tabs){width:100%;gap:3px}
- :is(.c-tabs,.stock-tabs,.report-tabs) button{padding:10px 12px;font-size:12px}
+ :is(.c-tabs,.stock-tabs,.report-tabs,.pos-tabs){width:100%;gap:3px}
+ :is(.c-tabs,.stock-tabs,.report-tabs,.pos-tabs) button{padding:10px 12px;font-size:12px}
+ .sales-filters{padding:14px}
+ .sales-filters>input,.sales-filters>select{grid-column:1/-1}
+ .stock-filters select{width:100%;min-width:0}
  :is(.c-toolbar,.report-toolbar){padding:14px}
  input,select,textarea{font-size:16px}
  .sign-in-page{padding:32px 16px;gap:22px}

@@ -147,7 +147,7 @@ Bố cục tham khảo login-03 của shadcn/ui và trang đăng nhập Tabler. 
 
 ## 11. Điều hướng và cách trình bày dữ liệu
 
-![Hình 7. Danh mục hàng hóa với menu phân nhóm, tab và bộ lọc thống nhất.](evidence/screenshots/08-workspace-refined.png)
+![Hình 7. Đơn bán hàng với menu phân nhóm, tab và bộ lọc thống nhất.](evidence/screenshots/10-sales-filters-refined.png)
 
 Menu chia thành Tổng quan, Kinh doanh và Cửa hàng. Mục đang mở có nền và dấu nhấn riêng. Ở màn hình thấp, menu cuộn độc lập để người dùng vẫn tới được các mục cuối. Trên điện thoại, menu mở bằng nút, tự đóng sau khi chọn mục và chuyển focus về nội dung.
 
