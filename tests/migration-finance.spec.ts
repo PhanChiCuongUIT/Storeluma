@@ -6,6 +6,7 @@ import {readFileSync,mkdirSync,mkdtempSync,copyFileSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {Pool} from 'pg';
+import {removeMigrationWorkspace} from './helpers/migration-workspace';
 const exec=promisify(execFile);
 const env=Object.fromEntries(readFileSync('.env','utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>[x.slice(0,x.indexOf('=')),x.slice(x.indexOf('=')+1)]));
 test('MIG-02 Finance upgrade preserves historical closed drawer and adds isolated refund sources',async()=>{
@@ -35,5 +36,8 @@ test('MIG-02 Finance upgrade preserves historical closed drawer and adds isolate
     expect((await fixture.query('SELECT amount_vnd FROM cash_ledger ORDER BY amount_vnd')).rows.map(r=>r.amount_vnd)).toEqual(['-50000','200000']);
     expect((await fixture.query("SELECT data->>'amountVnd' amount FROM projection_records WHERE kind='MONEY' ORDER BY (data->>'amountVnd')::numeric")).rows.map(r=>r.amount)).toEqual(['-50000','200000']);
     expect((await fixture.query("SELECT count(*) FROM projection_records WHERE kind='SHIFT'")).rows[0].count).toBe('2');
-  }finally{await fixture.end();if(created&&/^storeluma_migration_[a-f0-9]{32}$/.test(name))await admin.query(`DROP DATABASE "${name}"`);await admin.end();}
+  }finally{
+    try{await fixture.end();if(created&&/^storeluma_migration_[a-f0-9]{32}$/.test(name))await admin.query(`DROP DATABASE "${name}"`);}
+    finally{try{await admin.end();}finally{removeMigrationWorkspace(workspace);}}
+  }
 });

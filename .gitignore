@@ -19,10 +19,7 @@ AGENTS.md
 .claude/
 /Logo_Storeluma.png
 /README.vi.md
-/docs/local/HUONG_DAN_CHAY_VA_VAN_HANH.md
-/docs/local/HIEN_TRANG_DU_AN.md
-/docs/local/KICH_BAN_DEMO_VA_DU_LIEU_MAU.md
-/docs/local/TIEN_DO_THUC_HIEN_TUNG_TUAN.md
+/docs/local/
 /docs/week-05/evidence/*.json
 /docs/week-06/evidence/*.json
 /docs/week-07/evidence/*.json

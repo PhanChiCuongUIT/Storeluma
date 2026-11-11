@@ -1,3 +1,4 @@
+import { fixtureFile } from './helpers/fixtures';
 import {
   test,
   expect,
@@ -245,9 +246,9 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
       login(await outsider.newPage(), 2),
     ]);
     const fpath = [
-      "tmp/week05-fixture.json",
-      "tmp/week06-fixture.json",
-      "tmp/week07-fixture.json",
+      fixtureFile("week05-fixture.json"),
+      fixtureFile("week06-fixture.json"),
+      fixtureFile("week07-fixture.json"),
     ].find(existsSync);
     if (fpath) {
       const f = JSON.parse(readFileSync(fpath, "utf8"));
@@ -283,7 +284,7 @@ test.describe.serial("Week 7 durable cash checkout across services", () => {
         await api(staff, "/v1/invitations/accept", "POST", { token: i.token }),
       );
       writeFileSync(
-        "tmp/week07-fixture.json",
+        fixtureFile("week07-fixture.json"),
         JSON.stringify({ tenant, site: site.id }),
       );
     }

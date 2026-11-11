@@ -6,6 +6,7 @@ import { readFileSync, mkdirSync, mkdtempSync, copyFileSync, writeFileSync, unli
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Pool } from 'pg';
+import { removeMigrationWorkspace } from './helpers/migration-workspace';
 
 const exec = promisify(execFile);
 const env = Object.fromEntries(readFileSync('.env', 'utf8').split(/\r?\n/)
@@ -97,8 +98,11 @@ test('MIG-01 Existing receipt history survives upgrade, concurrent restart and a
     await fixture.query('ROLLBACK');
     expect((await fixture.query('SELECT revision FROM projection_records')).rows[0].revision).toBe(1);
   } finally {
-    await fixture.end();
-    if (created && /^storeluma_migration_[a-f0-9]{32}$/.test(name)) await admin.query(`DROP DATABASE "${name}"`);
-    await admin.end();
+    try {
+      await fixture.end();
+      if (created && /^storeluma_migration_[a-f0-9]{32}$/.test(name)) await admin.query(`DROP DATABASE "${name}"`);
+    } finally {
+      try { await admin.end(); } finally { removeMigrationWorkspace(workspace); }
+    }
   }
 });

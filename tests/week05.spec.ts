@@ -1,3 +1,4 @@
+import { fixtureFile } from './helpers/fixtures';
 import { fillFreshTotp } from "./helpers/totp";
 import {
   test,
@@ -132,8 +133,8 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
       login(await staff.newPage(), 1),
       login(await outsider.newPage(), 2),
     ]);
-    const previous = existsSync("tmp/week05-fixture.json")
-      ? JSON.parse(readFileSync("tmp/week05-fixture.json", "utf8"))
+    const previous = existsSync(fixtureFile("week05-fixture.json"))
+      ? JSON.parse(readFileSync(fixtureFile("week05-fixture.json"), "utf8"))
       : null;
     if (previous) {
       tenant = previous.tenant;
@@ -180,7 +181,7 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
         }),
       );
       writeFileSync(
-        "tmp/week05-fixture.json",
+        fixtureFile("week05-fixture.json"),
         JSON.stringify({ tenant, site: site.id, otherSite: otherSite.id }),
       );
     }

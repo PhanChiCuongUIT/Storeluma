@@ -131,6 +131,8 @@ Start the services before running `npm test`. The test suite uses real backend s
 
 Authentication tests wait for a fresh TOTP window before each login to avoid reusing a code across suites. Keep one test process per account set; the suite runs with one worker.
 
+Test fixture IDs are stored under `tmp/fixtures/<compose-project>` so separate Compose projects do not reuse each other's records. Set `TEST_FIXTURE_DIR` to a new empty directory after replacing or resetting a test database. Use a fresh test environment for a full run: the business creation tests deliberately exercise the normal owner limit and must not bypass it.
+
 The suite also checks upgrades from existing inventory and finance schemas to stocktaking, reservations, returns and cash refunds. It creates uniquely named disposable databases, runs the actual migration runner, verifies preserved history and rollback, then drops only those test databases. Run the build before the tests so the compiled migration runner is available.
 
 GitHub Actions builds the application and audits runtime dependencies, and runs the full suite on a fresh Docker environment for pushes and pull requests. Workflow artifacts retain test results, screenshots, failure context, and container status for seven days. Deployment is not automated yet.

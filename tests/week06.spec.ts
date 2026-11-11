@@ -1,3 +1,4 @@
+import { fixtureFile } from './helpers/fixtures';
 import {
   test,
   expect,
@@ -197,9 +198,9 @@ test.describe
       login(await staff.newPage(), 1),
       login(await outsider.newPage(), 2),
     ]);
-    const fixturePath = existsSync("tmp/week05-fixture.json")
-      ? "tmp/week05-fixture.json"
-      : "tmp/week06-fixture.json";
+    const fixturePath = existsSync(fixtureFile("week05-fixture.json"))
+      ? fixtureFile("week05-fixture.json")
+      : fixtureFile("week06-fixture.json");
     if (existsSync(fixturePath)) {
       const f = JSON.parse(readFileSync(fixturePath, "utf8"));
       tenant = f.tenant;
@@ -240,7 +241,7 @@ test.describe
         }),
       );
       writeFileSync(
-        "tmp/week06-fixture.json",
+        fixtureFile("week06-fixture.json"),
         JSON.stringify({ tenant, site: site.id, otherSite: otherSite.id }),
       );
     }

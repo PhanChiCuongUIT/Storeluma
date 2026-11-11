@@ -1,3 +1,4 @@
+import { fixtureFile } from './helpers/fixtures';
 import {
   test,
   expect,
@@ -235,10 +236,10 @@ test.describe.serial("Week 9 reports and work inbox", () => {
       login(await outsider.newPage(), 2),
     ]);
     const file = [
-      "tmp/week05-fixture.json",
-      "tmp/week06-fixture.json",
-      "tmp/week07-fixture.json",
-      "tmp/week09-fixture.json",
+      fixtureFile("week05-fixture.json"),
+      fixtureFile("week06-fixture.json"),
+      fixtureFile("week07-fixture.json"),
+      fixtureFile("week09-fixture.json"),
     ].find(existsSync);
     if (file) {
       tenant = JSON.parse(readFileSync(file, "utf8")).tenant;
@@ -271,7 +272,7 @@ test.describe.serial("Week 9 reports and work inbox", () => {
         await api(staff, "/v1/invitations/accept", "POST", { token: i.token }),
       );
       writeFileSync(
-        "tmp/week09-fixture.json",
+        fixtureFile("week09-fixture.json"),
         JSON.stringify({ tenant, site: t.site.id }),
       );
     }
