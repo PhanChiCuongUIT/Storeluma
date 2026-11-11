@@ -1057,6 +1057,7 @@ test.describe.serial("Week 5 catalog and receiving - live services", () => {
   });
   test("W5-17 Narrow viewport has no page overflow and cashier has no receiving UI", async () => {
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.menu-toggle').click();
     await page.getByRole("button", { name: "Hàng hóa", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Danh mục hàng hóa" }),

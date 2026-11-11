@@ -1,0 +1,54 @@
+:root {
+  --pf-v5-global--primary-color--100: #087ca7;
+  --pf-v5-global--primary-color--200: #066484;
+  --pf-v5-global--FontFamily--text: Arial, "Segoe UI", sans-serif;
+  --pf-v5-global--FontFamily--heading: Arial, "Segoe UI", sans-serif;
+}
+html, body, input, button, select, textarea, .pf-v5-c-title { font-family: Arial, "Segoe UI", sans-serif !important; }
+body#keycloak-bg {
+  margin: 0; color: #243346;
+  background: radial-gradient(ellipse at 20% 0%, #dceff0 0, transparent 50%), radial-gradient(ellipse at 95% 95%, #e3edf6 0, transparent 45%), #f6f8fa;
+}
+.pf-v5-c-login { min-height: 100dvh; padding: 48px 20px; display: flex; align-items: center; justify-content: center; }
+.pf-v5-c-login .pf-v5-c-login__container { display: block; width: min(440px, 100%); padding: 0; }
+#kc-header { margin: 0 0 28px; padding: 0; text-align: center; }
+#kc-header-wrapper { width: 220px; height: 60px; margin: auto; max-width: 100%; background: url('../brand/Logo_Storeluma.png') center 48% / 100% auto no-repeat; font-size: 0; }
+.pf-v5-c-login__main { background: #fff; border: 1px solid #dfe8ee; border-radius: 16px; box-shadow: 0 12px 40px #1b435610; overflow: visible; }
+.pf-v5-c-login__main-header { display: flex; flex-direction: column; align-items: center; border: 0; padding: 32px 36px 24px; text-align: center; gap: 12px; }
+#kc-header-wrapper { mix-blend-mode: multiply; }
+#kc-page-title { font-size: 26px; line-height: 1.35; font-weight: 700; letter-spacing: -.5px; color: #203548; }
+.pf-v5-c-login__main-body { padding: 0 36px 30px; }
+.pf-v5-c-form { --pf-v5-c-form--Gap: 22px; }
+.pf-v5-c-form__label { font-size: 13px; font-weight: 600; color: #3d5366; }
+.pf-v5-c-form-control { min-height: 48px; background: #fff; border: 1px solid #ccd9e2; border-radius: 8px; }
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after { border: 0 !important; }
+.pf-v5-c-form-control:focus-within { border-color: #087ca7; box-shadow: 0 0 0 3px #087ca719; }
+.pf-v5-c-form-control.pf-m-error { border-color: #bc433c; }
+.pf-v5-c-form-control input { min-height: 46px; padding: 11px 12px; font-size: 15px; border-radius: 8px; }
+.pf-v5-c-form-control input:focus { outline: none; }
+.pf-v5-c-form-control.pf-m-readonly { background: #f6f9fb; }
+.pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 8px 0 0 8px; }
+.pf-v5-c-input-group .pf-v5-c-button { min-width: 46px; min-height: 48px; border: 1px solid #ccd9e2; border-left: 0; border-radius: 0 8px 8px 0; background: #f6f9fb; color: #526b7d; }
+.pf-v5-c-input-group .pf-v5-c-button::after { border: 0; }
+.pf-v5-c-button.pf-m-primary { border-radius: 8px; min-height: 48px; font-size: 14px; font-weight: 600; box-shadow: 0 1px 2px #0b52751a; }
+.pf-v5-c-button:focus-visible, a:focus-visible { outline: 3px solid #62b6d8; outline-offset: 3px; }
+.pf-v5-c-form__helper-text, .pf-v5-c-helper-text { font-size: 13px; line-height: 1.6; }
+.pf-v5-c-login__main-footer:empty { display: none; }
+.pf-v5-c-login__main-body > form { margin-top: 22px; }
+#reset-login .kc-tooltip-text { left: auto; right: 0; transform: none; max-width: 220px; white-space: normal; }
+#otp { font-size: 24px; letter-spacing: .32em; font-variant-numeric: tabular-nums; text-align: center; }
+.auth-guidance { margin: 0 36px 28px; padding-top: 20px; border-top: 1px solid #e3eaf0; color: #607384; font-size: 12px; line-height: 1.7; text-align: center; }
+.auth-guidance strong { display: block; color: #32667b; font-size: 12px; margin-bottom: 6px; font-weight: 600; }
+.auth-guidance p { margin: 0; }
+.auth-step { display: block; font-size: 12px; color: #587586; letter-spacing: .2px; font-weight: 400; }
+.pf-v5-c-alert { border-radius: 8px; font-size: 13px; }
+@media(max-width:480px) {
+  .pf-v5-c-login { padding: 32px 16px; }
+  #kc-header { margin-bottom: 24px; }
+  .pf-v5-c-login__main-header { padding: 28px 24px 22px; }
+  .pf-v5-c-login__main-body { padding: 0 24px 26px; }
+  .pf-v5-c-form-control input { font-size: 16px; }
+  .auth-guidance { margin: 0 24px 24px; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition: none !important; } }

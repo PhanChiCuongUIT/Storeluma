@@ -133,3 +133,34 @@ Trên màn hình hẹp, bộ lọc xuống dòng, thẻ chỉ số chuyển hai 
 ### Chuẩn bị tuần 10
 
 Tiếp tục rà soát phân quyền, liên kết giữa các chức năng và lỗi tích hợp theo đề cương. Các ca tải lớn, gián đoạn kéo dài và vận hành triển khai cần được kiểm chứng ở những mốc sau. Không mở rộng kết luận của tuần 9 sang các nghiệp vụ chưa có như thanh toán điện tử, công nợ khách hoặc thanh toán nhà cung cấp.
+
+## 10. Hoàn thiện giao diện đăng nhập
+
+![Đăng nhập](evidence/screenshots/06-login-refined.png)
+![Mã xác thực](evidence/screenshots/07-otp-refined.png)
+
+Đợt rà soát giao diện ngày 11/11/2026 điều chỉnh các màn hình xác thực đã xây dựng ở tuần 4. Logo gốc được đặt phía trên biểu mẫu; tiêu đề, ô nhập và nút dùng chung phông chữ và khoảng cách. Bước nhập mật khẩu và bước nhập mã có chỉ dẫn riêng, giúp người dùng xác định thao tác đang thực hiện.
+
+Trường mã xác thực hỗ trợ bàn phím số và gợi ý tự điền mã. Nút hiện/ẩn mật khẩu, thông báo sai thông tin và chức năng đổi tài khoản tiếp tục dùng cơ chế của Keycloak. Các thay đổi trình bày không thay thế luồng OIDC, PKCE hoặc kiểm tra phiên tại Gateway.
+
+Bố cục tham khảo login-03 của shadcn/ui và trang đăng nhập Tabler. Các thành phần được điều chỉnh theo logo, màu và nhãn tiếng Việt của Storeluma. Không bổ sung đăng nhập mạng xã hội hoặc chức năng khôi phục mật khẩu khi hệ thống chưa triển khai các luồng đó.
+
+## 11. Điều hướng và cách trình bày dữ liệu
+
+![Hình 7. Danh mục hàng hóa với menu phân nhóm, tab và bộ lọc thống nhất.](evidence/screenshots/08-workspace-refined.png)
+
+Menu chia thành Tổng quan, Kinh doanh và Cửa hàng. Mục đang mở có nền và dấu nhấn riêng. Ở màn hình thấp, menu cuộn độc lập để người dùng vẫn tới được các mục cuối. Trên điện thoại, menu mở bằng nút, tự đóng sau khi chọn mục và chuyển focus về nội dung.
+
+Tab, bộ lọc, tiêu đề bảng và nút được thống nhất giữa các trang. Các bảng dài cuộn trong vùng riêng; trang báo cáo giữ thứ tự bộ lọc, chỉ số, biểu đồ và bảng chi tiết. Liên kết Đến nội dung chính hỗ trợ người sử dụng bàn phím bỏ qua phần điều hướng.
+
+Nguồn tham khảo: github.com/shadcn-ui/ui (login-03, sidebar-07) và github.com/tabler/tabler. Hình thức trình bày được triển khai bằng React/CSS hiện có; dữ liệu và thao tác vẫn đi qua các API nghiệp vụ.
+
+## 12. Kiểm tra giao diện sau điều chỉnh
+
+![Hình 8. Menu phân nhóm trên màn hình 390 px.](evidence/screenshots/09-mobile-refined.png)
+
+Kiểm tra ngày 11/11/2026 trên Chromium với Storeluma chạy bằng Docker Compose. Các màn hình đăng nhập được kiểm tra ở chiều rộng 320, 390, 768 và 1440 px. Rà soát các trang có dữ liệu tại 1440 px và 390 px, gồm địa điểm, hàng hóa, nhà cung cấp, nhập hàng, kho, đơn bán, báo cáo, công việc, nhân sự và lịch sử thao tác.
+
+Tám ca xác thực và giao diện đạt 8/8; hai ca UI được chạy lại sau điều chỉnh và đạt 2/2. Nội dung kiểm tra gồm hiện/ẩn mật khẩu, lỗi đăng nhập, TOTP, callback hết hạn, các lượt đăng nhập đồng thời, điều hướng bằng bàn phím, Escape, focus và đăng xuất. Rà soát 38 tổ hợp trang và chiều rộng không còn tràn ngang, không ghi nhận lỗi JavaScript trên trình duyệt.
+
+Ảnh chụp lấy từ ứng dụng đang chạy với dữ liệu kiểm chứng, không dùng bản dựng minh họa. Các kích thước nhỏ được mô phỏng bằng viewport; chưa kiểm tra trên thiết bị di động vật lý.

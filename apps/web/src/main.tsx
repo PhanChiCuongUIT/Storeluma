@@ -6,6 +6,7 @@ import {Commerce} from './commerce';
 import {StockRoom} from './stock';
 import {SalesRoom} from './sales';
 import {ReportsRoom,WorkRoom,type SourceLink} from './management';
+import './refinements.css';
 type Membership={id:string,tenant_id:string,tenant_name:string,subject_id:string,role:string,status:string,site_ids:string[],version:number};
 type Site={id:string,tenant_id:string,name:string,code:string,address:string,status:string,warehouse_ready:boolean,register_ready:boolean,version:number};
 type User={subjectId:string,username:string,memberships:Membership[]};
@@ -18,6 +19,7 @@ function App(){
   const [session,setSession]=useState<Session|null>(null),[loading,setLoading]=useState(true),[me,setMe]=useState<User|null>(null);
   const [tenant,setTenant]=useState(''),[sites,setSites]=useState<Site[]>([]),[staff,setStaff]=useState<Membership[]>([]),[audit,setAudit]=useState<any[]>([]);
   const [orderLink,setOrderLink]=useState('');
+  const [menuOpen,setMenuOpen]=useState(false);
   const [sourceLink,setSourceLink]=useState<SourceLink|null>(null);
   const [tab,setTab]=useState('sites'),[dialog,setDialog]=useState(''),[error,setError]=useState(()=>{
     const reason=new URLSearchParams(window.location.search).get('auth');
@@ -106,29 +108,35 @@ function App(){
   }
   if(loading)return <main className="loading"><Brand/><p>Đang mở Storeluma…</p></main>;
   if(!session)return <main className="sign-in-page">
+    <div className="sign-in-brand"><Brand/><p>Quản lý cửa hàng mỗi ngày</p></div>
     <section className="sign-in-card" aria-labelledby="sign-in-title">
-      <div className="sign-in-brand"><Brand/></div>
+      <span className="sign-in-symbol"><Icon name="store"/></span>
       <h1 id="sign-in-title">Đăng nhập</h1>
       <p>Truy cập hộ kinh doanh và địa điểm làm việc của bạn.</p>
       <a className="button primary" href="/auth/login">Đăng nhập vào Storeluma<Icon name="arrow"/></a>
       {error&&<p role="alert" className="alert error">{error}</p>}
-      <div className="sign-in-help"><Icon name="shield"/><span>Chuẩn bị tài khoản, mật khẩu và mã từ ứng dụng xác thực.</span></div>
+      <div className="sign-in-help"><Icon name="shield"/><span>Dùng tài khoản được cấp và mã xác thực trên điện thoại để đăng nhập.</span></div>
     </section>
+    <p className="sign-in-footnote">Chưa có tài khoản? Liên hệ chủ hộ hoặc người quản lý.</p>
   </main>;
   return <div className="shell">
+    <a className="skip-link" href="#main-content">Đến nội dung chính</a>
     <aside className="app-sidebar" inert={Boolean(dialog)}>
       <Brand/>
       <div className="tenant-picker"><label htmlFor="tenant">Hộ kinh doanh</label><select id="tenant" aria-label="Chọn hộ kinh doanh" value={tenant} onChange={e=>{setTenant(e.target.value);setNotice('');setError('');}}>
         {!tenant&&<option value="">Chưa có hộ</option>}{me?.memberships.filter(m=>m.status==='ACTIVE').map(m=><option key={m.id} value={m.tenant_id}>{m.tenant_name}</option>)}
       </select></div>
-      <span className="nav-label">QUẢN LÝ</span>
-      <nav className="app-nav" aria-label="Điều hướng">
+      <button className="menu-toggle" aria-expanded={menuOpen} aria-controls="app-navigation" onClick={()=>setMenuOpen(value=>!value)}><Icon name="list"/><span>{pageTitle}</span><span>{menuOpen?'Đóng':'Menu'}</span></button>
+      <nav id="app-navigation" className={'app-nav'+(menuOpen?' is-open':'')} aria-label="Điều hướng" onClick={event=>{if((event.target as HTMLElement).closest('button')){setMenuOpen(false);if(window.matchMedia('(max-width: 700px)').matches)requestAnimationFrame(()=>document.getElementById('main-content')?.focus());}}} onKeyDown={event=>{if(event.key==='Escape'){setMenuOpen(false);document.querySelector<HTMLButtonElement>('.menu-toggle')?.focus();}}}>
+        {current&&<span className="nav-group-label">Tổng quan</span>}
         {current&&['OWNER','MANAGER','ACCOUNTANT'].includes(current.role)&&<button aria-label="Báo cáo" aria-current={tab==='reports'?'page':undefined} className={tab==='reports'?'active':''} onClick={()=>setTab('reports')}><Icon name="grid"/>Báo cáo</button>}
         {current&&<button aria-label="Công việc" aria-current={tab==='work'?'page':undefined} className={tab==='work'?'active':''} onClick={()=>setTab('work')}><Icon name="clock"/>Công việc</button>}
+        {current&&<span className="nav-group-label">Kinh doanh</span>}
         {current&&<button aria-label="Hàng hóa" aria-current={tab==='products'?'page':undefined} className={tab==='products'?'active':''} onClick={()=>setTab('products')}><Icon name="grid"/>Hàng hóa</button>}
         {current&&current.role!=='CASHIER'&&<><button aria-label="Nhà cung cấp" aria-current={tab==='suppliers'?'page':undefined} className={tab==='suppliers'?'active':''} onClick={()=>setTab('suppliers')}><Icon name="people"/>Nhà cung cấp</button><button aria-label="Nhập hàng" aria-current={tab==='receipts'?'page':undefined} className={tab==='receipts'?'active':''} onClick={()=>setTab('receipts')}><Icon name="list"/>Nhập hàng</button></>}
         {current&&current.role!=='STOCK'&&<button aria-label="Đơn bán" aria-current={tab==='orders'?'page':undefined} className={tab==='orders'?'active':''} onClick={()=>{setSourceLink(null);setOrderLink('');setTab('orders');}}><Icon name="list"/>Đơn bán</button>}
         {current&&<button aria-label="Kho hàng" aria-current={tab==='stock'?'page':undefined} className={tab==='stock'?'active':''} onClick={()=>{setSourceLink(null);setTab('stock');}}><Icon name="grid"/>Kho hàng</button>}
+        <span className="nav-group-label">Cửa hàng</span>
         <button aria-label="Địa điểm" aria-current={tab==='sites'?'page':undefined} className={tab==='sites'?'active':''} onClick={()=>setTab('sites')}><Icon name="store"/>Địa điểm</button>
         {owner&&<><button aria-label="Nhân sự" aria-current={tab==='staff'?'page':undefined} className={tab==='staff'?'active':''} onClick={()=>setTab('staff')}><Icon name="people"/>Nhân sự</button><button aria-label="Lịch sử thao tác" aria-current={tab==='audit'?'page':undefined} className={tab==='audit'?'active':''} onClick={()=>setTab('audit')}><Icon name="history"/>Lịch sử thao tác</button></>}
       </nav>
@@ -136,7 +144,7 @@ function App(){
     </aside>
     <div className="workspace" inert={Boolean(dialog)}>
       <header className="topbar"><div className="breadcrumb"><Icon name="store"/><span>{current?.tenant_name??'Tài khoản'}</span><Icon name="chevron"/><strong>{pageTitle}</strong></div><button className="quiet logout" disabled={busy} onClick={()=>void action(async()=>{const result=await api('/auth/logout','POST',{});window.location.assign(result.redirectUrl);})}><Icon name="logout"/>Đăng xuất</button></header>
-      <main className="content" id="main-content">
+      <main className="content" id="main-content" tabIndex={-1}>
         <div className="page-heading"><div><span className="eyebrow">{current?.tenant_name??'KHÔNG GIAN CỦA BẠN'}</span><h1>{pageTitle}</h1><p>{tab==='reports'?'Theo dõi kết quả bán hàng, tồn kho và thu chi.':tab==='work'?'Theo dõi phát sinh và xử lý các công việc trong ngày.':tab==='sites'?'Theo dõi địa điểm và chọn nơi làm việc trong ngày.':tab==='staff'?'Phân công đúng người, đúng địa điểm.':tab==='products'?'Thiết lập hàng bán và quy cách đóng gói.':tab==='suppliers'?'Quản lý thông tin và giao dịch với đối tác.':tab==='receipts'?'Nhận hàng, kiểm tra và ghi nhận vào kho.':tab==='stock'?'Theo dõi tồn, kiểm đếm và đối chiếu chứng từ.':tab==='orders'?'Tạo đơn, thu tiền và theo dõi hàng đã bán.':'Theo dõi những thay đổi trong hộ kinh doanh.'}</p></div><div className="heading-actions">{tab==='sites'?<><button className="button secondary" onClick={()=>open('tenant')}>Tạo hộ kinh doanh</button>{owner&&<button className="button primary" aria-label="+ Thêm địa điểm" onClick={()=>open('site')}><Icon name="plus"/>Thêm địa điểm</button>}</>:tab==='staff'?<button className="button primary" aria-label="+ Mời nhân viên" onClick={()=>open('invite')}><Icon name="plus"/>Mời nhân viên</button>:null}</div></div>
         {error&&<div role="alert" className="alert error">{error}<button aria-label="Đóng thông báo lỗi" onClick={()=>setError('')}>×</button></div>}
         {notice&&<div role="status" className="alert success"><Icon name="check"/><span>{notice}</span><button aria-label="Đóng thông báo" onClick={()=>setNotice('')}>×</button></div>}

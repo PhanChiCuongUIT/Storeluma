@@ -180,7 +180,10 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
       expect((await api(cashier,`/v1/tenants/${tenant}/sites`)).status()).toBe(status==='BLOCKED'?403:200);
     }
     await ownerPage.getByRole('button',{name:'Lịch sử thao tác',exact:true}).click();await expect(ownerPage.getByText('Tạo hộ',{exact:true})).toBeVisible();await ownerPage.screenshot({path:evidence+'/06-audit.png',fullPage:true});
-    await ownerPage.setViewportSize({width:390,height:844});await ownerPage.getByRole('button',{name:'Địa điểm',exact:true}).click();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await ownerPage.screenshot({path:evidence+'/07-mobile.png',fullPage:true});
+    await ownerPage.setViewportSize({width:390,height:844});
+    await ownerPage.locator('.menu-toggle').click();await ownerPage.getByRole('button',{name:'Nhân sự',exact:true}).click();
+    await expect(ownerPage.locator('.data-panel')).toBeVisible();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await ownerPage.locator('.menu-toggle').click();await ownerPage.getByRole('button',{name:'Địa điểm',exact:true}).click();expect(await ownerPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await ownerPage.screenshot({path:evidence+'/07-mobile.png',fullPage:true});
   });
   test('W4-19 Selected context follows site status and membership scope',async()=>{
     await good(await api(cashier,'/v1/context','POST',{tenantId:tenant,siteId:first}));
