@@ -1,7 +1,12 @@
-import {test,expect} from '@playwright/test';
+import {test,expect,type Page} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {fillFreshTotp} from './helpers/totp';
 import {t} from '../apps/web/src/i18n';
+
+async function choose(page:Page,label:string,value:string){
+  await page.getByRole('button',{name:label,exact:true}).click();
+  await page.locator(`[role="menuitemradio"][data-value="${value}"]:visible`).click();
+}
 
 test('DISPLAY-01 Language catalog preserves placeholders and translates notices without changing arguments',()=>{
   const catalog={...JSON.parse(readFileSync('apps/web/src/messages.en.json','utf8')),...JSON.parse(readFileSync('apps/web/src/messages.errors.en.json','utf8'))};
@@ -22,16 +27,19 @@ test('DISPLAY-01 Language catalog preserves placeholders and translates notices 
 test('DISPLAY-02 System appearance, explicit preference and language persist across reload',async({page})=>{
   await page.emulateMedia({colorScheme:'dark'});await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
-  await page.getByLabel('Giao diện',{exact:true}).selectOption('light');
-  await page.getByLabel('Ngôn ngữ',{exact:true}).selectOption('en');
+  await choose(page,'Giao diện','light');
+  await choose(page,'Ngôn ngữ','en');
   await expect(page.getByRole('link',{name:'Sign in to Storeluma'})).toBeVisible();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang','en');
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
-  await page.getByLabel('Appearance',{exact:true}).selectOption('system');
+  await choose(page,'Appearance','system');
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+  await expect(page.locator('.brand-dark')).toBeVisible();
   await page.emulateMedia({colorScheme:'light'});
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+  await expect(page.locator('.brand-light')).toBeVisible();
+  await expect(page.locator('.brand-dark')).toBeHidden();
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -43,12 +51,12 @@ test('DISPLAY-03 English dark sign-in, TOTP and authenticated navigation share p
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   const account=JSON.parse(readFileSync('infra/generated/accounts.json','utf8'))[0];
   await page.goto('/');
-  await page.getByLabel('Giao diện',{exact:true}).selectOption('dark');
-  await page.getByLabel('Ngôn ngữ',{exact:true}).selectOption('en');
+  await choose(page,'Giao diện','dark');
+  await choose(page,'Ngôn ngữ','en');
   await page.getByRole('link',{name:'Sign in to Storeluma'}).click();
   await expect(page.locator('html')).toHaveAttribute('lang',/^en/);
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
-  await expect(page.getByLabel('Language',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Language',exact:true})).toBeVisible();
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -61,7 +69,7 @@ test('DISPLAY-03 English dark sign-in, TOTP and authenticated navigation share p
   await expect(page).toHaveURL('http://localhost:4100/');
   await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang','en');
-  await page.getByLabel('Language',{exact:true}).selectOption('vi');
+  await choose(page,'Language','vi');
   await expect(page.getByRole('button',{name:'Đăng xuất',exact:true})).toBeVisible();
   await page.locator('.heading-actions').getByRole('button',{name:'Tạo hộ kinh doanh',exact:true}).click();
   const draft=page.getByRole('dialog').locator('input[name="name"]');await draft.fill('Tên giữ nguyên');
@@ -72,6 +80,12 @@ test('DISPLAY-03 English dark sign-in, TOTP and authenticated navigation share p
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    for(const name of ['Appearance','Language']){
+      await page.getByRole('button',{name,exact:true}).click();
+      const box=await page.getByRole('menu').boundingBox();
+      expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width);
+      await page.keyboard.press('Escape');
+    }
   }
   await page.getByRole('button',{name:'Sign out',exact:true}).click();
   await expect(page.getByRole('link',{name:'Sign in to Storeluma'})).toBeVisible();
@@ -80,18 +94,50 @@ test('DISPLAY-03 English dark sign-in, TOTP and authenticated navigation share p
 });
 
 test('DISPLAY-04 Keycloak language switching preserves theme on errors and logout confirmation',async({page})=>{
-  await page.goto('/');await page.getByLabel('Giao diện',{exact:true}).selectOption('dark');
+  await page.goto('/');await choose(page,'Giao diện','dark');
   await page.getByRole('link',{name:'Đăng nhập vào Storeluma'}).click();
-  await expect(page.locator('#login-select-toggle')).toBeVisible();
-  const english=await page.getByLabel('Ngôn ngữ',{exact:true}).locator('option').evaluateAll(options=>(options as HTMLOptionElement[]).find(o=>o.textContent?.trim()==='English')!.value);
-  await page.getByLabel('Ngôn ngữ',{exact:true}).selectOption(english);
+  await choose(page,'Ngôn ngữ','en');
   await expect(page.locator('html')).toHaveAttribute('lang','en');
+  await expect(page.locator('#kc-header-wrapper')).toHaveCSS('background-image',/Logo_Storeluma_Dark\.png/);
+  await choose(page,'Appearance','light');
+  await expect(page.locator('#kc-header-wrapper')).toHaveCSS('background-image',/Logo_Storeluma\.png/);
+  await choose(page,'Appearance','dark');
   await page.locator('#username').fill('unknown-display-account');await page.locator('#password').fill('invalid-test-password');await page.locator('#kc-login').click();
   await expect(page.getByText('Invalid username or password.',{exact:true})).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
   await page.goto('http://localhost:8180/realms/storeluma/protocol/openid-connect/logout?client_id=storeluma-web');
   await expect(page.getByRole('heading')).toContainText('Logging out');
-  await expect(page.getByLabel('Appearance',{exact:true})).toHaveValue('dark');
+  await expect(page.getByRole('button',{name:'Appearance',exact:true})).toHaveAttribute('title','Appearance: Dark');
   await page.setViewportSize({width:320,height:740});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('DISPLAY-05 Icon menus support keyboard, dismissal and matching brand dimensions',async({page})=>{
+  const pngSize=(file:string)=>{const b=readFileSync(file);return [b.readUInt32BE(16),b.readUInt32BE(20)];};
+  expect(pngSize('apps/web/public/brand/Logo_Storeluma_Dark.png')).toEqual(pngSize('apps/web/public/brand/Logo_Storeluma.png'));
+  await page.goto('/');await choose(page,'Giao diện','light');
+  const original=await page.locator('.brand-light').boundingBox();
+  const theme=page.getByRole('button',{name:'Giao diện',exact:true});
+  await theme.focus();await page.keyboard.press('Enter');
+  await expect(page.getByRole('menuitemradio',{name:'Sáng',exact:true})).toBeFocused();
+  await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+  await expect(theme).toBeFocused();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+  await expect(page.locator('.brand-light')).toBeHidden();
+  expect(await page.locator('.brand-dark').boundingBox()).toEqual(original);
+  await theme.press('ArrowUp');await expect(page.getByRole('menuitemradio',{name:'Hệ thống',exact:true})).toBeFocused();
+  await page.keyboard.press('Home');await expect(page.getByRole('menuitemradio',{name:'Sáng',exact:true})).toBeFocused();
+  await page.keyboard.press('End');await expect(page.getByRole('menuitemradio',{name:'Hệ thống',exact:true})).toBeFocused();
+  await page.keyboard.press('Escape');await expect(theme).toBeFocused();await expect(page.getByRole('menu')).toBeHidden();
+  await theme.click();await page.getByRole('button',{name:'Ngôn ngữ',exact:true}).click();
+  await expect(theme).toHaveAttribute('aria-expanded','false');await expect(page.getByRole('menu')).toHaveCount(1);
+  await page.keyboard.press('Tab');await expect(page.getByRole('menu')).toBeHidden();
+  for(const width of [320,390,768,1440]){
+    await page.setViewportSize({width,height:900});
+    for(const name of ['Giao diện','Ngôn ngữ']){
+      await page.getByRole('button',{name,exact:true}).click();
+      const box=await page.getByRole('menu').boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width);
+      await page.locator('h1').click();await expect(page.getByRole('menu')).toBeHidden();
+    }
+  }
+  expect(await page.locator('.brand-dark').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth===1254)).toBe(true);
 });

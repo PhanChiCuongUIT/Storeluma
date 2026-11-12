@@ -34,3 +34,13 @@ Giới hạn: chưa đo tải lớn, chưa production, chưa SMTP/push. Chi ti�
 - Ảnh: [đăng nhập English/tối](screenshots/12-login-dark-english.png), [TOTP tiếng Việt/tối](screenshots/13-otp-dark-vietnamese.png), [danh mục English/tối](screenshots/14-catalog-dark-english.png), [báo cáo điện thoại/tối](screenshots/15-reports-dark-mobile.png).
 
 Kết quả dùng Chromium trên Windows và môi trường Compose. Chưa kiểm tra điện thoại/máy in vật lý hoặc triển khai production. Các kết quả lịch sử phía trên được giữ riêng theo lần kiểm chứng.
+
+
+## Nút tùy chọn và logo tối ngày 12/11/2026
+
+- Thay ô select bằng nút biểu tượng dùng chung ở ứng dụng và Keycloak. Menu có trạng thái đang chọn, hỗ trợ bàn phím và tự căn trong viewport. Chế độ theo hệ thống vẫn tự cập nhật biểu tượng và logo.
+- Logo sáng và tối cùng 1254 × 1254 px. DISPLAY-05 đối chiếu kích thước PNG và khung hiển thị trước/sau chuyển theme; DISPLAY-02 kiểm tra logo khi hệ thống đổi màu; DISPLAY-04 kiểm tra tài nguyên logo trên Keycloak.
+- Tập xác thực/UI: 8/8 đạt. Tập hiển thị chạy xác nhận sau điều chỉnh: 5/5 đạt, không bỏ qua hoặc retry. Lượt đầu còn một locator kiểm thử trỏ đồng thời vào nút và menu cùng nhãn; đã đổi sang vai trò button và chạy lại toàn bộ tập hiển thị.
+- Kiểm tra menu ở 320, 390, 768 và 1440 px, trước và sau đăng nhập. Enter, phím mũi tên, Home/End, Escape, Tab và bấm ngoài được kiểm tra tự động. Đăng nhập TOTP, thông báo lỗi và đăng xuất tiếp tục hoạt động.
+- Rà soát lại 160 tổ hợp trang/ngôn ngữ/theme/viewport: không tràn ngang toàn trang hoặc lỗi JavaScript. Các ảnh 12-15 đã thay bằng giao diện mới; [ảnh menu lựa chọn](screenshots/16-appearance-menu.png) bổ sung trạng thái mở.
+- Typecheck và build Gateway/ứng dụng đạt. Không đổi dịch vụ nghiệp vụ, cơ sở dữ liệu hoặc dữ liệu người dùng. Kết quả hồi quy toàn hệ thống của lần trước được giữ riêng ở trên; lần này tập trung kiểm tra phần giao diện và xác thực bị tác động.

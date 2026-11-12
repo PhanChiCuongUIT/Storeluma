@@ -170,11 +170,11 @@ Tám ca xác thực và giao diện đạt 8/8; hai ca UI được chạy lại 
 ![Đăng nhập](evidence/screenshots/12-login-dark-english.png)
 ![Mã xác thực](evidence/screenshots/13-otp-dark-vietnamese.png)
 
-Ứng dụng bổ sung lựa chọn tiếng Việt, English và ba chế độ hiển thị: sáng, tối, theo hệ thống. Các lựa chọn xuất hiện ở trang vào ứng dụng, trang đăng nhập, nhập mã xác thực và thanh công cụ sau đăng nhập. Trình duyệt lưu lựa chọn để sử dụng lại ở lần truy cập sau.
+Ứng dụng bổ sung lựa chọn tiếng Việt, English và ba chế độ hiển thị: sáng, tối, theo hệ thống. Nút mặt trời/mặt trăng và nút quả địa cầu kèm VI/EN mở menu lựa chọn ở trang vào ứng dụng, đăng nhập, nhập mã xác thực và thanh công cụ sau đăng nhập. Trình duyệt lưu lựa chọn để sử dụng lại ở lần truy cập sau.
 
 Nhãn, trạng thái, hướng dẫn và thông báo được dịch theo ngôn ngữ đang chọn. Tên hộ kinh doanh, địa điểm, sản phẩm, ghi chú và dữ liệu do người dùng nhập giữ nguyên. Chuyển ngôn ngữ trong lúc điền biểu mẫu không xóa nội dung đang nhập. Số tiền vẫn sử dụng VND; báo cáo tiếp tục tính kỳ theo múi giờ Việt Nam.
 
-Màu nền, chữ, đường viền, biểu mẫu và trạng thái dùng chung quy ước giữa các trang. Logo gốc đặt trên nền sáng trong chế độ tối để giữ màu thương hiệu. Biên nhận và bản in giữ nền trắng, chữ tối. Luồng xác thực, phân quyền và xử lý nghiệp vụ không thay đổi.
+Màu nền, chữ, đường viền, biểu mẫu và trạng thái dùng chung quy ước giữa các trang. Chế độ sáng giữ logo gốc; chế độ tối dùng biến thể chữ Store sáng trên nền xanh đậm. Hai ảnh cùng kích thước 1254 × 1254 px và cùng khung hiển thị, tránh lệch bố cục khi chuyển chế độ. Biên nhận và bản in giữ nền trắng, chữ tối. Luồng xác thực, phân quyền và xử lý nghiệp vụ không thay đổi.
 
 ## 14. Kiểm chứng trước giai đoạn tuần 10
 
@@ -182,7 +182,7 @@ Màu nền, chữ, đường viền, biểu mẫu và trạng thái dùng chung 
 
 Đợt kiểm tra ngày 12/11/2026 xác nhận đủ 159 kiểm thử trên cơ sở dữ liệu riêng. Sau lượt hồi quy toàn bộ, phép đối chiếu tên hàng trên biên nhận được tách khỏi phần tiền có định dạng theo ngôn ngữ; toàn bộ 31 ca tuần 8 được chạy lại và đều đạt. Các nhóm gồm xác thực, phân quyền, kiến trúc, migration và nghiệp vụ tuần 4-9. Dữ liệu đang sử dụng được giữ nguyên trong môi trường cục bộ riêng.
 
-Bốn ca bổ sung kiểm tra lựa chọn theo hệ thống, lưu ngôn ngữ và theme, chuyển ngôn ngữ trên Keycloak, đăng nhập bằng TOTP, thông báo lỗi, đăng xuất và nội dung biểu mẫu. Kiểm thử biên nhận xác nhận nền trắng khi xem/in trong chế độ tối; kiểm thử CSV tiếng Anh đối chiếu dữ liệu với tệp tiếng Việt và kiểm tra quyền tải.
+Sau khi thay bộ chọn bằng nút biểu tượng, năm ca hiển thị đạt 5/5; tám ca xác thực và UI đạt 8/8. Kiểm tra gồm điều khiển menu bằng bàn phím, đóng menu, vị trí ở mép màn hình, kích thước logo, lưu lựa chọn, đổi ngôn ngữ, TOTP và giữ nội dung biểu mẫu. Biên nhận tiếp tục giữ nền trắng khi xem/in; CSV giữ dữ liệu hàng và kiểm tra quyền tải.
 
 Rà soát 160 tổ hợp gồm 10 trang, hai ngôn ngữ, hai chế độ màu và bốn chiều rộng 320, 390, 768, 1440 px: không tràn ngang toàn trang, không ghi nhận lỗi JavaScript. Build và kiểm tra dependency runtime đạt. Các kết quả dùng Chromium và viewport mô phỏng; chưa thay thế thử nghiệm trên điện thoại hoặc máy in vật lý.
 

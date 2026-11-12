@@ -199,7 +199,7 @@ function App(){
     </section></div>}
   </div>;
 }
-function Brand(){return <div className="brand"><img src="/brand/Logo_Storeluma.png" alt="Storeluma" width="220" height="56"/></div>;}
+function Brand(){return <div className="brand"><img className="brand-light" src="/brand/Logo_Storeluma.png" alt="Storeluma" width="220" height="56"/><img className="brand-dark" src="/brand/Logo_Storeluma_Dark.png" alt="Storeluma" width="220" height="56"/></div>;}
 function Icon({name}:{name:IconName}){
   const paths:Record<IconName,React.ReactNode>={
     store:<><path d="M3 10h18l-2-6H5l-2 6Z"/><path d="M4 10v10h16V10M9 20v-6h6v6M3 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/></>,

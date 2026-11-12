@@ -29,4 +29,8 @@ Nguồn tham khảo bố cục: [shadcn/ui login-03](https://github.com/shadcn-u
 
 Keycloak kế thừa `keycloak.v2`, dùng message bundle Việt/Anh và bộ chọn ngôn ngữ của chính Keycloak. Màu sắc và lựa chọn hiển thị được chia sẻ qua tài nguyên mount trong Compose, theo [cơ chế theme của Keycloak](https://www.keycloak.org/ui-customization/themes). Không thay thế xử lý biểu mẫu hoặc kiểm tra mã TOTP. Các trang lỗi, hết hạn, xác thực và xác nhận đăng xuất dùng cùng palette; cấu hình TOTP và cập nhật mật khẩu có nhãn tiếng Việt tương ứng khi được yêu cầu bởi tài khoản.
 
-Chế độ tối phân biệt nền làm việc, thẻ, đường viền, chữ chính và trạng thái; logo gốc đặt trên nền trắng. Biên nhận giữ nền trắng cả khi xem và in. Các thiết kế [shadcn/ui login](https://ui.shadcn.com/blocks/login) và [Tabler](https://github.com/tabler/tabler) tiếp tục là nguồn tham khảo về khoảng cách, phân cấp nội dung và cách trình bày bộ chọn.
+Chế độ tối phân biệt nền làm việc, thẻ, đường viền, chữ chính và trạng thái. Logo tối dùng chữ Store sáng trên nền xanh đậm; chế độ sáng giữ ảnh gốc. Hai ảnh cùng kích thước 1254 × 1254 px, dùng chung khung hiển thị và vị trí căn ảnh. Biên nhận giữ logo gốc và nền trắng cả khi xem và in.
+
+Thanh tùy chọn dùng nút mặt trời/mặt trăng và nút quả địa cầu kèm VI/EN, thay cho ô select. Nhấn nút mở menu có dấu chọn ở giá trị hiện tại. Menu hỗ trợ Enter, Space, phím mũi tên, Home/End, Escape, Tab và bấm ngoài để đóng; vị trí được căn lại để không vượt mép màn hình. Ngôn ngữ ở trang xác thực vẫn chuyển bằng URL do Keycloak cung cấp.
+
+Tham khảo [nút đổi theme của shadcn/ui](https://v3.shadcn.com/docs/dark-mode/vite), [mã nguồn shadcn/ui](https://github.com/shadcn-ui/ui) và [Menu Button Pattern của W3C](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/). Thành phần JavaScript/CSS được dùng chung ở ứng dụng và theme xác thực, không bổ sung thư viện giao diện.

@@ -5,17 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // The server-rendered locale is authoritative for this Keycloak step.
   prefs.setLanguage(english?'en':'vi');
   const toolbar=document.createElement('div');toolbar.className='auth-preferences';
-  toolbar.setAttribute('role','group');toolbar.setAttribute('aria-label',english?'Display preferences':'Tùy chọn hiển thị');
   const localeSelect=document.getElementById('login-select-toggle');
-  if(localeSelect){
-    localeSelect.setAttribute('aria-label',english?'Language':'Ngôn ngữ');
-    localeSelect.addEventListener('change',()=>{const url=new URL(localeSelect.value,location.href);prefs.setLanguage(url.searchParams.get('kc_locale')==='en'?'en':'vi');});
-    toolbar.append(localeSelect);
-    document.querySelector('.pf-v5-c-login__main-header-utilities')?.remove();
+  const localeUrls=new Map();
+  for(const option of localeSelect?.options??[]){
+    const url=new URL(option.value,location.href);
+    const language=url.searchParams.get('kc_locale');
+    if(url.origin===location.origin && ['vi','en'].includes(language)) localeUrls.set(language,url.href);
   }
-  const theme=document.createElement('select');theme.setAttribute('aria-label',english?'Appearance':'Giao diện');
-  for(const [value,vi,en] of [['system','Hệ thống','System'],['light','Sáng','Light'],['dark','Tối','Dark']]){const option=document.createElement('option');option.value=value;option.textContent=english?en:vi;theme.append(option);}
-  theme.value=prefs.theme;theme.addEventListener('change',()=>prefs.setTheme(theme.value));toolbar.append(theme);
+  window.storelumaControls.mount(toolbar,{
+    onLanguage(language){
+      const url=localeUrls.get(language);
+      if(!url || language===prefs.language) return;
+      prefs.setLanguage(language);
+      location.assign(url);
+    }
+  });
+  if(localeSelect) document.querySelector('.pf-v5-c-login__main-header-utilities')?.remove();
   document.querySelector('.pf-v5-c-login__container')?.prepend(toolbar);
   const guidance = document.querySelector('.auth-guidance');
   const title = document.getElementById('kc-page-title');

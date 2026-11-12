@@ -53,16 +53,15 @@ body#keycloak-bg {
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition: none !important; } }
 .auth-preferences{display:flex;justify-content:flex-end;gap:8px;margin:0 0 28px}
-.auth-preferences select{width:auto;max-width:160px;min-height:38px;padding:7px 28px 7px 12px;border:1px solid var(--sl-border);border-radius:9px;background:var(--sl-surface);color:var(--sl-text);font-size:13px}
 .pf-v5-c-login__main-header-utilities:empty{display:none}
 .pf-v5-c-login__main-header{gap:10px}
 .pf-v5-c-form__label{color:var(--sl-text,#3d5366)}
 #kc-logout-confirm .pf-v5-c-button{margin-top:18px}
 .auth-step{padding:5px 12px;border-radius:20px;background:var(--sl-accent-soft,#edf6f9);color:var(--sl-accent-text,#32667b);font-weight:600}
-:root[data-theme=dark] #kc-header-wrapper{mix-blend-mode:normal;background-color:#fff;border-radius:12px}
+:root[data-theme=dark] #kc-header-wrapper{mix-blend-mode:normal;background-image:url('../brand/Logo_Storeluma_Dark.png');border-radius:12px}
 :root[data-theme=dark] .pf-v5-c-login__main{box-shadow:0 18px 60px #0005}
 :root[data-theme=dark] .pf-v5-c-form-control{--pf-v5-c-form-control--Color:var(--sl-text);--pf-v5-c-form-control--BackgroundColor:var(--sl-surface)}
 :root[data-theme=dark] .pf-v5-c-form-control input{color:var(--sl-text);background:transparent}
 :root[data-theme=dark] .pf-v5-c-alert{background:var(--sl-danger-soft);color:var(--sl-danger-text);border-color:var(--sl-danger-text)}
 :root[data-theme=dark] .pf-v5-c-helper-text{color:var(--sl-danger-text)}
-@media(max-width:480px){.pf-v5-c-login{padding-top:20px}.auth-preferences{margin-bottom:26px}.auth-preferences select{max-width:150px}}
+@media(max-width:480px){.pf-v5-c-login{padding-top:20px}.auth-preferences{margin-bottom:26px}}

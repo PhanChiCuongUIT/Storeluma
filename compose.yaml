@@ -72,6 +72,8 @@ services:
       - './infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro'
       - './infra/keycloak/themes/storeluma:/opt/keycloak/themes/storeluma:ro'
       - './apps/web/public/brand:/opt/keycloak/themes/storeluma/login/resources/brand:ro'
+      - './apps/web/public/preference-controls.js:/opt/keycloak/themes/storeluma/login/resources/js/preference-controls.js:ro'
+      - './apps/web/public/preference-controls.css:/opt/keycloak/themes/storeluma/login/resources/css/preference-controls.css:ro'
       - './apps/web/public/preferences.js:/opt/keycloak/themes/storeluma/login/resources/js/preferences.js:ro'
       - './apps/web/public/palette.css:/opt/keycloak/themes/storeluma/login/resources/css/palette.css:ro'
     depends_on: {postgres: {condition: service_healthy}}

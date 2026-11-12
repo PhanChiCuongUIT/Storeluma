@@ -1,0 +1,19 @@
+.sl-preferences{display:flex;align-items:center;gap:10px}
+.sl-preference{position:relative;flex:none}
+.sl-preferences .sl-preference-trigger{display:flex;align-items:center;justify-content:center;gap:10px;min-width:44px;height:44px;padding:0 12px;border:1px solid var(--sl-border,#dce4ec);border-radius:13px;background:var(--sl-surface,#fff);color:var(--sl-text,#243346);font:600 14px/1 Arial,sans-serif;cursor:pointer;box-shadow:0 1px 2px #0b1c3010;transition:background .15s,border-color .15s}
+.sl-preferences .sl-preference-trigger[data-preference=theme]{width:44px;padding:0}
+.sl-preferences svg{display:block;width:21px;height:21px;flex:none;color:var(--sl-muted,#67798c)}
+.sl-preferences .sl-preference-trigger svg:last-child:not(:first-child){width:16px;height:16px}
+.sl-preferences .sl-preference-trigger:hover,.sl-preferences .sl-preference-trigger[aria-expanded=true]{background:var(--sl-raised,#f1f5f9);border-color:var(--sl-accent-border,#7da9c2)}
+.sl-preferences button:focus-visible{outline:3px solid var(--sl-accent-border,#66abc9);outline-offset:3px}
+.sl-preferences .sl-preference-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:1000;width:192px;padding:6px;border:1px solid var(--sl-border,#dce4ec);border-radius:14px;background:var(--sl-surface,#fff);box-shadow:0 10px 36px #071a3026}
+.sl-preferences .sl-preference-menu[hidden]{display:none}
+.sl-preferences .sl-preference-menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:var(--sl-text,#243346);font:400 14px/1.4 Arial,sans-serif;text-align:left;cursor:pointer}
+.sl-preferences .sl-preference-menu button:hover,.sl-preferences .sl-preference-menu button:focus{background:var(--sl-accent-soft,#edf6fa);outline:none}
+.sl-preferences .sl-preference-menu button[aria-checked=true]{font-weight:600}
+.sl-preference-check{margin-left:auto;visibility:hidden}
+[aria-checked=true]>.sl-preference-check{visibility:visible}
+.sl-preferences .sl-preference-check svg{width:17px;height:17px;color:var(--sl-accent-text,#087ca7)}
+.sl-language-code{font-size:10px;font-weight:700;width:21px;color:var(--sl-muted,#67798c)}
+@media(prefers-reduced-motion:reduce){.sl-preferences .sl-preference-trigger{transition:none}}
+@media print{.sl-preferences{display:none!important}}
