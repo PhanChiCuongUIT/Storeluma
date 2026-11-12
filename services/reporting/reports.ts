@@ -1,3 +1,4 @@
+import {exportLabel} from "./report-labels.js";
 import {
   Body,
   Controller,
@@ -258,7 +259,7 @@ export class Reports {
     @Body() b: unknown,
   ) {
     const p = z
-        .object({ kind: z.enum(["sales", "stock", "cash"]), filters })
+        .object({ kind: z.enum(["sales", "stock", "cash"]), filters, language:z.enum(["vi","en"]).optional() })
         .strict()
         .parse(b),
       g = await authorize(r, t, "report.export", p.filters.siteId);
@@ -373,21 +374,22 @@ export async function exportTick() {
       );
       const p = j.query.filters as Filters,
         g = j.grant_scope as Grant;
+      const label=(text:string)=>exportLabel(text,j.query.language);
       let rows: unknown[][];
       if (j.query.kind === "stock") {
         const s = await stockReport(c, j.tenant_id, p, g, "", 0, 10000);
         if (s.total > 10000) throw new Error("EXPORT_TOO_LARGE");
         rows = [
           [
-            "Mã hàng",
-            "Tên hàng",
-            "Đơn vị",
-            "Địa điểm",
-            "Tồn thực tế",
-            "Đang giữ",
-            "Cách ly",
-            "Khả dụng",
-            ...(g.costRead ? ["Giá trị tồn VND"] : []),
+            label("Mã hàng"),
+            label("Tên hàng"),
+            label("Đơn vị"),
+            label("Địa điểm"),
+            label("Tồn thực tế"),
+            label("Đang giữ"),
+            label("Cách ly"),
+            label("Khả dụng"),
+            ...(g.costRead ? [label("Giá trị tồn VND")] : []),
           ],
           ...s.items.map((r) => [
             r.code,
@@ -405,12 +407,12 @@ export async function exportTick() {
         const d = await cashReport(c, j.tenant_id, p, g);
         rows = [
           [
-            "Ngày",
-            "Thu bán VND",
-            "Hoàn khách VND",
-            "Thu khác VND",
-            "Chi khác VND",
-            "Dòng tiền thuần VND",
+            label("Ngày"),
+            label("Thu bán VND"),
+            label("Hoàn khách VND"),
+            label("Thu khác VND"),
+            label("Chi khác VND"),
+            label("Dòng tiền thuần VND"),
           ],
           ...d.daily.map((r) => [
             r.day,
@@ -424,7 +426,7 @@ export async function exportTick() {
       } else {
         const d = await dashboard(c, j.tenant_id, p, g);
         rows = [
-          ["Ngày", "Bán hàng VND", "Trả hàng VND", "Doanh thu thuần VND"],
+          [label("Ngày"), label("Bán hàng VND"), label("Trả hàng VND"), label("Doanh thu thuần VND")],
           ...d.daily.map((r) => [
             r.day,
             r.sales_vnd,
@@ -432,18 +434,18 @@ export async function exportTick() {
             r.revenue_vnd,
           ]),
         ];
-        rows.push([], ["Tổng doanh thu thuần VND", d.totals.revenue_vnd]);
+        rows.push([], [label("Tổng doanh thu thuần VND"), d.totals.revenue_vnd]);
         if (g.costRead)
           rows.push(
-            ["Giá vốn thuần VND", d.totals.cost_vnd],
-            ["Lãi gộp VND", d.totals.profit_vnd],
+            [label("Giá vốn thuần VND"), d.totals.cost_vnd],
+            [label("Lãi gộp VND"), d.totals.profit_vnd],
           );
       }
       const freshness = await projectionFreshness(c);
       rows.push(
         [],
-        ["Múi giờ", "Asia/Ho_Chi_Minh"],
-        ["Dữ liệu được đối chiếu đến", freshness.dataAsOf ?? "Đang đồng bộ"],
+        [label("Múi giờ"), "Asia/Ho_Chi_Minh"],
+        [label("Dữ liệu được đối chiếu đến"), freshness.dataAsOf ?? label("Đang đồng bộ")],
       );
       return { csv: toCsv(rows), asOf: freshness.dataAsOf };
     });

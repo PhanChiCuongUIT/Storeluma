@@ -1,0 +1,25 @@
+/* Shared semantic colors. Light components retain their existing fallbacks. */
+:root{--sl-surface:#fff;--sl-text:#243346;--sl-border:#dfe7ec}
+:root[data-theme=dark]{
+ --sl-canvas:#0e1622;
+ --sl-surface:#182434;
+ --sl-surface-raised:#202f41;
+ --sl-text:#e6edf5;
+ --sl-muted:#acbdce;
+ --sl-on-accent:#fff;
+ --sl-border:#36485c;
+ --sl-accent-border:#437d96;
+ --sl-accent-text:#7dd4ee;
+ --sl-accent-soft:#173548;
+ --sl-accent-solid:#086c92;
+ --sl-success-text:#8cddbb;
+ --sl-success-soft:#183a31;
+ --sl-success-solid:#22735b;
+ --sl-warning-text:#f4ce8c;
+ --sl-warning-soft:#3b3020;
+ --sl-warning-solid:#825c22;
+ --sl-danger-text:#ffaca8;
+ --sl-danger-soft:#432b32;
+ --sl-danger-solid:#a3434a;
+}
+@media print{:root[data-theme=dark]{--sl-canvas:#fff;--sl-surface:#fff;--sl-surface-raised:#fff;--sl-text:#182534;--sl-muted:#40556a;--sl-border:#bbc5cb;--sl-accent-text:#086784;--sl-success-text:#195c46;--sl-warning-text:#785218;--sl-danger-text:#9b3636}}

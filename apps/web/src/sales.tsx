@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState } from "react";
 import "./commerce.css";
 import "./sales.css";
@@ -10,18 +11,18 @@ type Api = (
   data?: unknown,
   key?: string,
 ) => Promise<any>;
-const labels: Record<string, string> = {
+const labels: Record<string, string> = localizedLabels({
   DRAFT: "Đơn nháp",
   PENDING: "Chờ thu tiền",
   COMMITTING: "Đang xuất kho",
   REVIEW: "Đang đối chiếu",
   COMPLETED: "Hoàn tất",
   CANCELLED: "Đã hủy",
-};
+});
 const money = (v: any) =>
-  new Intl.NumberFormat("vi-VN").format(BigInt(v ?? "0")) + " ₫";
+  new Intl.NumberFormat(locale()).format(BigInt(v ?? "0")) + " ₫";
 const date = (v: string) =>
-  new Date(v).toLocaleString("vi-VN", {
+  new Date(v).toLocaleString(locale(), {
     dateStyle: "short",
     timeStyle: "short",
   });
@@ -335,7 +336,7 @@ export function SalesRoom({
   }
   async function save() {
     await run(async () => {
-      if (!quote) throw new Error("Cập nhật báo giá trước khi lưu.");
+      if (!quote) throw new Error(t("Cập nhật báo giá trước khi lưu."));
       const d = await command(
         order ? "orders/" + order.id : "orders",
         {
@@ -348,19 +349,19 @@ export function SalesRoom({
       setOrder(d);
       setEditor(false);
       setTendered(d.payable_vnd);
-      setNotice("Đã lưu đơn nháp.");
+      setNotice(t("Đã lưu đơn nháp."));
       await refresh();
     });
   }
   if (role === "STOCK")
-    return <p className="alert">Vai trò hiện tại không được xem đơn bán.</p>;
+    return <p className="alert">{t("Vai trò hiện tại không được xem đơn bán.")}</p>;
   return (
     <section className="sales-room">
-      <nav className="pos-tabs" aria-label="Nghiệp vụ bán hàng">
+      <nav className="pos-tabs" aria-label={t("Nghiệp vụ bán hàng")}>
         {[
-          ["orders", "Bán hàng"],
-          ["returns", "Trả hàng"],
-          ["shifts", "Ca thu ngân"],
+          ["orders", t("Bán hàng")],
+          ["returns", t("Trả hàng")],
+          ["shifts", t("Ca thu ngân")],
         ].map(([k, v]) => (
           <button
             key={k}
@@ -374,10 +375,8 @@ export function SalesRoom({
         ))}
       </nav>
       <div className="sales-toolbar">
-        <label>
-          Địa điểm
-          <select
-            aria-label="Địa điểm bán hàng"
+        <label>{t("Địa điểm")}<select
+            aria-label={t("Địa điểm bán hàng")}
             value={siteId}
             onChange={(e) => {
               setSiteId(e.target.value);
@@ -394,11 +393,11 @@ export function SalesRoom({
         <div className="shift-summary">
           <span className={"shift-dot " + (shift ? "open" : "")} />
           <div>
-            <strong>{shift ? "Ca đang mở" : "Chưa mở ca"}</strong>
+            <strong>{shift ? t("Ca đang mở") : t("Chưa mở ca")}</strong>
             <small>
               {shift
-                ? `Từ ${date(shift.opened_at)}`
-                : "Mở ca trước khi thu tiền mặt"}
+                ? t("Từ {0}", [date(shift.opened_at)])
+                : t("Mở ca trước khi thu tiền mặt")}
             </small>
           </div>
           {writable && (
@@ -416,14 +415,14 @@ export function SalesRoom({
                     role === "CASHIER" &&
                     latest.cashier_id !== subjectId
                   )
-                    throw new Error("Ca hiện tại do người khác mở.");
+                    throw new Error(t("Ca hiện tại do người khác mở."));
                   setShiftForm(latest ? "close" : "open");
                   setCounted("");
                   setShiftNote("");
                 })
               }
             >
-              {shift ? "Đóng ca" : "Mở ca"}
+              {shift ? t("Đóng ca") : t("Mở ca")}
             </button>
           )}
         </div>
@@ -458,15 +457,15 @@ export function SalesRoom({
       <div className="pos-sale-content" hidden={pane !== "orders"}>
         {error && (
           <div className="alert error" role="alert">
-            {error}
-            <button onClick={() => setError("")} aria-label="Đóng lỗi đơn bán">
+            {t(error)}
+            <button onClick={() => setError("")} aria-label={t("Đóng lỗi đơn bán")}>
               ×
             </button>
           </div>
         )}
         {notice && (
           <div className="alert success" role="status">
-            {notice}
+            {t(notice)}
           </div>
         )}
         {shiftForm && (
@@ -488,20 +487,18 @@ export function SalesRoom({
                 await refresh();
                 setNotice(
                   shiftForm === "open"
-                    ? "Đã mở ca thu ngân."
-                    : "Đã đóng ca và ghi nhận tiền thực đếm.",
+                    ? t("Đã mở ca thu ngân.")
+                    : t("Đã đóng ca và ghi nhận tiền thực đếm."),
                 );
               });
             }}
           >
             <h3>
-              {shiftForm === "open" ? "Mở ca thu ngân" : "Đóng ca thu ngân"}
+              {shiftForm === "open" ? t("Mở ca thu ngân") : t("Đóng ca thu ngân")}
             </h3>
             {shiftForm === "open" ? (
-              <label>
-                Tiền đầu ca (₫)
-                <input
-                  aria-label="Tiền đầu ca"
+              <label>{t("Tiền đầu ca (₫)")}<input
+                  aria-label={t("Tiền đầu ca")}
                   type="number"
                   min="0"
                   step="1"
@@ -512,13 +509,10 @@ export function SalesRoom({
               </label>
             ) : (
               <>
-                <p>
-                  Tiền dự kiến: <strong>{money(shift?.expected_now)}</strong>
+                <p>{t("Tiền dự kiến:")+" "}<strong>{money(shift?.expected_now)}</strong>
                 </p>
-                <label>
-                  Tiền thực đếm (₫)
-                  <input
-                    aria-label="Tiền thực đếm"
+                <label>{t("Tiền thực đếm (₫)")}<input
+                    aria-label={t("Tiền thực đếm")}
                     type="number"
                     min="0"
                     step="1"
@@ -527,9 +521,7 @@ export function SalesRoom({
                     onChange={(e) => setCounted(e.target.value)}
                   />
                 </label>
-                <label>
-                  Ghi chú chênh lệch
-                  <input
+                <label>{t("Ghi chú chênh lệch")}<input
                     maxLength={500}
                     value={shiftNote}
                     onChange={(e) => setShiftNote(e.target.value)}
@@ -538,16 +530,12 @@ export function SalesRoom({
               </>
             )}
             <div>
-              <button className="button primary" disabled={busy}>
-                Xác nhận {shiftForm === "open" ? "mở" : "đóng"} ca
-              </button>
+              <button className="button primary" disabled={busy}>{t("Xác nhận")+" "}{shiftForm === "open" ? t("mở") : t("đóng")}{" "+t("ca")}</button>
               <button
                 type="button"
                 className="button secondary"
                 onClick={() => setShiftForm("")}
-              >
-                Quay lại
-              </button>
+              >{t("Quay lại")}</button>
             </div>
           </form>
         )}
@@ -555,52 +543,46 @@ export function SalesRoom({
           <>
             <div className="sales-list-heading">
               <div>
-                <h2>Đơn bán hàng</h2>
-                <p>Tra cứu và tiếp tục xử lý đơn tại địa điểm đang chọn.</p>
+                <h2>{t("Đơn bán hàng")}</h2>
+                <p>{t("Tra cứu và tiếp tục xử lý đơn tại địa điểm đang chọn.")}</p>
               </div>
               {writable && (
                 <button
                   className="button primary"
                   disabled={busy || !active}
                   onClick={() => void edit()}
-                >
-                  ＋ Tạo đơn bán
-                </button>
+                >{t("＋ Tạo đơn bán")}</button>
               )}
             </div>
             <div className="sale-list-panel">
               <div className="sales-filters">
-                <label>
-                  Từ ngày
-                  <input
-                    aria-label="Đơn từ ngày"
+                <label>{t("Từ ngày")}<input
+                    aria-label={t("Đơn từ ngày")}
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
                   />
                 </label>
-                <label>
-                  Đến ngày
-                  <input
-                    aria-label="Đơn đến ngày"
+                <label>{t("Đến ngày")}<input
+                    aria-label={t("Đơn đến ngày")}
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                   />
                 </label>
                 <input
-                  aria-label="Tìm mã đơn bán"
+                  aria-label={t("Tìm mã đơn bán")}
                   type="search"
-                  placeholder="Tìm mã đơn bán…"
+                  placeholder={t("Tìm mã đơn bán…")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
                 <select
-                  aria-label="Trạng thái đơn bán"
+                  aria-label={t("Trạng thái đơn bán")}
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                 >
-                  <option value="">Tất cả trạng thái</option>
+                  <option value="">{t("Tất cả trạng thái")}</option>
                   {Object.entries(labels).map(([v, l]) => (
                     <option value={v} key={v}>
                       {l}
@@ -612,11 +594,11 @@ export function SalesRoom({
                 <table>
                   <thead>
                     <tr>
-                      <th>Đơn bán</th>
-                      <th>Thời gian</th>
-                      <th>Khách hàng</th>
-                      <th>Thanh toán</th>
-                      <th>Trạng thái</th>
+                      <th>{t("Đơn bán")}</th>
+                      <th>{t("Thời gian")}</th>
+                      <th>{t("Khách hàng")}</th>
+                      <th>{t("Thanh toán")}</th>
+                      <th>{t("Trạng thái")}</th>
                       <th />
                     </tr>
                   </thead>
@@ -625,10 +607,10 @@ export function SalesRoom({
                       <tr key={d.id}>
                         <td>
                           <strong>{d.code}</strong>
-                          <small>{d.lines.length} dòng hàng</small>
+                          <small>{d.lines.length}{" "+t("dòng hàng")}</small>
                         </td>
                         <td>{date(d.created_at)}</td>
-                        <td>Khách lẻ</td>
+                        <td>{t("Khách lẻ")}</td>
                         <td className="sale-money">{money(d.payable_vnd)}</td>
                         <td>
                           <Badge status={d.status} />
@@ -637,9 +619,7 @@ export function SalesRoom({
                           <button
                             className="button secondary small"
                             onClick={() => void open(d.id)}
-                          >
-                            Xem đơn
-                          </button>
+                          >{t("Xem đơn")}</button>
                         </td>
                       </tr>
                     ))}
@@ -650,12 +630,12 @@ export function SalesRoom({
                 <div className="sale-empty">
                   <span>▤</span>
                   <h3>
-                    {loaded ? "Chưa có đơn phù hợp" : "Đang tải đơn bán…"}
+                    {loaded ? t("Chưa có đơn phù hợp") : t("Đang tải đơn bán…")}
                   </h3>
                   <p>
                     {loaded
-                      ? "Tạo đơn bán hoặc thay đổi bộ lọc để tìm đơn."
-                      : "Vui lòng đợi trong giây lát."}
+                      ? t("Tạo đơn bán hoặc thay đổi bộ lọc để tìm đơn.")
+                      : t("Vui lòng đợi trong giây lát.")}
                   </p>
                 </div>
               )}
@@ -670,9 +650,7 @@ export function SalesRoom({
                       setMore(r.nextCursor);
                     })
                   }
-                >
-                  Xem thêm
-                </button>
+                >{t("Xem thêm")}</button>
               )}
             </div>
           </>
@@ -690,14 +668,12 @@ export function SalesRoom({
                     await refresh();
                   })
                 }
-              >
-                ← Danh sách đơn
-              </button>
+              >{t("← Danh sách đơn")}</button>
               <span>
                 {editor
                   ? order
                     ? "Sửa " + order.code
-                    : "Đơn bán mới"
+                    : t("Đơn bán mới")
                   : order?.code}
               </span>
               {order && !editor && <Badge status={order.status} />}
@@ -707,15 +683,15 @@ export function SalesRoom({
                 {editor ? (
                   <>
                     <div className="sale-section-heading">
-                      <h2>Hàng bán</h2>
-                      <span>{cart.length} dòng hàng</span>
+                      <h2>{t("Hàng bán")}</h2>
+                      <span>{cart.length}{" "+t("dòng hàng")}</span>
                     </div>
                     <div className="sale-product-search">
                       <input
-                        aria-label="Tìm hàng bán"
+                        aria-label={t("Tìm hàng bán")}
                         ref={searchRef}
                         type="search"
-                        placeholder="Tìm tên, mã hàng hoặc mã vạch…"
+                        placeholder={t("Tìm tên, mã hàng hoặc mã vạch…")}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => {
@@ -736,7 +712,7 @@ export function SalesRoom({
                               );
                               if (exact.length !== 1)
                                 throw new Error(
-                                  "Không có mã khớp duy nhất. Chọn hàng trong danh sách.",
+                                  t("Không có mã khớp duy nhất. Chọn hàng trong danh sách."),
                                 );
                               add(exact[0]);
                               setSearch("");
@@ -745,9 +721,7 @@ export function SalesRoom({
                           }
                         }}
                       />
-                      <small className="pos-muted">
-                        F2 để tìm hàng · Quét mã rồi Enter để thêm
-                      </small>
+                      <small className="pos-muted">{t("F2 để tìm hàng · Quét mã rồi Enter để thêm")}</small>
                       <div className="sale-product-results">
                         {products.slice(0, 8).map((s) => (
                           <button key={s.id} onClick={() => add(s)}>
@@ -760,7 +734,7 @@ export function SalesRoom({
                           </button>
                         ))}
                         {!products.length && (
-                          <p>Không có hàng phù hợp. Thử tên hoặc mã khác.</p>
+                          <p>{t("Không có hàng phù hợp. Thử tên hoặc mã khác.")}</p>
                         )}
                       </div>
                     </div>
@@ -773,9 +747,7 @@ export function SalesRoom({
                               <strong>{l.name}</strong>
                               <small>{l.code}</small>
                             </div>
-                            <label>
-                              Đơn vị
-                              <select
+                            <label>{t("Đơn vị")}<select
                                 aria-label={"Đơn vị " + (i + 1)}
                                 value={l.unitId}
                                 onChange={(e) =>
@@ -795,9 +767,7 @@ export function SalesRoom({
                                 ))}
                               </select>
                             </label>
-                            <label>
-                              Số lượng
-                              <input
+                            <label>{t("Số lượng")}<input
                                 aria-label={"Số lượng " + (i + 1)}
                                 type="number"
                                 min="0.001"
@@ -828,40 +798,36 @@ export function SalesRoom({
                       ) : (
                         <div className="sale-empty">
                           <span>＋</span>
-                          <h3>Thêm hàng vào đơn</h3>
-                          <p>
-                            Chọn hàng ở trên để nhập số lượng và đơn vị bán.
-                          </p>
+                          <h3>{t("Thêm hàng vào đơn")}</h3>
+                          <p>{t("Chọn hàng ở trên để nhập số lượng và đơn vị bán.")}</p>
                         </div>
                       )}
                     </div>
-                    <label className="sale-note">
-                      Ghi chú đơn
-                      <textarea
+                    <label className="sale-note">{t("Ghi chú đơn")}<textarea
                         maxLength={500}
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
-                        placeholder="Ghi chú giao hàng hoặc yêu cầu của khách…"
+                        placeholder={t("Ghi chú giao hàng hoặc yêu cầu của khách…")}
                       />
                     </label>
                   </>
                 ) : (
                   <>
                     <div className="sale-section-heading">
-                      <h2>Chi tiết hàng bán</h2>
-                      <span>Khách lẻ</span>
+                      <h2>{t("Chi tiết hàng bán")}</h2>
+                      <span>{t("Khách lẻ")}</span>
                     </div>
                     <div className="table-wrap">
                       <table>
                         <thead>
                           <tr>
-                            <th>Mặt hàng</th>
-                            <th>Số lượng</th>
-                            <th>Đơn giá</th>
-                            <th>Thành tiền</th>
+                            <th>{t("Mặt hàng")}</th>
+                            <th>{t("Số lượng")}</th>
+                            <th>{t("Đơn giá")}</th>
+                            <th>{t("Thành tiền")}</th>
                             {order?.lines.some(
                               (l: Row) => l.costVnd != null,
-                            ) && <th>Giá vốn</th>}
+                            ) && <th>{t("Giá vốn")}</th>}
                           </tr>
                         </thead>
                         <tbody>
@@ -878,7 +844,7 @@ export function SalesRoom({
                               <td className="sale-money">
                                 {money(l.netVnd)}
                                 {l.discountVnd !== "0" && (
-                                  <small>Giảm {money(l.discountVnd)}</small>
+                                  <small>{t("Giảm")+" "}{money(l.discountVnd)}</small>
                                 )}
                               </td>
                               {l.costVnd != null && <td>{money(l.costVnd)}</td>}
@@ -889,16 +855,16 @@ export function SalesRoom({
                     </div>
                     <div className="sale-order-meta">
                       <div>
-                        <small>TẠO LÚC</small>
+                        <small>{t("TẠO LÚC")}</small>
                         <strong>{date(order!.created_at)}</strong>
                       </div>
                       <div>
-                        <small>ĐỊA ĐIỂM</small>
+                        <small>{t("ĐỊA ĐIỂM")}</small>
                         <strong>{site?.name}</strong>
                       </div>
                       {order?.completed_at && (
                         <div>
-                          <small>HOÀN TẤT LÚC</small>
+                          <small>{t("HOÀN TẤT LÚC")}</small>
                           <strong>{date(order.completed_at)}</strong>
                         </div>
                       )}
@@ -907,27 +873,26 @@ export function SalesRoom({
                       <p className="sale-saved-note">{order.note}</p>
                     )}
                     {order?.cancel_reason && (
-                      <p className="sale-saved-note">
-                        Lý do hủy: {order.cancel_reason}
+                      <p className="sale-saved-note">{t("Lý do hủy:")+" "}{order.cancel_reason}
                       </p>
                     )}
                   </>
                 )}
               </div>
               <section className="sale-summary">
-                <h2>Thanh toán</h2>
-                <span className="sale-customer">Khách lẻ · Tiền mặt</span>
+                <h2>{t("Thanh toán")}</h2>
+                <span className="sale-customer">{t("Khách lẻ · Tiền mặt")}</span>
                 <dl>
                   <div>
-                    <dt>Tiền hàng</dt>
+                    <dt>{t("Tiền hàng")}</dt>
                     <dd>{money((editor ? quote : order)?.subtotal_vnd)}</dd>
                   </div>
                   <div>
-                    <dt>Giảm giá</dt>
+                    <dt>{t("Giảm giá")}</dt>
                     <dd>− {money((editor ? quote : order)?.discount_vnd)}</dd>
                   </div>
                   <div className="sale-total">
-                    <dt>Khách cần trả</dt>
+                    <dt>{t("Khách cần trả")}</dt>
                     <dd>
                       {editor && !quote
                         ? "—"
@@ -938,10 +903,8 @@ export function SalesRoom({
                 {editor ? (
                   <>
                     <div className="sale-discount">
-                      <label>
-                        Giảm giá
-                        <input
-                          aria-label="Giảm giá đơn"
+                      <label>{t("Giảm giá")}<input
+                          aria-label={t("Giảm giá đơn")}
                           type="number"
                           min="0"
                           step="1"
@@ -949,22 +912,18 @@ export function SalesRoom({
                           onChange={(e) => setDiscount(e.target.value)}
                         />
                       </label>
-                      <label>
-                        Hình thức
-                        <select
-                          aria-label="Hình thức giảm giá"
+                      <label>{t("Hình thức")}<select
+                          aria-label={t("Hình thức giảm giá")}
                           value={discountType}
                           onChange={(e) => setDiscountType(e.target.value)}
                         >
-                          <option value="AMOUNT">Số tiền (₫)</option>
-                          <option value="PERCENT">Phần trăm (%)</option>
+                          <option value="AMOUNT">{t("Số tiền (₫)")}</option>
+                          <option value="PERCENT">{t("Phần trăm (%)")}</option>
                         </select>
                       </label>
                     </div>
                     {role === "CASHIER" && (
-                      <p className="sale-hint">
-                        Thu ngân được giảm tối đa 5% giá trị đơn.
-                      </p>
+                      <p className="sale-hint">{t("Thu ngân được giảm tối đa 5% giá trị đơn.")}</p>
                     )}
                     <button
                       className="button secondary"
@@ -983,32 +942,23 @@ export function SalesRoom({
                           setQuote(q);
                         })
                       }
-                    >
-                      Cập nhật báo giá
-                    </button>
+                    >{t("Cập nhật báo giá")}</button>
                     {quote && (
-                      <p className="sale-hint">
-                        Giá được xác nhận đến{" "}
-                        {new Date(quote.expires_at).toLocaleTimeString("vi-VN")}
-                        . Kiểm tra tổng tiền trước khi lưu.
-                      </p>
+                      <p className="sale-hint">{t("Giá được xác nhận đến")}{" "}
+                        {new Date(quote.expires_at).toLocaleTimeString(locale())}{t(". Kiểm tra tổng tiền trước khi lưu.")}</p>
                     )}
                     <button
                       className="button primary"
                       disabled={busy || !quote}
                       onClick={() => void save()}
-                    >
-                      Lưu đơn nháp
-                    </button>
+                    >{t("Lưu đơn nháp")}</button>
                   </>
                 ) : (
                   <>
                     {order?.status === "DRAFT" && writable && (
                       <>
-                        <label>
-                          Tiền khách đưa (₫)
-                          <input
-                            aria-label="Tiền khách đưa"
+                        <label>{t("Tiền khách đưa (₫)")}<input
+                            aria-label={t("Tiền khách đưa")}
                             type="number"
                             min="0"
                             step="1"
@@ -1036,34 +986,26 @@ export function SalesRoom({
                               setNotice("");
                             })
                           }
-                        >
-                          Tiến hành thanh toán
-                        </button>
+                        >{t("Tiến hành thanh toán")}</button>
                         {!shift && (
-                          <p className="sale-hint">
-                            Mở ca thu ngân để tiếp tục.
-                          </p>
+                          <p className="sale-hint">{t("Mở ca thu ngân để tiếp tục.")}</p>
                         )}
                         <button
                           className="button secondary"
                           disabled={busy || !active}
                           onClick={() => void edit(order!)}
-                        >
-                          Sửa đơn / cập nhật giá
-                        </button>
+                        >{t("Sửa đơn / cập nhật giá")}</button>
                       </>
                     )}
                     {order?.checkout?.payment?.status === "PENDING" &&
                       !order?.checkout?.cancelRequested &&
                       writable && (
                         <div className="sale-cash-confirm">
-                          <h3>Nhận tiền mặt</h3>
-                          <p>
-                            Khách đưa{" "}
+                          <h3>{t("Nhận tiền mặt")}</h3>
+                          <p>{t("Khách đưa")}{" "}
                             <b>{money(order.checkout.payment.tendered_vnd)}</b>
                           </p>
-                          <p>
-                            Tiền trả lại{" "}
+                          <p>{t("Tiền trả lại")}{" "}
                             <b>
                               {money(
                                 (
@@ -1078,9 +1020,7 @@ export function SalesRoom({
                               type="checkbox"
                               checked={received}
                               onChange={(e) => setReceived(e.target.checked)}
-                            />
-                            Đã nhận đủ tiền và trả lại tiền thừa
-                          </label>
+                            />{t("Đã nhận đủ tiền và trả lại tiền thừa")}</label>
                           <button
                             className="button primary"
                             disabled={busy || !received || !active}
@@ -1098,16 +1038,14 @@ export function SalesRoom({
                                 );
                                 setReceived(false);
                                 setNotice(
-                                  "Đã ghi nhận thu tiền. Đang hoàn tất xuất kho.",
+                                  t("Đã ghi nhận thu tiền. Đang hoàn tất xuất kho."),
                                 );
                                 setOrder(
                                   await api(path + "/orders/" + order.id),
                                 );
                               })
                             }
-                          >
-                            Xác nhận đã thu tiền
-                          </button>
+                          >{t("Xác nhận đã thu tiền")}</button>
                         </div>
                       )}
                     {["PENDING", "COMMITTING", "REVIEW"].includes(
@@ -1116,18 +1054,18 @@ export function SalesRoom({
                       <div className="sale-progress" role="status">
                         <strong>
                           {order?.checkout?.cancelRequested
-                            ? "Đang xử lý yêu cầu hủy"
+                            ? t("Đang xử lý yêu cầu hủy")
                             : labels[order!.status]}
                         </strong>
                         <p>
                           {order?.status === "REVIEW"
-                            ? "Đang đối chiếu với kho và thu ngân. Giữ nguyên đơn để hệ thống tiếp tục xử lý."
+                            ? t("Đang đối chiếu với kho và thu ngân. Giữ nguyên đơn để hệ thống tiếp tục xử lý.")
                             : order?.checkout?.payment?.status === "PENDING"
-                              ? "Hàng đã được giữ. Chỉ xác nhận sau khi thực nhận tiền."
-                              : "Hệ thống đang xử lý đơn. Không cần tạo đơn mới."}
+                              ? t("Hàng đã được giữ. Chỉ xác nhận sau khi thực nhận tiền.")
+                              : t("Hệ thống đang xử lý đơn. Không cần tạo đơn mới.")}
                         </p>
                         {order?.checkout?.lastError && (
-                          <small>{order.checkout.lastError}</small>
+                          <small>{t(order.checkout.lastError)}</small>
                         )}
                       </div>
                     )}
@@ -1135,17 +1073,15 @@ export function SalesRoom({
                       <>
                         <div className="sale-complete">
                           <span>✓</span>
-                          <strong>Đã thu tiền và xuất kho</strong>
-                          <p>Đơn được lưu để tra cứu và đối chiếu.</p>
+                          <strong>{t("Đã thu tiền và xuất kho")}</strong>
+                          <p>{t("Đơn được lưu để tra cứu và đối chiếu.")}</p>
                         </div>
                         <ReceiptView api={api} path={path} orderId={order.id} />
                         <button
                           className="button primary"
                           disabled={busy || !writable}
                           onClick={() => void edit()}
-                        >
-                          Bán đơn tiếp theo
-                        </button>
+                        >{t("Bán đơn tiếp theo")}</button>
                       </>
                     )}
                     {writable &&
@@ -1155,9 +1091,7 @@ export function SalesRoom({
                           className="sale-cancel-link"
                           disabled={busy}
                           onClick={() => setCancelForm(!cancelForm)}
-                        >
-                          Hủy đơn bán
-                        </button>
+                        >{t("Hủy đơn bán")}</button>
                       )}
                     {cancelForm && (
                       <form
@@ -1174,9 +1108,7 @@ export function SalesRoom({
                           });
                         }}
                       >
-                        <label>
-                          Lý do hủy
-                          <textarea
+                        <label>{t("Lý do hủy")}<textarea
                             required
                             minLength={3}
                             maxLength={500}
@@ -1184,12 +1116,8 @@ export function SalesRoom({
                             onChange={(e) => setReason(e.target.value)}
                           />
                         </label>
-                        <p>
-                          Nếu tiền đã được xác nhận, đơn sẽ tiếp tục hoàn tất.
-                        </p>
-                        <button className="button secondary" disabled={busy}>
-                          Xác nhận hủy
-                        </button>
+                        <p>{t("Nếu tiền đã được xác nhận, đơn sẽ tiếp tục hoàn tất.")}</p>
+                        <button className="button secondary" disabled={busy}>{t("Xác nhận hủy")}</button>
                       </form>
                     )}
                   </>

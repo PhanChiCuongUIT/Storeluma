@@ -207,11 +207,11 @@ test.describe.serial("Week 9 reports and work inbox", () => {
       .toBe("COMPLETED");
     return d;
   }
-  async function exportReport(kind = "sales", c = owner) {
+  async function exportReport(kind = "sales", c = owner, language?: "vi" | "en") {
     const j = await good(
       await cmd(
         "report-exports",
-        { kind, filters: { ...dates, siteId: site.id } },
+        { kind, filters: { ...dates, siteId: site.id }, ...(language ? {language} : {}) },
         c,
       ),
     );
@@ -579,6 +579,19 @@ test.describe.serial("Week 9 reports and work inbox", () => {
     expect(result).toContain('"x,y"');
     expect(result).toContain('a""b');
     expect(result).toContain("'\t+1");
+  });
+  test("W9-14 English CSV changes labels while preserving stock data and access controls",async()=>{
+    const vi=await exportReport('stock',owner,'vi');
+    const en=await exportReport('stock',owner,'en');
+    const a=await good(await get(`report-exports/${vi.id}/download`));
+    const b=await good(await get(`report-exports/${en.id}/download`));
+    expect(a.csv).toContain('Mã hàng');expect(b.csv).toContain('SKU');
+    expect(b.csv).toContain('Stock value VND');expect(b.csv).toContain('Asia/Ho_Chi_Minh');
+    // Only the authored headers change; the stock data row must remain identical.
+    expect(b.csv.split('\r\n')[1]).toBe(a.csv.split('\r\n')[1]);
+    expect(b.csv.split('\r\n')[1]).toContain(sku.code);
+    expect((await get(`report-exports/${en.id}/download`,staff)).status()).toBe(404);
+    expect((await cmd('report-exports',{kind:'stock',filters:dates,language:'fr'})).status()).toBe(400);
   });
   test("W9-07 Low-stock work is acknowledged once, resolves from stock and can recur", async () => {
     const item = await waitWork("LOW_STOCK"),

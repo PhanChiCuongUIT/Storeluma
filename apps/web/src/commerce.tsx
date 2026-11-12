@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import { lineCost } from "../../../packages/platform/decimal";
 import "./commerce.css";
@@ -9,18 +10,18 @@ type Api = (
 ) => Promise<any>;
 type Row = Record<string, any>;
 const money = (v: string = "0") =>
-  new Intl.NumberFormat("vi-VN").format(BigInt(v)) + " ₫";
+  new Intl.NumberFormat(locale()).format(BigInt(v)) + " ₫";
 const qty = (v: string) =>
   v.includes(".") ? v.replace(/0+$/, "").replace(/\.$/, "") : v;
-const label: Record<string, string> = {
+const label: Record<string, string> = localizedLabels({
   ACTIVE: "Đang dùng",
   INACTIVE: "Ngừng dùng",
   DRAFT: "Phiếu nháp",
   POSTED: "Đã ghi sổ",
   CANCELLED: "Đã hủy",
-};
+});
 const date = (v: string) =>
-  new Date(v).toLocaleString("vi-VN", {
+  new Date(v).toLocaleString(locale(), {
     dateStyle: "short",
     timeStyle: "short",
   });
@@ -55,11 +56,9 @@ function Field({
 }
 function Status({ value = "ACTIVE" }: { value?: string }) {
   return (
-    <label className="c-field">
-      Trạng thái
-      <select name="status" defaultValue={value}>
-        <option value="ACTIVE">Đang dùng</option>
-        <option value="INACTIVE">Ngừng dùng</option>
+    <label className="c-field">{t("Trạng thái")}<select name="status" defaultValue={value}>
+        <option value="ACTIVE">{t("Đang dùng")}</option>
+        <option value="INACTIVE">{t("Ngừng dùng")}</option>
       </select>
     </label>
   );
@@ -124,7 +123,7 @@ function SupplierHistory({
         setAsOf(payables.value.dataAsOf);
       } else if (payables)
         setMessage(
-          "Chưa kết nối được sổ công nợ. Dữ liệu nhập hàng vẫn được giữ.",
+          t("Chưa kết nối được sổ công nợ. Dữ liệu nhập hàng vẫn được giữ."),
         );
       setLoading(false);
     });
@@ -156,22 +155,20 @@ function SupplierHistory({
     <>
       <header>
         <div>
-          <span className="eyebrow">LỊCH SỬ NHÀ CUNG CẤP</span>
+          <span className="eyebrow">{t("LỊCH SỬ NHÀ CUNG CẤP")}</span>
           <h2>{supplier.name}</h2>
         </div>
-        <button className="quiet" onClick={close} aria-label="Đóng lịch sử">
+        <button className="quiet" onClick={close} aria-label={t("Đóng lịch sử")}>
           ×
         </button>
       </header>
       <div className="c-form-body">
-        <label className="c-field">
-          Địa điểm
-          <select
-            aria-label="Địa điểm lịch sử"
+        <label className="c-field">{t("Địa điểm")}<select
+            aria-label={t("Địa điểm lịch sử")}
             value={site}
             onChange={(e) => setSite(e.target.value)}
           >
-            {!site && <option value="">Chưa có địa điểm</option>}
+            {!site && <option value="">{t("Chưa có địa điểm")}</option>}
             {sites.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
@@ -181,19 +178,19 @@ function SupplierHistory({
         </label>
         {error && (
           <p role="alert" className="alert error">
-            {error}
+            {t(error)}
           </p>
         )}
-        {loading && <p role="status">Đang tải…</p>}
-        <h3>Phiếu nhập</h3>
+        {loading && <p role="status">{t("Đang tải…")}</p>}
+        <h3>{t("Phiếu nhập")}</h3>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Mã phiếu</th>
-                <th>Ngày lập</th>
-                <th>Trạng thái</th>
-                <th className="number">Giá trị nhập</th>
+                <th>{t("Mã phiếu")}</th>
+                <th>{t("Ngày lập")}</th>
+                <th>{t("Trạng thái")}</th>
+                <th className="number">{t("Giá trị nhập")}</th>
               </tr>
             </thead>
             <tbody>
@@ -211,37 +208,32 @@ function SupplierHistory({
           </table>
         </div>
         {!loading && !rows.length && (
-          <p className="c-help">Chưa có phiếu nhập tại địa điểm này.</p>
+          <p className="c-help">{t("Chưa có phiếu nhập tại địa điểm này.")}</p>
         )}
         {next && (
           <button
             className="button secondary"
             disabled={loading}
             onClick={() => void more("receipts")}
-          >
-            Xem thêm phiếu
-          </button>
+          >{t("Xem thêm phiếu")}</button>
         )}
         {costRead && (
           <>
-            <h3>Công nợ từ phiếu mua</h3>
+            <h3>{t("Công nợ từ phiếu mua")}</h3>
             {asOf && (
-              <p className="c-help">
-                Kiểm tra lúc {date(asOf)}. Phiếu vừa ghi sổ có thể đang chờ đồng
-                bộ.
-              </p>
+              <p className="c-help">{t("Kiểm tra lúc")+" "}{date(asOf)}{t(". Phiếu vừa ghi sổ có thể đang chờ đồng bộ.")}</p>
             )}
             {message ? (
-              <p role="status">{message}</p>
+              <p role="status">{t(message)}</p>
             ) : (
               <div className="table-wrap">
                 <table>
                   <thead>
                     <tr>
-                      <th>Ngày ghi sổ</th>
-                      <th className="number">Phải trả</th>
-                      <th className="number">Đã trả</th>
-                      <th className="number">Còn nợ</th>
+                      <th>{t("Ngày ghi sổ")}</th>
+                      <th className="number">{t("Phải trả")}</th>
+                      <th className="number">{t("Đã trả")}</th>
+                      <th className="number">{t("Còn nợ")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -258,26 +250,20 @@ function SupplierHistory({
               </div>
             )}
             {asOf && !debts.length && (
-              <p className="c-help">
-                Chưa ghi nhận khoản phải trả tại thời điểm kiểm tra.
-              </p>
+              <p className="c-help">{t("Chưa ghi nhận khoản phải trả tại thời điểm kiểm tra.")}</p>
             )}
             {debtNext && (
               <button
                 className="button secondary"
                 disabled={loading}
                 onClick={() => void more("payables")}
-              >
-                Xem thêm công nợ
-              </button>
+              >{t("Xem thêm công nợ")}</button>
             )}
           </>
         )}
       </div>
       <footer>
-        <button className="button secondary" onClick={close}>
-          Đóng
-        </button>
+        <button className="button secondary" onClick={close}>{t("Đóng")}</button>
       </footer>
     </>
   );
@@ -547,7 +533,7 @@ export function Commerce({
   }
   async function checkPayable() {
     if (!detail) return;
-    setPayableState("Đang kiểm tra…");
+    setPayableState(t("Đang kiểm tra…"));
     try {
       const data = await api(
         `${path}/payables?siteId=${detail.site_id}&receiptId=${detail.id}`,
@@ -557,11 +543,11 @@ export function Commerce({
       setPayableState(
         data.items.length
           ? ""
-          : "Đang chờ đồng bộ công nợ. Bạn có thể kiểm tra lại.",
+          : t("Đang chờ đồng bộ công nợ. Bạn có thể kiểm tra lại."),
       );
     } catch {
       setPayableState(
-        "Chưa kết nối được sổ công nợ. Phiếu nhập vẫn đã ghi sổ.",
+        t("Chưa kết nối được sổ công nợ. Phiếu nhập vẫn đã ghi sổ."),
       );
     }
   }
@@ -588,13 +574,13 @@ export function Commerce({
           setPayableState(
             data.items.length
               ? ""
-              : "Đang chờ đồng bộ công nợ. Bạn có thể kiểm tra lại.",
+              : t("Đang chờ đồng bộ công nợ. Bạn có thể kiểm tra lại."),
           );
         }
       } catch {
         if (alive)
           setPayableState(
-            "Chưa kết nối được sổ công nợ. Phiếu nhập vẫn đã ghi sổ.",
+            t("Chưa kết nối được sổ công nợ. Phiếu nhập vẫn đã ghi sổ."),
           );
       } finally {
         inFlight = false;
@@ -690,9 +676,9 @@ export function Commerce({
         };
       }
       if (modal === "receipt") {
-        if (!lines.length) throw new Error("Thêm ít nhất một mã hàng.");
+        if (!lines.length) throw new Error(t("Thêm ít nhất một mã hàng."));
         if (source === "PURCHASE" && !supplierId)
-          throw new Error("Chọn nhà cung cấp.");
+          throw new Error(t("Chọn nhà cung cấp."));
         const draft = {
           siteId,
           warehouseId: activeSite!.warehouse_id,
@@ -718,10 +704,10 @@ export function Commerce({
       setModal("");
       setNotice(
         modal === "post"
-          ? "Đã ghi sổ phiếu nhập. Số lượng và giá trị tồn đã được cập nhật."
+          ? t("Đã ghi sổ phiếu nhập. Số lượng và giá trị tồn đã được cập nhật.")
           : modal === "cancel"
-            ? "Đã hủy phiếu nháp."
-            : "Đã lưu thay đổi.",
+            ? t("Đã hủy phiếu nháp.")
+            : t("Đã lưu thay đổi."),
       );
       await load();
       if (tab === "products" && detail)
@@ -765,12 +751,12 @@ export function Commerce({
   }
   const title =
     tab === "receipts"
-      ? "Phiếu nhập hàng"
+      ? t("Phiếu nhập hàng")
       : tab === "suppliers"
-        ? "Nhà cung cấp"
+        ? t("Nhà cung cấp")
         : section === "categories"
-          ? "Nhóm hàng"
-          : "Danh mục hàng hóa";
+          ? t("Nhóm hàng")
+          : t("Danh mục hàng hóa");
   const writable =
     tab === "products"
       ? catalogWrite
@@ -778,33 +764,33 @@ export function Commerce({
         ? supplierWrite
         : receiptWrite && activeSite?.status === "ACTIVE";
   const modalTitles: Record<string, string> = {
-    product: "Thêm sản phẩm",
-    productEdit: "Sửa sản phẩm",
-    category: editing ? "Sửa nhóm hàng" : "Thêm nhóm hàng",
-    supplier: editing ? "Sửa nhà cung cấp" : "Thêm nhà cung cấp",
-    sku: "Thêm biến thể",
-    skuEdit: "Sửa mã hàng",
-    unit: "Thêm đơn vị quy đổi",
-    price: "Giá bán và trạng thái",
-    receipt: editing ? "Sửa phiếu nhập" : "Lập phiếu nhập",
-    post: "Ghi sổ phiếu nhập",
-    cancel: "Hủy phiếu nháp",
-    history: "Lịch sử nhà cung cấp",
+    product: t("Thêm sản phẩm"),
+    productEdit: t("Sửa sản phẩm"),
+    category: editing ? t("Sửa nhóm hàng") : t("Thêm nhóm hàng"),
+    supplier: editing ? t("Sửa nhà cung cấp") : t("Thêm nhà cung cấp"),
+    sku: t("Thêm biến thể"),
+    skuEdit: t("Sửa mã hàng"),
+    unit: t("Thêm đơn vị quy đổi"),
+    price: t("Giá bán và trạng thái"),
+    receipt: editing ? t("Sửa phiếu nhập") : t("Lập phiếu nhập"),
+    post: t("Ghi sổ phiếu nhập"),
+    cancel: t("Hủy phiếu nháp"),
+    history: t("Lịch sử nhà cung cấp"),
   };
   return (
     <div className="commerce">
       {notice && (
         <div role="status" className="alert success">
-          {notice}
-          <button aria-label="Đóng thông báo" onClick={() => setNotice("")}>
+          {t(notice)}
+          <button aria-label={t("Đóng thông báo")} onClick={() => setNotice("")}>
             ×
           </button>
         </div>
       )}
       {error && !modal && (
         <div role="alert" className="alert error">
-          {error}
-          <button onClick={() => setError("")} aria-label="Đóng lỗi">
+          {t(error)}
+          <button onClick={() => setError("")} aria-label={t("Đóng lỗi")}>
             ×
           </button>
         </div>
@@ -818,9 +804,7 @@ export function Commerce({
               setSearch("");
               setFilter("");
             }}
-          >
-            Sản phẩm
-          </button>
+          >{t("Sản phẩm")}</button>
           <button
             className={section === "categories" ? "selected" : ""}
             onClick={() => {
@@ -828,18 +812,14 @@ export function Commerce({
               setSearch("");
               setFilter("");
             }}
-          >
-            Nhóm hàng
-          </button>
+          >{t("Nhóm hàng")}</button>
         </div>
       )}
       {detail ? (
         <section className="c-sheet">
           <div className="c-sheet-head">
             <div>
-              <button className="c-back" onClick={() => setDetail(null)}>
-                ← Quay lại danh sách
-              </button>
+              <button className="c-back" onClick={() => setDetail(null)}>{t("← Quay lại danh sách")}</button>
               <h2>{tab === "receipts" ? detail.code : detail.name}</h2>
               <div className="c-meta">
                 <Badge value={detail.status} />
@@ -847,7 +827,7 @@ export function Commerce({
                   <span>
                     {date(detail.created_at)} ·{" "}
                     {detail.source_type === "OPENING_STOCK"
-                      ? "Tồn đầu kỳ"
+                      ? t("Tồn đầu kỳ")
                       : detail.supplier_name}
                   </span>
                 )}
@@ -859,16 +839,12 @@ export function Commerce({
                   <button
                     className="button secondary"
                     onClick={() => open("productEdit", detail)}
-                  >
-                    Sửa sản phẩm
-                  </button>
+                  >{t("Sửa sản phẩm")}</button>
                   {detail.status === "ACTIVE" && (
                     <button
                       className="button primary"
                       onClick={() => open("sku")}
-                    >
-                      ＋ Thêm biến thể
-                    </button>
+                    >{t("＋ Thêm biến thể")}</button>
                   )}
                 </>
               )}
@@ -879,22 +855,16 @@ export function Commerce({
                     <button
                       className="button quiet"
                       onClick={() => open("cancel")}
-                    >
-                      Hủy phiếu
-                    </button>
+                    >{t("Hủy phiếu")}</button>
                     <button
                       className="button secondary"
                       onClick={() => open("receipt", detail)}
-                    >
-                      Sửa phiếu
-                    </button>
+                    >{t("Sửa phiếu")}</button>
                     {canPost && (
                       <button
                         className="button primary"
                         onClick={() => open("post")}
-                      >
-                        Ghi sổ
-                      </button>
+                      >{t("Ghi sổ")}</button>
                     )}
                   </>
                 )}
@@ -924,19 +894,17 @@ export function Commerce({
                       <button
                         className="quiet"
                         onClick={() => open("skuEdit", s)}
-                      >
-                        Sửa mã hàng
-                      </button>
+                      >{t("Sửa mã hàng")}</button>
                     )}
                   </div>
                   <div className="table-wrap">
                     <table>
                       <thead>
                         <tr>
-                          <th>Đơn vị</th>
-                          <th>Quy đổi</th>
-                          <th className="number">Giá bán</th>
-                          <th>Trạng thái</th>
+                          <th>{t("Đơn vị")}</th>
+                          <th>{t("Quy đổi")}</th>
+                          <th className="number">{t("Giá bán")}</th>
+                          <th>{t("Trạng thái")}</th>
                           <th />
                         </tr>
                       </thead>
@@ -946,7 +914,7 @@ export function Commerce({
                             <td>
                               <strong>{u.name}</strong>
                               {u.is_base && (
-                                <small className="c-under">Đơn vị cơ sở</small>
+                                <small className="c-under">{t("Đơn vị cơ sở")}</small>
                               )}
                             </td>
                             <td>
@@ -961,9 +929,7 @@ export function Commerce({
                                 <button
                                   className="quiet"
                                   onClick={() => open("price", u)}
-                                >
-                                  Chỉnh giá
-                                </button>
+                                >{t("Chỉnh giá")}</button>
                               )}
                             </td>
                           </tr>
@@ -975,9 +941,7 @@ export function Commerce({
                     <button
                       className="c-add-unit"
                       onClick={() => open("unit", s)}
-                    >
-                      ＋ Thêm đơn vị quy đổi
-                    </button>
+                    >{t("＋ Thêm đơn vị quy đổi")}</button>
                   )}
                 </article>
               ))}
@@ -986,22 +950,22 @@ export function Commerce({
             <>
               <div className="c-receipt-facts">
                 <div>
-                  <small>Địa điểm nhận hàng</small>
+                  <small>{t("Địa điểm nhận hàng")}</small>
                   <strong>{activeSite?.name}</strong>
                 </div>
                 <div>
-                  <small>Loại nhập</small>
+                  <small>{t("Loại nhập")}</small>
                   <strong>
                     {detail.source_type === "OPENING_STOCK"
-                      ? "Tồn đầu kỳ"
-                      : "Mua từ nhà cung cấp"}
+                      ? t("Tồn đầu kỳ")
+                      : t("Mua từ nhà cung cấp")}
                   </strong>
                 </div>
                 <div>
                   <small>
                     {detail.status === "POSTED"
-                      ? "Thời gian ghi sổ"
-                      : "Cập nhật gần nhất"}
+                      ? t("Thời gian ghi sổ")
+                      : t("Cập nhật gần nhất")}
                   </small>
                   <strong>{date(detail.posted_at ?? detail.updated_at)}</strong>
                 </div>
@@ -1010,12 +974,12 @@ export function Commerce({
                 <table>
                   <thead>
                     <tr>
-                      <th>Mã hàng / Tên hàng</th>
-                      <th>Đơn vị</th>
-                      <th className="number">Số lượng</th>
-                      <th className="number">Quy về cơ sở</th>
-                      <th className="number">Đơn giá nhập</th>
-                      <th className="number">Thành tiền</th>
+                      <th>{t("Mã hàng / Tên hàng")}</th>
+                      <th>{t("Đơn vị")}</th>
+                      <th className="number">{t("Số lượng")}</th>
+                      <th className="number">{t("Quy về cơ sở")}</th>
+                      <th className="number">{t("Đơn giá nhập")}</th>
+                      <th className="number">{t("Thành tiền")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1038,49 +1002,41 @@ export function Commerce({
                 </table>
               </div>
               <div className="c-total">
-                <span>Tổng giá trị nhập</span>
+                <span>{t("Tổng giá trị nhập")}</span>
                 <strong>{money(detail.total_vnd)}</strong>
               </div>
               {detail.note && (
                 <p className="c-note">
-                  <b>Ghi chú:</b> {detail.note}
+                  <b>{t("Ghi chú:")}</b> {detail.note}
                 </p>
               )}
               {detail.status === "DRAFT" && (
-                <div className="c-info">
-                  Phiếu nháp chưa làm tăng tồn kho. Kiểm tra số lượng và đơn giá
-                  trước khi ghi sổ.
-                </div>
+                <div className="c-info">{t("Phiếu nháp chưa làm tăng tồn kho. Kiểm tra số lượng và đơn giá trước khi ghi sổ.")}</div>
               )}
               {detail.status === "POSTED" && (
                 <div className="c-posted">
                   <span className="c-check">✓</span>
                   <div>
-                    <strong>Đã cập nhật tồn kho</strong>
-                    <p>Phiếu đã ghi sổ được giữ nguyên để đối chiếu lịch sử.</p>
+                    <strong>{t("Đã cập nhật tồn kho")}</strong>
+                    <p>{t("Phiếu đã ghi sổ được giữ nguyên để đối chiếu lịch sử.")}</p>
                     {detail.source_type === "OPENING_STOCK" ? (
-                      <p>Tồn đầu kỳ không phát sinh công nợ nhà cung cấp.</p>
+                      <p>{t("Tồn đầu kỳ không phát sinh công nợ nhà cung cấp.")}</p>
                     ) : (
                       costRead && (
                         <div className="c-payable">
                           {payable ? (
-                            <p>
-                              Công nợ phải trả:{" "}
-                              <b>{money(payable.outstanding_vnd)}</b> · Chưa
-                              phát sinh chi tiền
-                            </p>
+                            <p>{t("Công nợ phải trả:")}{" "}
+                              <b>{money(payable.outstanding_vnd)}</b>{" "+t("· Chưa phát sinh chi tiền")}</p>
                           ) : (
                             <p>{payableState}</p>
                           )}
                           {checkedAt && (
-                            <small>Kiểm tra lúc {date(checkedAt)}</small>
+                            <small>{t("Kiểm tra lúc")+" "}{date(checkedAt)}</small>
                           )}
                           <button
                             className="quiet"
                             onClick={() => void checkPayable()}
-                          >
-                            Kiểm tra công nợ
-                          </button>
+                          >{t("Kiểm tra công nợ")}</button>
                         </div>
                       )
                     )}
@@ -1097,10 +1053,10 @@ export function Commerce({
               <h2>{title}</h2>
               <p>
                 {tab === "receipts"
-                  ? "Theo dõi hàng nhận về theo từng địa điểm."
+                  ? t("Theo dõi hàng nhận về theo từng địa điểm.")
                   : tab === "suppliers"
-                    ? "Thông tin đối tác cung ứng hàng hóa."
-                    : "Quản lý mã hàng, đơn vị và giá bán thống nhất."}
+                    ? t("Thông tin đối tác cung ứng hàng hóa.")
+                    : t("Quản lý mã hàng, đơn vị và giá bán thống nhất.")}
               </p>
             </div>
             {writable && (
@@ -1120,12 +1076,12 @@ export function Commerce({
               >
                 ＋{" "}
                 {tab === "receipts"
-                  ? "Lập phiếu nhập"
+                  ? t("Lập phiếu nhập")
                   : tab === "suppliers"
-                    ? "Thêm nhà cung cấp"
+                    ? t("Thêm nhà cung cấp")
                     : section === "categories"
-                      ? "Thêm nhóm hàng"
-                      : "Thêm sản phẩm"}
+                      ? t("Thêm nhóm hàng")
+                      : t("Thêm sản phẩm")}
               </button>
             )}
           </div>
@@ -1134,13 +1090,13 @@ export function Commerce({
               <span aria-hidden="true">⌕</span>
               <input
                 type="search"
-                aria-label="Tìm trong danh sách"
+                aria-label={t("Tìm trong danh sách")}
                 placeholder={
                   tab === "products"
-                    ? "Tìm tên, mã hàng, mã vạch…"
+                    ? t("Tìm tên, mã hàng, mã vạch…")
                     : tab === "receipts"
-                      ? "Tìm mã phiếu, nhà cung cấp…"
-                      : "Tìm tên, mã, số điện thoại…"
+                      ? t("Tìm mã phiếu, nhà cung cấp…")
+                      : t("Tìm tên, mã, số điện thoại…")
                 }
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -1148,11 +1104,11 @@ export function Commerce({
             </label>
             {tab === "receipts" && (
               <select
-                aria-label="Địa điểm nhập hàng"
+                aria-label={t("Địa điểm nhập hàng")}
                 value={siteId}
                 onChange={(e) => setSiteId(e.target.value)}
               >
-                {!siteId && <option value="">Chọn địa điểm</option>}
+                {!siteId && <option value="">{t("Chọn địa điểm")}</option>}
                 {sites.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -1162,11 +1118,11 @@ export function Commerce({
               </select>
             )}
             <select
-              aria-label="Trạng thái danh sách"
+              aria-label={t("Trạng thái danh sách")}
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             >
-              <option value="">Tất cả trạng thái</option>
+              <option value="">{t("Tất cả trạng thái")}</option>
               {(tab === "receipts"
                 ? ["DRAFT", "POSTED", "CANCELLED"]
                 : ["ACTIVE", "INACTIVE"]
@@ -1180,30 +1136,26 @@ export function Commerce({
               className="quiet"
               onClick={() => void load()}
               disabled={loading}
-            >
-              Tải lại
-            </button>
+            >{t("Tải lại")}</button>
           </div>
           {loading && !rows.length ? (
-            <div className="c-empty" role="status">
-              Đang tải dữ liệu…
-            </div>
+            <div className="c-empty" role="status">{t("Đang tải dữ liệu…")}</div>
           ) : !rows.length ? (
             <div className="c-empty">
               <span className="c-empty-icon">▤</span>
               <h3>
                 {search || filter
-                  ? "Không tìm thấy kết quả"
+                  ? t("Không tìm thấy kết quả")
                   : tab === "receipts" && !siteId
-                    ? "Chọn địa điểm để xem phiếu"
-                    : "Danh sách đang trống"}
+                    ? t("Chọn địa điểm để xem phiếu")
+                    : t("Danh sách đang trống")}
               </h3>
               <p>
                 {search || filter
-                  ? "Thử từ khóa khác hoặc bỏ bộ lọc."
+                  ? t("Thử từ khóa khác hoặc bỏ bộ lọc.")
                   : writable
-                    ? "Thêm bản ghi đầu tiên bằng nút phía trên."
-                    : "Chưa có dữ liệu để hiển thị."}
+                    ? t("Thêm bản ghi đầu tiên bằng nút phía trên.")
+                    : t("Chưa có dữ liệu để hiển thị.")}
               </p>
             </div>
           ) : (
@@ -1214,29 +1166,29 @@ export function Commerce({
                     <tr>
                       {tab === "products" && section === "products" ? (
                         <>
-                          <th>Sản phẩm</th>
-                          <th>Nhóm hàng</th>
-                          <th>Biến thể</th>
+                          <th>{t("Sản phẩm")}</th>
+                          <th>{t("Nhóm hàng")}</th>
+                          <th>{t("Biến thể")}</th>
                         </>
                       ) : tab === "receipts" ? (
                         <>
-                          <th>Phiếu nhập</th>
-                          <th>Nhà cung cấp / Loại nhập</th>
-                          <th className="number">Tổng tiền</th>
+                          <th>{t("Phiếu nhập")}</th>
+                          <th>{t("Nhà cung cấp / Loại nhập")}</th>
+                          <th className="number">{t("Tổng tiền")}</th>
                         </>
                       ) : tab === "suppliers" ? (
                         <>
-                          <th>Nhà cung cấp</th>
-                          <th>Điện thoại</th>
-                          <th>Địa chỉ</th>
+                          <th>{t("Nhà cung cấp")}</th>
+                          <th>{t("Điện thoại")}</th>
+                          <th>{t("Địa chỉ")}</th>
                         </>
                       ) : (
                         <>
-                          <th>Nhóm hàng</th>
-                          <th>Mã nhóm</th>
+                          <th>{t("Nhóm hàng")}</th>
+                          <th>{t("Mã nhóm")}</th>
                         </>
                       )}
-                      <th>Trạng thái</th>
+                      <th>{t("Trạng thái")}</th>
                       <th />
                     </tr>
                   </thead>
@@ -1256,8 +1208,8 @@ export function Commerce({
                                 </button>
                               </div>
                             </td>
-                            <td>{row.category_name ?? "Chưa phân nhóm"}</td>
-                            <td>{row.sku_count} mã hàng</td>
+                            <td>{row.category_name ?? t("Chưa phân nhóm")}</td>
+                            <td>{row.sku_count}{" "+t("mã hàng")}</td>
                           </>
                         ) : tab === "receipts" ? (
                           <>
@@ -1274,7 +1226,7 @@ export function Commerce({
                             </td>
                             <td>
                               {row.source_type === "OPENING_STOCK"
-                                ? "Tồn đầu kỳ"
+                                ? t("Tồn đầu kỳ")
                                 : row.supplier_name}
                             </td>
                             <td className="number">{money(row.total_vnd)}</td>
@@ -1306,18 +1258,14 @@ export function Commerce({
                               className="quiet"
                               aria-label={"Xem " + (row.name ?? row.code)}
                               onClick={() => void show(row)}
-                            >
-                              Xem chi tiết →
-                            </button>
+                            >{t("Xem chi tiết →")}</button>
                           ) : (
                             <div className="c-actions">
                               {tab === "suppliers" && (
                                 <button
                                   className="quiet"
                                   onClick={() => open("history", row)}
-                                >
-                                  Lịch sử nhập
-                                </button>
+                                >{t("Lịch sử nhập")}</button>
                               )}
                               {writable && (
                                 <button
@@ -1330,9 +1278,7 @@ export function Commerce({
                                       row,
                                     )
                                   }
-                                >
-                                  Chỉnh sửa
-                                </button>
+                                >{t("Chỉnh sửa")}</button>
                               )}
                             </div>
                           )}
@@ -1343,24 +1289,21 @@ export function Commerce({
                 </table>
               </div>
               <div className="c-list-footer">
-                <span>
-                  Đã tải {rows.length}{" "}
+                <span>{t("Đã tải")+" "}{rows.length}{" "}
                   {tab === "receipts"
-                    ? "phiếu"
+                    ? t("phiếu")
                     : tab === "suppliers"
-                      ? "nhà cung cấp"
+                      ? t("nhà cung cấp")
                       : section === "categories"
-                        ? "nhóm hàng"
-                        : "sản phẩm"}
+                        ? t("nhóm hàng")
+                        : t("sản phẩm")}
                 </span>
                 {cursor && (
                   <button
                     className="button secondary"
                     disabled={loading}
                     onClick={() => void load(cursor)}
-                  >
-                    Xem thêm
-                  </button>
+                  >{t("Xem thêm")}</button>
                 )}
               </div>
             </>
@@ -1394,17 +1337,17 @@ export function Commerce({
                 <div>
                   <span className="eyebrow">
                     {tab === "products"
-                      ? "HÀNG HÓA"
+                      ? t("HÀNG HÓA")
                       : tab === "suppliers"
-                        ? "ĐỐI TÁC"
-                        : "NHẬP HÀNG"}
+                        ? t("ĐỐI TÁC")
+                        : t("NHẬP HÀNG")}
                   </span>
                   <h2>{modalTitles[modal]}</h2>
                 </div>
                 <button
                   type="button"
                   className="quiet"
-                  aria-label="Đóng biểu mẫu"
+                  aria-label={t("Đóng biểu mẫu")}
                   disabled={busy}
                   onClick={() => setModal("")}
                 >
@@ -1422,12 +1365,12 @@ export function Commerce({
                   <Field
                     label={
                       modal === "unit"
-                        ? "Tên đơn vị"
+                        ? t("Tên đơn vị")
                         : modal === "supplier"
-                          ? "Tên nhà cung cấp"
+                          ? t("Tên nhà cung cấp")
                           : modal === "category"
-                            ? "Tên nhóm hàng"
-                            : "Tên sản phẩm"
+                            ? t("Tên nhóm hàng")
+                            : t("Tên sản phẩm")
                     }
                     name="name"
                     value={editing?.name}
@@ -1436,24 +1379,24 @@ export function Commerce({
                 )}
                 {["category", "supplier"].includes(modal) && !editing && (
                   <Field
-                    label={modal === "category" ? "Mã nhóm" : "Mã nhà cung cấp"}
+                    label={modal === "category" ? t("Mã nhóm") : t("Mã nhà cung cấp")}
                     name="code"
                     pattern="[A-Za-z0-9_-]{2,64}"
                     maxLength={64}
-                    placeholder="VD: NCC01"
+                    placeholder={t("VD: NCC01")}
                   />
                 )}
                 {modal === "supplier" && (
                   <>
                     <Field
-                      label="Điện thoại"
+                      label={t("Điện thoại")}
                       name="phone"
                       value={editing?.phone}
                       required={false}
                       maxLength={30}
                     />
                     <Field
-                      label="Địa chỉ"
+                      label={t("Địa chỉ")}
                       name="address"
                       value={editing?.address}
                       required={false}
@@ -1463,30 +1406,24 @@ export function Commerce({
                 )}
                 {["product", "productEdit"].includes(modal) && (
                   <>
-                    <label className="c-field">
-                      Tìm nhóm hàng
-                      <input
+                    <label className="c-field">{t("Tìm nhóm hàng")}<input
                         type="search"
                         value={categoryQuery}
                         onChange={(e) => setCategoryQuery(e.target.value)}
-                        placeholder="Nhập tên hoặc mã nhóm"
+                        placeholder={t("Nhập tên hoặc mã nhóm")}
                       />
                     </label>
-                    <label className="c-field">
-                      Nhóm hàng
-                      <select
-                        aria-label="Nhóm hàng"
+                    <label className="c-field">{t("Nhóm hàng")}<select
+                        aria-label={t("Nhóm hàng")}
                         name="categoryId"
                         defaultValue={editing?.category_id ?? ""}
                       >
-                        <option value="">Chưa phân nhóm</option>
+                        <option value="">{t("Chưa phân nhóm")}</option>
                         {editing?.category_id &&
                           !categories.some(
                             (c) => c.id === editing.category_id,
                           ) && (
-                            <option value={editing.category_id}>
-                              Nhóm đang dùng
-                            </option>
+                            <option value={editing.category_id}>{t("Nhóm đang dùng")}</option>
                           )}
                         {categories.map((c) => (
                           <option value={c.id} key={c.id}>
@@ -1508,9 +1445,7 @@ export function Commerce({
                             setCategoryMore(d.nextCursor);
                           })
                         }
-                      >
-                        Tải thêm nhóm
-                      </button>
+                      >{t("Tải thêm nhóm")}</button>
                     )}
                   </>
                 )}
@@ -1518,26 +1453,26 @@ export function Commerce({
                   <>
                     <div className="c-form-divider">
                       {modal === "product"
-                        ? "Mã hàng đầu tiên"
-                        : "Thông tin mã hàng"}
+                        ? t("Mã hàng đầu tiên")
+                        : t("Thông tin mã hàng")}
                     </div>
                     <Field
-                      label="Tên mã hàng"
+                      label={t("Tên mã hàng")}
                       name="skuName"
                       value={modal === "skuEdit" ? editing?.name : ""}
                       maxLength={120}
                     />
                     {modal !== "skuEdit" && (
                       <Field
-                        label="Mã SKU"
+                        label={t("Mã SKU")}
                         name="code"
                         pattern="[A-Za-z0-9_-]{2,64}"
                         maxLength={64}
-                        placeholder="VD: CF-250"
+                        placeholder={t("VD: CF-250")}
                       />
                     )}
                     <Field
-                      label="Mã vạch"
+                      label={t("Mã vạch")}
                       name="barcode"
                       value={modal === "skuEdit" ? editing?.barcode : ""}
                       required={false}
@@ -1547,13 +1482,13 @@ export function Commerce({
                       <>
                         <div className="c-form-grid">
                           <Field
-                            label="Màu sắc (nếu có)"
+                            label={t("Màu sắc (nếu có)")}
                             name="color"
                             required={false}
                             maxLength={50}
                           />
                           <Field
-                            label="Kích cỡ (nếu có)"
+                            label={t("Kích cỡ (nếu có)")}
                             name="size"
                             required={false}
                             maxLength={50}
@@ -1561,23 +1496,20 @@ export function Commerce({
                         </div>
                         <div className="c-form-grid">
                           <Field
-                            label="Đơn vị cơ sở"
+                            label={t("Đơn vị cơ sở")}
                             name="baseUnit"
                             maxLength={30}
-                            placeholder="VD: Gói"
+                            placeholder={t("VD: Gói")}
                           />
                           <Field
-                            label="Giá bán (₫)"
+                            label={t("Giá bán (₫)")}
                             name="price"
                             value="0"
                             inputMode="numeric"
                             pattern="(0|[1-9][0-9]{0,19})"
                           />
                         </div>
-                        <p className="c-help">
-                          Mã SKU và đơn vị cơ sở được giữ cố định để đối chiếu
-                          lịch sử.
-                        </p>
+                        <p className="c-help">{t("Mã SKU và đơn vị cơ sở được giữ cố định để đối chiếu lịch sử.")}</p>
                       </>
                     )}
                   </>
@@ -1595,26 +1527,20 @@ export function Commerce({
                       pattern="[0-9]+(\.[0-9]{1,3})?"
                     />
                     <Field
-                      label="Giá bán theo đơn vị (₫)"
+                      label={t("Giá bán theo đơn vị (₫)")}
                       name="price"
                       value="0"
                       inputMode="numeric"
                       pattern="(0|[1-9][0-9]{0,19})"
                     />
-                    <p className="c-help">
-                      Hệ số quy đổi được cố định khi tạo. Nếu cần quy cách khác,
-                      thêm đơn vị mới.
-                    </p>
+                    <p className="c-help">{t("Hệ số quy đổi được cố định khi tạo. Nếu cần quy cách khác, thêm đơn vị mới.")}</p>
                   </>
                 )}
                 {modal === "price" && (
                   <>
-                    <p className="c-help">
-                      Đơn vị: <b>{editing!.name}</b>. Giá mới áp dụng cho các
-                      thao tác tiếp theo, lịch sử giá được giữ lại.
-                    </p>
+                    <p className="c-help">{t("Đơn vị:")+" "}<b>{editing!.name}</b>{t(". Giá mới áp dụng cho các thao tác tiếp theo, lịch sử giá được giữ lại.")}</p>
                     <Field
-                      label="Giá bán (₫)"
+                      label={t("Giá bán (₫)")}
                       name="price"
                       value={editing!.price_vnd}
                       inputMode="numeric"
@@ -1633,49 +1559,41 @@ export function Commerce({
                 {modal === "receipt" && (
                   <>
                     <div className="c-form-grid">
-                      <label className="c-field">
-                        Loại nhập
-                        <select
-                          aria-label="Loại nhập"
+                      <label className="c-field">{t("Loại nhập")}<select
+                          aria-label={t("Loại nhập")}
                           value={source}
                           onChange={(e) => setSource(e.target.value)}
                         >
-                          <option value="PURCHASE">Mua từ nhà cung cấp</option>
+                          <option value="PURCHASE">{t("Mua từ nhà cung cấp")}</option>
                           {role === "OWNER" && (
-                            <option value="OPENING_STOCK">Tồn đầu kỳ</option>
+                            <option value="OPENING_STOCK">{t("Tồn đầu kỳ")}</option>
                           )}
                         </select>
                       </label>
-                      <div className="c-field">
-                        Nhập tại
-                        <strong className="c-static">{activeSite?.name}</strong>
+                      <div className="c-field">{t("Nhập tại")}<strong className="c-static">{activeSite?.name}</strong>
                       </div>
                     </div>
                     {source === "PURCHASE" && (
                       <>
-                        <label className="c-field">
-                          Tìm nhà cung cấp
-                          <input
+                        <label className="c-field">{t("Tìm nhà cung cấp")}<input
                             type="search"
                             value={supplierQuery}
                             onChange={(e) => setSupplierQuery(e.target.value)}
-                            placeholder="Nhập tên hoặc mã nhà cung cấp"
+                            placeholder={t("Nhập tên hoặc mã nhà cung cấp")}
                           />
                         </label>
-                        <label className="c-field">
-                          Nhà cung cấp
-                          <select
-                            aria-label="Nhà cung cấp"
+                        <label className="c-field">{t("Nhà cung cấp")}<select
+                            aria-label={t("Nhà cung cấp")}
                             value={supplierId}
                             onChange={(e) => setSupplierId(e.target.value)}
                             required
                           >
-                            <option value="">Chọn nhà cung cấp</option>
+                            <option value="">{t("Chọn nhà cung cấp")}</option>
                             {supplierId &&
                               !suppliers.some((s) => s.id === supplierId) && (
                                 <option value={supplierId}>
                                   {editing?.supplier_name ??
-                                    "Nhà cung cấp đã chọn"}
+                                    t("Nhà cung cấp đã chọn")}
                                 </option>
                               )}
                             {suppliers.map((s) => (
@@ -1698,20 +1616,16 @@ export function Commerce({
                                 setSupplierMore(d.nextCursor);
                               })
                             }
-                          >
-                            Tải thêm nhà cung cấp
-                          </button>
+                          >{t("Tải thêm nhà cung cấp")}</button>
                         )}
                       </>
                     )}
-                    <div className="c-form-divider">Hàng nhận về</div>
-                    <label className="c-field">
-                      Tìm mã hàng
-                      <input
+                    <div className="c-form-divider">{t("Hàng nhận về")}</div>
+                    <label className="c-field">{t("Tìm mã hàng")}<input
                         type="search"
                         value={skuQuery}
                         onChange={(e) => setSkuQuery(e.target.value)}
-                        placeholder="Tên hàng, mã SKU hoặc mã vạch…"
+                        placeholder={t("Tên hàng, mã SKU hoặc mã vạch…")}
                       />
                     </label>
                     <div className="c-sku-picker">
@@ -1733,12 +1647,12 @@ export function Commerce({
                           </span>
                           <span>
                             {lines.some((l) => l.skuId === s.id)
-                              ? "Đã thêm"
-                              : "＋ Thêm"}
+                              ? t("Đã thêm")
+                              : t("＋ Thêm")}
                           </span>
                         </button>
                       ))}
-                      {!skus.length && <p>Không tìm thấy mã hàng đang dùng.</p>}
+                      {!skus.length && <p>{t("Không tìm thấy mã hàng đang dùng.")}</p>}
                       {skuMore && (
                         <button
                           type="button"
@@ -1751,9 +1665,7 @@ export function Commerce({
                               setSkuMore(d.nextCursor);
                             })
                           }
-                        >
-                          Tải thêm mã hàng
-                        </button>
+                        >{t("Tải thêm mã hàng")}</button>
                       )}
                     </div>
                     <div className="c-entry-lines">
@@ -1774,9 +1686,7 @@ export function Commerce({
                             </button>
                           </div>
                           <div className="c-entry-fields">
-                            <label className="c-field">
-                              Đơn vị
-                              <select
+                            <label className="c-field">{t("Đơn vị")}<select
                                 aria-label={"Đơn vị " + l.name}
                                 value={l.unitId}
                                 onChange={(e) =>
@@ -1795,9 +1705,7 @@ export function Commerce({
                                 ))}
                               </select>
                             </label>
-                            <label className="c-field">
-                              Số lượng
-                              <input
+                            <label className="c-field">{t("Số lượng")}<input
                                 aria-label={"Số lượng " + l.name}
                                 value={l.qty}
                                 required
@@ -1808,9 +1716,7 @@ export function Commerce({
                                 }
                               />
                             </label>
-                            <label className="c-field">
-                              Đơn giá nhập (₫)
-                              <input
+                            <label className="c-field">{t("Đơn giá nhập (₫)")}<input
                                 aria-label={"Đơn giá " + l.name}
                                 value={l.unitCostVnd}
                                 required
@@ -1826,51 +1732,41 @@ export function Commerce({
                       ))}
                     </div>
                     <div className="c-total">
-                      <span>Tổng dự tính</span>
+                      <span>{t("Tổng dự tính")}</span>
                       <strong>
                         {preview
                           ? money(preview)
-                          : "Kiểm tra số lượng, đơn giá"}
+                          : t("Kiểm tra số lượng, đơn giá")}
                       </strong>
                     </div>
                     <Field
-                      label="Ghi chú"
+                      label={t("Ghi chú")}
                       name="note"
                       value={editing?.note}
                       required={false}
                       maxLength={500}
                     />
-                    <p className="c-help">
-                      Lưu nháp chưa tăng tồn. Đơn giá tính theo đơn vị đã chọn,
-                      tiền làm tròn đến đồng.
-                    </p>
+                    <p className="c-help">{t("Lưu nháp chưa tăng tồn. Đơn giá tính theo đơn vị đã chọn, tiền làm tròn đến đồng.")}</p>
                   </>
                 )}
                 {modal === "post" && (
                   <>
-                    <p>
-                      Ghi sổ <b>{detail?.code}</b> với tổng giá trị{" "}
+                    <p>{t("Ghi sổ")+" "}<b>{detail?.code}</b>{" "+t("với tổng giá trị")}{" "}
                       <b>{money(detail?.total_vnd)}</b>?
                     </p>
-                    <div className="c-info">
-                      Tồn kho sẽ tăng theo số lượng trên phiếu.{" "}
+                    <div className="c-info">{t("Tồn kho sẽ tăng theo số lượng trên phiếu.")}{" "}
                       {detail?.source_type === "PURCHASE"
-                        ? "Khoản phải trả được đồng bộ sang sổ công nợ, chưa chi tiền."
-                        : "Tồn đầu kỳ không tạo công nợ."}{" "}
-                      Phiếu đã ghi sổ không thể sửa hoặc hủy.
-                    </div>
+                        ? t("Khoản phải trả được đồng bộ sang sổ công nợ, chưa chi tiền.")
+                        : t("Tồn đầu kỳ không tạo công nợ.")}{" "}{t("Phiếu đã ghi sổ không thể sửa hoặc hủy.")}</div>
                   </>
                 )}
                 {modal === "cancel" && (
-                  <p>
-                    Hủy phiếu nháp <b>{detail?.code}</b>? Phiếu được giữ trong
-                    lịch sử và không làm thay đổi tồn kho.
-                  </p>
+                  <p>{t("Hủy phiếu nháp")+" "}<b>{detail?.code}</b>{t("? Phiếu được giữ trong lịch sử và không làm thay đổi tồn kho.")}</p>
                 )}
               </fieldset>
               {error && (
                 <div role="alert" className="alert error">
-                  {error}
+                  {t(error)}
                 </div>
               )}
               <footer>
@@ -1879,19 +1775,17 @@ export function Commerce({
                   className="button secondary"
                   disabled={busy}
                   onClick={() => setModal("")}
-                >
-                  Đóng
-                </button>
+                >{t("Đóng")}</button>
                 <button className="button primary" disabled={busy}>
                   {busy
-                    ? "Đang lưu…"
+                    ? t("Đang lưu…")
                     : modal === "receipt"
-                      ? "Lưu phiếu nháp"
+                      ? t("Lưu phiếu nháp")
                       : modal === "post"
-                        ? "Xác nhận ghi sổ"
+                        ? t("Xác nhận ghi sổ")
                         : modal === "cancel"
-                          ? "Xác nhận hủy"
-                          : "Lưu thay đổi"}
+                          ? t("Xác nhận hủy")
+                          : t("Lưu thay đổi")}
                 </button>
               </footer>
             </form>

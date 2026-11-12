@@ -57,10 +57,23 @@ services:
       KC_HOSTNAME: http://localhost:8180
       KC_HEALTH_ENABLED: 'true'
     ports: ['127.0.0.1:8180:8080']
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - >-
+          { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/127.0.0.1/9000
+      interval: 5s
+      timeout: 4s
+      start_period: 120s
+      retries: 12
     volumes:
       - './infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro'
       - './infra/keycloak/themes/storeluma:/opt/keycloak/themes/storeluma:ro'
       - './apps/web/public/brand:/opt/keycloak/themes/storeluma/login/resources/brand:ro'
+      - './apps/web/public/preferences.js:/opt/keycloak/themes/storeluma/login/resources/js/preferences.js:ro'
+      - './apps/web/public/palette.css:/opt/keycloak/themes/storeluma/login/resources/css/palette.css:ro'
     depends_on: {postgres: {condition: service_healthy}}
   business:
     <<: *app
@@ -95,6 +108,10 @@ services:
       DATABASE_URL: postgres://finance:${FINANCE_DB_PASSWORD}@postgres:5432/finance_db
   gateway:
     <<: *app
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+      keycloak: {condition: service_healthy}
     build: {context: ., args: {SERVICE: gateway}}
     ports: ['127.0.0.1:4100:4100']
     environment:

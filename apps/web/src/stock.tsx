@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import "./commerce.css";
 import "./stock.css";
@@ -9,7 +10,7 @@ type Api = (
   data?: unknown,
   key?: string,
 ) => Promise<any>;
-const labels: Record<string, string> = {
+const labels: Record<string, string> = localizedLabels({
   DRAFT: "Phiếu nháp",
   COUNTING: "Đang kiểm",
   SUBMITTED: "Chờ duyệt",
@@ -25,11 +26,11 @@ const labels: Record<string, string> = {
   QUARANTINE: "Đưa vào cách ly",
   RELEASE_QUARANTINE: "Giải phóng cách ly",
   CORRECTION: "Điều chỉnh tăng / giảm",
-};
+});
 const qty = (v: any) =>
   v == null ? "—" : String(v).replace(/(\.\d*?[1-9])0+$|\.0+$/, "$1");
 const money = (v: any) =>
-  v == null ? "—" : new Intl.NumberFormat("vi-VN").format(BigInt(v)) + " ₫";
+  v == null ? "—" : new Intl.NumberFormat(locale()).format(BigInt(v)) + " ₫";
 function previewDelta(good: string, quarantine: string, before: string) {
   try {
     const d = milli(good) + milli(quarantine) - milli(before);
@@ -40,7 +41,7 @@ function previewDelta(good: string, quarantine: string, before: string) {
 }
 const when = (v: any) =>
   v
-    ? new Date(v).toLocaleString("vi-VN", {
+    ? new Date(v).toLocaleString(locale(), {
         dateStyle: "short",
         timeStyle: "short",
       })
@@ -243,11 +244,11 @@ export function StockRoom({
     if (!detail) return;
     const warning =
       action === "approve" || action === "post"
-        ? "Ghi sổ sẽ thay đổi tồn kho và không thể sửa phiếu. Bạn đã kiểm tra số lượng và lý do?"
+        ? t("Ghi sổ sẽ thay đổi tồn kho và không thể sửa phiếu. Bạn đã kiểm tra số lượng và lý do?")
         : action === "cancel"
-          ? "Hủy phiếu này? Tồn kho sẽ không thay đổi."
+          ? t("Hủy phiếu này? Tồn kho sẽ không thay đổi.")
           : action === "start"
-            ? "Bắt đầu kiểm và tạm khóa các mã hàng trên phiếu tại địa điểm này?"
+            ? t("Bắt đầu kiểm và tạm khóa các mã hàng trên phiếu tại địa điểm này?")
             : null;
     if (warning && !window.confirm(warning)) return;
     await run(async () => {
@@ -258,14 +259,14 @@ export function StockRoom({
       );
       setNotice(
         action === "start"
-          ? "Đã khóa phạm vi kiểm. Bạn có thể nhập số đếm."
+          ? t("Đã khóa phạm vi kiểm. Bạn có thể nhập số đếm.")
           : action === "submit"
-            ? "Đã gửi phiếu để duyệt."
+            ? t("Đã gửi phiếu để duyệt.")
             : action === "cancel"
-              ? "Đã hủy phiếu."
+              ? t("Đã hủy phiếu.")
               : action === "reopen"
-                ? "Đã chuyển lại trạng thái đang kiểm."
-                : "Đã ghi sổ và cập nhật tồn kho.",
+                ? t("Đã chuyển lại trạng thái đang kiểm.")
+                : t("Đã ghi sổ và cập nhật tồn kho."),
       );
       setRevision((n) => n + 1);
     });
@@ -273,14 +274,14 @@ export function StockRoom({
   const path = `/v1/tenants/${tenant}`;
   return (
     <div className="stock-room">
-      <div className="stock-tabs" role="tablist" aria-label="Quản lý kho">
+      <div className="stock-tabs" role="tablist" aria-label={t("Quản lý kho")}>
         {[
-          ["balances", "Tồn kho"],
-          ["movements", "Thẻ kho"],
+          ["balances", t("Tồn kho")],
+          ["movements", t("Thẻ kho")],
           ...(documents
             ? [
-                ["counts", "Kiểm kho"],
-                ["adjustments", "Điều chỉnh"],
+                ["counts", t("Kiểm kho")],
+                ["adjustments", t("Điều chỉnh")],
               ]
             : []),
         ].map(([id, title]) => (
@@ -297,10 +298,10 @@ export function StockRoom({
       </div>
       <div className="stock-location">
         <div>
-          <span className="eyebrow">ĐỊA ĐIỂM KINH DOANH</span>
+          <span className="eyebrow">{t("ĐỊA ĐIỂM KINH DOANH")}</span>
           <label className="stock-site-label">
             <select
-              aria-label="Địa điểm kho"
+              aria-label={t("Địa điểm kho")}
               value={siteId}
               disabled={busy}
               onChange={(e) => {
@@ -323,17 +324,17 @@ export function StockRoom({
           <span
             className={"stock-dot " + (site?.status === "ACTIVE" ? "" : "off")}
           />
-          {site?.status === "ACTIVE" ? "Sẵn sàng thao tác" : "Chỉ tra cứu"}
+          {site?.status === "ACTIVE" ? t("Sẵn sàng thao tác") : t("Chỉ tra cứu")}
           <small>
             {asOf
               ? "Dữ liệu lúc " + when(asOf)
-              : "Chọn địa điểm để xem dữ liệu"}
+              : t("Chọn địa điểm để xem dữ liệu")}
           </small>
         </div>
       </div>
       {error && (
         <div className="alert error" role="alert">
-          {error}
+          {t(error)}
           <button
             className="button secondary small"
             disabled={busy || loading}
@@ -342,20 +343,18 @@ export function StockRoom({
                 ? void open(detail.kind, detail.id)
                 : setRevision((n) => n + 1)
             }
-          >
-            Tải lại
-          </button>
+          >{t("Tải lại")}</button>
         </div>
       )}
       {notice && (
         <div className="alert success" role="status">
-          {notice}
+          {t(notice)}
         </div>
       )}
       {!sites.length ? (
         <div className="stock-empty">
-          <h3>Chưa có địa điểm trong phạm vi</h3>
-          <p>Chọn hộ kinh doanh hoặc liên hệ chủ hộ để được cấp quyền.</p>
+          <h3>{t("Chưa có địa điểm trong phạm vi")}</h3>
+          <p>{t("Chọn hộ kinh doanh hoặc liên hệ chủ hộ để được cấp quyền.")}</p>
         </div>
       ) : creating ? (
         <StockDraft
@@ -374,7 +373,7 @@ export function StockRoom({
                 ),
               );
               setCreating(false);
-              setNotice("Đã lưu phiếu nháp. Tồn kho chưa thay đổi.");
+              setNotice(t("Đã lưu phiếu nháp. Tồn kho chưa thay đổi."));
               setRevision((n) => n + 1);
             })
           }
@@ -402,7 +401,7 @@ export function StockRoom({
                   "PATCH",
                 ),
               );
-              setNotice("Đã lưu phiếu. Tồn kho chưa thay đổi.");
+              setNotice(t("Đã lưu phiếu. Tồn kho chưa thay đổi."));
               setRevision((n) => n + 1);
             })
           }
@@ -414,10 +413,10 @@ export function StockRoom({
               <h2>
                 {
                   {
-                    balances: "Số lượng trong kho",
-                    movements: "Lịch sử biến động",
-                    counts: "Phiếu kiểm kho",
-                    adjustments: "Phiếu điều chỉnh",
+                    balances: t("Số lượng trong kho"),
+                    movements: t("Lịch sử biến động"),
+                    counts: t("Phiếu kiểm kho"),
+                    adjustments: t("Phiếu điều chỉnh"),
                   }[view]
                 }
               </h2>
@@ -425,13 +424,13 @@ export function StockRoom({
                 {
                   {
                     balances:
-                      "Theo dõi hàng hiện có, đang giữ và cách ly tại từng địa điểm.",
+                      t("Theo dõi hàng hiện có, đang giữ và cách ly tại từng địa điểm."),
                     movements:
-                      "Đối chiếu từng lần thay đổi với chứng từ đã ghi sổ.",
+                      t("Đối chiếu từng lần thay đổi với chứng từ đã ghi sổ."),
                     counts:
-                      "Ghi nhận số thực đếm và duyệt chênh lệch trước khi cập nhật tồn.",
+                      t("Ghi nhận số thực đếm và duyệt chênh lệch trước khi cập nhật tồn."),
                     adjustments:
-                      "Ghi nhận hàng hỏng, cách ly và các thay đổi đã được xác nhận.",
+                      t("Ghi nhận hàng hỏng, cách ly và các thay đổi đã được xác nhận."),
                   }[view]
                 }
               </p>
@@ -446,15 +445,12 @@ export function StockRoom({
                   setNotice("");
                 }}
               >
-                ＋ {view === "counts" ? "Tạo phiếu kiểm" : "Tạo điều chỉnh"}
+                ＋ {view === "counts" ? t("Tạo phiếu kiểm") : t("Tạo điều chỉnh")}
               </button>
             )}
           </div>
           {view === "balances" && (
-            <p className="stock-help">
-              Khả dụng = Hiện có − Đang giữ − Cách ly. Hàng đang kiểm sẽ được mở
-              khóa khi duyệt hoặc hủy phiếu kiểm.
-            </p>
+            <p className="stock-help">{t("Khả dụng = Hiện có − Đang giữ − Cách ly. Hàng đang kiểm sẽ được mở khóa khi duyệt hoặc hủy phiếu kiểm.")}</p>
           )}
           <section className="data-panel stock-panel">
             <form
@@ -465,30 +461,28 @@ export function StockRoom({
               }}
             >
               <input
-                aria-label="Tìm trong kho"
+                aria-label={t("Tìm trong kho")}
                 placeholder={
                   view === "counts" || view === "adjustments"
-                    ? "Tìm mã phiếu, lý do…"
-                    : "Tìm mã hàng, tên hàng…"
+                    ? t("Tìm mã phiếu, lý do…")
+                    : t("Tìm mã hàng, tên hàng…")
                 }
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <button className="button secondary" type="submit">
-                Tìm
-              </button>
+              <button className="button secondary" type="submit">{t("Tìm")}</button>
               <select
-                aria-label="Lọc kho"
+                aria-label={t("Lọc kho")}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               >
-                <option value="ALL">Tất cả</option>
+                <option value="ALL">{t("Tất cả")}</option>
                 {(view === "balances"
                   ? [
-                      ["AVAILABLE", "Còn khả dụng"],
-                      ["EMPTY", "Hết khả dụng"],
-                      ["QUARANTINED", "Có hàng cách ly"],
-                      ["FROZEN", "Đang kiểm kho"],
+                      ["AVAILABLE", t("Còn khả dụng")],
+                      ["EMPTY", t("Hết khả dụng")],
+                      ["QUARANTINED", t("Có hàng cách ly")],
+                      ["FROZEN", t("Đang kiểm kho")],
                     ]
                   : view === "movements"
                     ? ["RECEIPT", "COUNT", "ADJUSTMENT", "SALE", "RETURN"].map((k) => [
@@ -513,19 +507,15 @@ export function StockRoom({
               </select>
               {view === "movements" && (
                 <>
-                  <label>
-                    Từ ngày
-                    <input
-                      aria-label="Từ ngày"
+                  <label>{t("Từ ngày")}<input
+                      aria-label={t("Từ ngày")}
                       type="date"
                       value={from}
                       onChange={(e) => setFrom(e.target.value)}
                     />
                   </label>
-                  <label>
-                    Đến ngày
-                    <input
-                      aria-label="Đến ngày"
+                  <label>{t("Đến ngày")}<input
+                      aria-label={t("Đến ngày")}
                       type="date"
                       value={to}
                       onChange={(e) => setTo(e.target.value)}
@@ -538,22 +528,17 @@ export function StockRoom({
                 className="button secondary"
                 disabled={loading}
                 onClick={() => setRevision((n) => n + 1)}
-              >
-                Làm mới
-              </button>
+              >{t("Làm mới")}</button>
             </form>
             {sku && (
-              <div className="stock-sku-scope">
-                Thẻ kho:{" "}
+              <div className="stock-sku-scope">{t("Thẻ kho:")}{" "}
                 <strong>
                   {sku.code} · {sku.name}
                 </strong>
                 <button
                   className="button secondary small"
                   onClick={() => setSku(null)}
-                >
-                  Bỏ lọc mã hàng
-                </button>
+                >{t("Bỏ lọc mã hàng")}</button>
               </div>
             )}
             <div className="table-wrap">
@@ -562,33 +547,33 @@ export function StockRoom({
                   <tr>
                     {(view === "balances"
                       ? [
-                          "Mã hàng / Tên hàng",
-                          "Đơn vị",
-                          "Hiện có",
-                          "Đang giữ",
-                          "Cách ly",
-                          "Khả dụng",
-                          ...(costRead ? ["Giá trị tồn"] : []),
-                          "Trạng thái",
+                          t("Mã hàng / Tên hàng"),
+                          t("Đơn vị"),
+                          t("Hiện có"),
+                          t("Đang giữ"),
+                          t("Cách ly"),
+                          t("Khả dụng"),
+                          ...(costRead ? [t("Giá trị tồn")] : []),
+                          t("Trạng thái"),
                           "",
                         ]
                       : view === "movements"
                         ? [
-                            "Thời gian / Chứng từ",
-                            "Mã hàng / Tên hàng",
-                            "Loại",
-                            "Trước → Sau",
-                            "Thay đổi",
-                            "Cách ly",
-                            ...(costRead ? ["Giá trị thay đổi"] : []),
+                            t("Thời gian / Chứng từ"),
+                            t("Mã hàng / Tên hàng"),
+                            t("Loại"),
+                            t("Trước → Sau"),
+                            t("Thay đổi"),
+                            t("Cách ly"),
+                            ...(costRead ? [t("Giá trị thay đổi")] : []),
                             "",
                           ]
                         : [
-                            "Mã phiếu",
-                            "Trạng thái",
-                            view === "counts" ? "Phạm vi" : "Loại điều chỉnh",
-                            "Lý do",
-                            "Ngày lập",
+                            t("Mã phiếu"),
+                            t("Trạng thái"),
+                            view === "counts" ? t("Phạm vi") : t("Loại điều chỉnh"),
+                            t("Lý do"),
+                            t("Ngày lập"),
                             "",
                           ]
                     ).map((v, i) => (
@@ -623,7 +608,7 @@ export function StockRoom({
                             ) : (
                               <span className="stock-muted">
                                 {row.sku_status === "INACTIVE"
-                                  ? "Ngừng kinh doanh"
+                                  ? t("Ngừng kinh doanh")
                                   : "—"}
                               </span>
                             )}
@@ -635,9 +620,7 @@ export function StockRoom({
                                 navigate("movements");
                                 setSku(row);
                               }}
-                            >
-                              Thẻ kho
-                            </button>
+                            >{t("Thẻ kho")}</button>
                           </td>
                         </>
                       ) : view === "movements" ? (
@@ -656,7 +639,7 @@ export function StockRoom({
                           <td className="numeric">
                             {qty(row.on_hand_before)} → {qty(row.on_hand_after)}
                             {row.reconstructed && (
-                              <small>Số dư lịch sử tái lập</small>
+                              <small>{t("Số dư lịch sử tái lập")}</small>
                             )}
                           </td>
                           <td
@@ -684,9 +667,7 @@ export function StockRoom({
                                 onClick={() =>
                                   void open(row.document_type, row.document_id)
                                 }
-                              >
-                                Chứng từ
-                              </button>
+                              >{t("Chứng từ")}</button>
                             )}
                           </td>
                         </>
@@ -722,9 +703,7 @@ export function StockRoom({
                                   row.id,
                                 )
                               }
-                            >
-                              Mở phiếu
-                            </button>
+                            >{t("Mở phiếu")}</button>
                           </td>
                         </>
                       )}
@@ -735,26 +714,24 @@ export function StockRoom({
             </div>
             {!rows.length && (
               <div className="stock-empty">
-                <h3>{loading ? "Đang tải dữ liệu…" : "Chưa có kết quả"}</h3>
+                <h3>{loading ? t("Đang tải dữ liệu…") : t("Chưa có kết quả")}</h3>
                 <p>
                   {view === "balances"
-                    ? "Hàng đã nhập hoặc được kiểm sẽ xuất hiện tại đây. Bạn có thể đổi bộ lọc hoặc địa điểm."
-                    : "Thử đổi bộ lọc hoặc tạo phiếu mới nếu được cấp quyền."}
+                    ? t("Hàng đã nhập hoặc được kiểm sẽ xuất hiện tại đây. Bạn có thể đổi bộ lọc hoặc địa điểm.")
+                    : t("Thử đổi bộ lọc hoặc tạo phiếu mới nếu được cấp quyền.")}
                 </p>
               </div>
             )}
             <footer className="stock-table-footer">
               <span>
-                {rows.length} dòng đã tải{asOf ? " · " + when(asOf) : ""}
+                {rows.length}{" "+t("dòng đã tải")}{asOf ? " · " + when(asOf) : ""}
               </span>
               {next && (
                 <button
                   className="button secondary small"
                   disabled={loading}
                   onClick={() => void more()}
-                >
-                  Xem thêm
-                </button>
+                >{t("Xem thêm")}</button>
               )}
             </footer>
           </section>
@@ -840,7 +817,7 @@ function StockDraft({
       onSubmit={(e) => {
         e.preventDefault();
         if (!selected.length) {
-          setError("Chọn ít nhất một mã hàng.");
+          setError(t("Chọn ít nhất một mã hàng."));
           return;
         }
         void submit({
@@ -866,37 +843,33 @@ function StockDraft({
     >
       <div className="stock-page-heading">
         <div>
-          <button type="button" className="stock-back" onClick={cancel}>
-            ← Quay lại danh sách
-          </button>
+          <button type="button" className="stock-back" onClick={cancel}>{t("← Quay lại danh sách")}</button>
           <h2>
-            {kind === "COUNT" ? "Tạo phiếu kiểm kho" : "Tạo phiếu điều chỉnh"}
+            {kind === "COUNT" ? t("Tạo phiếu kiểm kho") : t("Tạo phiếu điều chỉnh")}
           </h2>
           <p>
             {kind === "COUNT"
-              ? "Chọn phạm vi trước. Hàng chỉ bị khóa khi bạn bắt đầu kiểm."
-              : "Mọi thay đổi tồn cần được chủ hộ hoặc quản lý ghi sổ."}
+              ? t("Chọn phạm vi trước. Hàng chỉ bị khóa khi bạn bắt đầu kiểm.")
+              : t("Mọi thay đổi tồn cần được chủ hộ hoặc quản lý ghi sổ.")}
           </p>
         </div>
         {badge("DRAFT")}
       </div>
       {error && (
         <div className="alert error" role="alert">
-          {error}
+          {t(error)}
         </div>
       )}
       <div className="stock-draft-layout">
         <section className="data-panel stock-picker">
-          <h3>Chọn mã hàng</h3>
+          <h3>{t("Chọn mã hàng")}</h3>
           <input
-            aria-label="Tìm mã hàng để chọn"
-            placeholder="Tìm theo tên, mã hoặc barcode"
+            aria-label={t("Tìm mã hàng để chọn")}
+            placeholder={t("Tìm theo tên, mã hoặc barcode")}
             value={term}
             onChange={(e) => setTerm(e.target.value)}
           />
-          <p className="stock-muted">
-            Đơn vị cơ sở được dùng xuyên suốt phiếu.
-          </p>
+          <p className="stock-muted">{t("Đơn vị cơ sở được dùng xuyên suốt phiếu.")}</p>
           <div className="stock-picker-list">
             {results.map((s) => (
               <button
@@ -928,26 +901,22 @@ function StockDraft({
               </button>
             ))}
           </div>
-          {searching && <p>Đang tìm…</p>}
-          {!searching && !results.length && <p>Không tìm thấy mã hàng.</p>}
+          {searching && <p>{t("Đang tìm…")}</p>}
+          {!searching && !results.length && <p>{t("Không tìm thấy mã hàng.")}</p>}
           {next && (
             <button
               type="button"
               className="button secondary small"
               disabled={searching}
               onClick={() => void more()}
-            >
-              Tải thêm mã hàng
-            </button>
+            >{t("Tải thêm mã hàng")}</button>
           )}
         </section>
         <section className="data-panel stock-draft-lines">
-          <h3>{selected.length} mã hàng đã chọn</h3>
+          <h3>{selected.length}{" "+t("mã hàng đã chọn")}</h3>
           {kind === "ADJUSTMENT" && (
-            <label className="c-field">
-              Loại điều chỉnh
-              <select
-                aria-label="Loại điều chỉnh"
+            <label className="c-field">{t("Loại điều chỉnh")}<select
+                aria-label={t("Loại điều chỉnh")}
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               >
@@ -967,8 +936,8 @@ function StockDraft({
           )}
           {!selected.length && (
             <div className="stock-empty">
-              <h3>Chọn hàng cần đối chiếu</h3>
-              <p>Tìm mã hàng bên cạnh và thêm vào phiếu.</p>
+              <h3>{t("Chọn hàng cần đối chiếu")}</h3>
+              <p>{t("Tìm mã hàng bên cạnh và thêm vào phiếu.")}</p>
             </div>
           )}
           {selected.map((l) => (
@@ -1000,29 +969,25 @@ function StockDraft({
                   />
                   {type === "CORRECTION" && (
                     <>
-                      <label className="c-field">
-                        Chiều điều chỉnh
-                        <select
+                      <label className="c-field">{t("Chiều điều chỉnh")}<select
                           aria-label={"Chiều " + l.code}
                           value={l.direction}
                           onChange={(e) =>
                             update(l.id, "direction", e.target.value)
                           }
                         >
-                          <option value="DECREASE">Giảm tồn</option>
-                          <option value="INCREASE">Tăng tồn</option>
+                          <option value="DECREASE">{t("Giảm tồn")}</option>
+                          <option value="INCREASE">{t("Tăng tồn")}</option>
                         </select>
                       </label>
                       {l.direction === "INCREASE" && (
-                        <label className="c-field">
-                          Giá vốn bổ sung (₫)
-                          <input
+                        <label className="c-field">{t("Giá vốn bổ sung (₫)")}<input
                             aria-label={"Giá vốn " + l.code}
                             type="number"
                             min="0"
                             step="1"
                             value={l.cost}
-                            placeholder="Để trống: vốn hiện hành"
+                            placeholder={t("Để trống: vốn hiện hành")}
                             onChange={(e) =>
                               update(l.id, "cost", e.target.value)
                             }
@@ -1040,18 +1005,16 @@ function StockDraft({
                         onChange={(e) =>
                           update(l.id, "quality", e.target.checked)
                         }
-                      />
-                      Đã kiểm tra chất lượng hàng
-                    </label>
+                      />{t("Đã kiểm tra chất lượng hàng")}</label>
                   )}
                 </div>
               )}
             </div>
           ))}
           <label className="c-field">
-            {kind === "COUNT" ? "Nội dung kiểm kho" : "Lý do điều chỉnh"}
+            {kind === "COUNT" ? t("Nội dung kiểm kho") : t("Lý do điều chỉnh")}
             <textarea
-              aria-label="Lý do phiếu kho"
+              aria-label={t("Lý do phiếu kho")}
               required
               minLength={5}
               maxLength={500}
@@ -1060,16 +1023,13 @@ function StockDraft({
               onChange={(e) => setNote(e.target.value)}
               placeholder={
                 kind === "COUNT"
-                  ? "Ví dụ: Đối chiếu số lượng cuối tháng"
-                  : "Ghi rõ nguyên nhân và căn cứ xác nhận"
+                  ? t("Ví dụ: Đối chiếu số lượng cuối tháng")
+                  : t("Ghi rõ nguyên nhân và căn cứ xác nhận")
               }
             />
           </label>
           {type === "CORRECTION" && kind === "ADJUSTMENT" && (
-            <p className="stock-help">
-              Tăng từ tồn bằng 0 cần nhập giá vốn. Nếu đang có tồn và để trống,
-              hệ thống dùng vốn hiện hành.
-            </p>
+            <p className="stock-help">{t("Tăng từ tồn bằng 0 cần nhập giá vốn. Nếu đang có tồn và để trống, hệ thống dùng vốn hiện hành.")}</p>
           )}
           <div className="stock-actions">
             <button
@@ -1077,14 +1037,12 @@ function StockDraft({
               className="button secondary"
               disabled={busy}
               onClick={cancel}
-            >
-              Quay lại
-            </button>
+            >{t("Quay lại")}</button>
             <button
               className="button primary"
               disabled={busy || !selected.length}
             >
-              {busy ? "Đang lưu…" : "Lưu phiếu nháp"}
+              {busy ? t("Đang lưu…") : t("Lưu phiếu nháp")}
             </button>
           </div>
         </section>
@@ -1137,9 +1095,7 @@ function StockDetail({
     <section className="stock-document">
       <div className="stock-page-heading">
         <div>
-          <button className="stock-back" onClick={close}>
-            ← Quay lại danh sách
-          </button>
+          <button className="stock-back" onClick={close}>{t("← Quay lại danh sách")}</button>
           <h2>{row.code}</h2>
           <p>
             {labels[row.kind]}
@@ -1160,25 +1116,22 @@ function StockDetail({
       )}
       {["COUNTING", "SUBMITTED"].includes(row.status) && (
         <div className="stock-freeze-notice">
-          <strong>Phạm vi kiểm đang được khóa</strong>
-          <p>
-            Các mã hàng trên phiếu chưa thể nhập thêm hoặc điều chỉnh tại địa
-            điểm này. Hoàn tất duyệt hoặc hủy phiếu để mở khóa.
-          </p>
+          <strong>{t("Phạm vi kiểm đang được khóa")}</strong>
+          <p>{t("Các mã hàng trên phiếu chưa thể nhập thêm hoặc điều chỉnh tại địa điểm này. Hoàn tất duyệt hoặc hủy phiếu để mở khóa.")}</p>
         </div>
       )}
       <div className="stock-document-meta">
         <div>
-          <small>NGÀY LẬP</small>
+          <small>{t("NGÀY LẬP")}</small>
           <strong>{when(row.created_at)}</strong>
         </div>
         <div>
-          <small>PHẠM VI</small>
-          <strong>{row.lines.length} mã hàng</strong>
+          <small>{t("PHẠM VI")}</small>
+          <strong>{row.lines.length}{" "+t("mã hàng")}</strong>
         </div>
         <div>
           <small>
-            {row.status === "POSTED" ? "GHI SỔ LÚC" : "CẬP NHẬT LÚC"}
+            {row.status === "POSTED" ? t("GHI SỔ LÚC") : t("CẬP NHẬT LÚC")}
           </small>
           <strong>{when(row.posted_at ?? row.updated_at)}</strong>
         </div>
@@ -1219,31 +1172,31 @@ function StockDetail({
             <table className="stock-table">
               <thead>
                 <tr>
-                  <th>Mã hàng / Tên hàng</th>
-                  <th>Đơn vị</th>
+                  <th>{t("Mã hàng / Tên hàng")}</th>
+                  <th>{t("Đơn vị")}</th>
                   {row.kind === "COUNT" ? (
                     <>
-                      <th>Tồn khi bắt đầu</th>
-                      <th>Cách ly ban đầu</th>
-                      <th>Đếm hàng tốt</th>
-                      <th>Đếm cách ly</th>
-                      <th>Chênh lệch</th>
+                      <th>{t("Tồn khi bắt đầu")}</th>
+                      <th>{t("Cách ly ban đầu")}</th>
+                      <th>{t("Đếm hàng tốt")}</th>
+                      <th>{t("Đếm cách ly")}</th>
+                      <th>{t("Chênh lệch")}</th>
                     </>
                   ) : (
                     <>
-                      <th>Số lượng</th>
+                      <th>{t("Số lượng")}</th>
                       <th>
                         {row.kind === "RECEIPT"
-                          ? "Quy đổi cơ sở"
-                          : "Thay đổi tồn"}
+                          ? t("Quy đổi cơ sở")
+                          : t("Thay đổi tồn")}
                       </th>
                     </>
                   )}
                   {costRead && (
                     <th>
                       {row.kind === "RECEIPT"
-                        ? "Thành tiền"
-                        : "Giá trị thay đổi"}
+                        ? t("Thành tiền")
+                        : t("Giá trị thay đổi")}
                     </th>
                   )}
                 </tr>
@@ -1299,9 +1252,7 @@ function StockDetail({
                                 )
                               : "—"}
                           {editable && Number(l.snapshot_on_hand) === 0 && (
-                            <label className="stock-number-label">
-                              Giá vốn khi tăng (₫)
-                              <input
+                            <label className="stock-number-label">{t("Giá vốn khi tăng (₫)")}<input
                                 aria-label={"Giá vốn kiểm " + l.sku_code}
                                 type="number"
                                 min="0"
@@ -1334,13 +1285,11 @@ function StockDetail({
                                       change(l.id, "direction", e.target.value)
                                     }
                                   >
-                                    <option value="DECREASE">Giảm tồn</option>
-                                    <option value="INCREASE">Tăng tồn</option>
+                                    <option value="DECREASE">{t("Giảm tồn")}</option>
+                                    <option value="INCREASE">{t("Tăng tồn")}</option>
                                   </select>
                                   {l.direction === "INCREASE" && (
-                                    <label className="stock-number-label">
-                                      Giá vốn bổ sung (₫)
-                                      <input
+                                    <label className="stock-number-label">{t("Giá vốn bổ sung (₫)")}<input
                                         aria-label={"Giá vốn " + l.sku_code}
                                         type="number"
                                         min="0"
@@ -1372,9 +1321,7 @@ function StockDetail({
                                         ),
                                       )
                                     }
-                                  />
-                                  Đạt chất lượng
-                                </label>
+                                  />{t("Đạt chất lượng")}</label>
                               )}
                             </>
                           ) : (
@@ -1408,10 +1355,10 @@ function StockDetail({
         </section>
         <div className="stock-detail-bottom">
           <section>
-            <h3>{editable ? "Lý do / kết quả đối chiếu" : "Nội dung phiếu"}</h3>
+            <h3>{editable ? t("Lý do / kết quả đối chiếu") : t("Nội dung phiếu")}</h3>
             {editable || editAdjustment ? (
               <textarea
-                aria-label="Kết quả đối chiếu"
+                aria-label={t("Kết quả đối chiếu")}
                 required
                 minLength={5}
                 maxLength={500}
@@ -1424,10 +1371,10 @@ function StockDetail({
             )}
             <p className="stock-muted">
               {row.status === "POSTED"
-                ? "Phiếu đã ghi sổ được giữ nguyên để đối chiếu lịch sử."
+                ? t("Phiếu đã ghi sổ được giữ nguyên để đối chiếu lịch sử.")
                 : row.kind === "COUNT"
-                  ? "Số đếm chỉ cập nhật tồn sau khi được duyệt."
-                  : "Phiếu nháp chưa làm thay đổi tồn kho."}
+                  ? t("Số đếm chỉ cập nhật tồn sau khi được duyệt.")
+                  : t("Phiếu nháp chưa làm thay đổi tồn kho.")}
             </p>
           </section>
           <div className="stock-actions">
@@ -1436,12 +1383,10 @@ function StockDetail({
               className="button secondary"
               disabled={busy}
               onClick={refresh}
-            >
-              Tải lại phiếu
-            </button>
+            >{t("Tải lại phiếu")}</button>
             {(editable || editAdjustment) && (
               <button type="submit" className="button primary" disabled={busy}>
-                {editAdjustment ? "Lưu thay đổi" : "Lưu số đếm"}
+                {editAdjustment ? t("Lưu thay đổi") : t("Lưu số đếm")}
               </button>
             )}
             {canWrite &&
@@ -1453,9 +1398,7 @@ function StockDetail({
                   className="button primary"
                   disabled={busy}
                   onClick={() => transition("start")}
-                >
-                  Bắt đầu kiểm
-                </button>
+                >{t("Bắt đầu kiểm")}</button>
               )}
             {editable && (
               <button
@@ -1467,9 +1410,7 @@ function StockDetail({
                   lines.some((l) => l.good === "" || l.quarantine === "")
                 }
                 onClick={() => transition("submit")}
-              >
-                Gửi duyệt
-              </button>
+              >{t("Gửi duyệt")}</button>
             )}
             {canApprove &&
               active &&
@@ -1482,9 +1423,7 @@ function StockDetail({
                   onClick={() =>
                     transition(row.kind === "COUNT" ? "approve" : "post")
                   }
-                >
-                  Duyệt và ghi sổ
-                </button>
+                >{t("Duyệt và ghi sổ")}</button>
               )}
             {canApprove &&
               active &&
@@ -1495,9 +1434,7 @@ function StockDetail({
                   className="button secondary"
                   disabled={busy}
                   onClick={() => transition("reopen")}
-                >
-                  Yêu cầu đếm lại
-                </button>
+                >{t("Yêu cầu đếm lại")}</button>
               )}
             {canWrite &&
               row.kind !== "RECEIPT" &&
@@ -1507,9 +1444,7 @@ function StockDetail({
                   className="button danger"
                   disabled={busy}
                   onClick={() => transition("cancel")}
-                >
-                  Hủy phiếu
-                </button>
+                >{t("Hủy phiếu")}</button>
               )}
           </div>
         </div>

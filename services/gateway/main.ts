@@ -185,6 +185,7 @@ await start([], false, (app) => {
       oidc.buildAuthorizationUrl(p, {
         redirect_uri: origin + "/auth/callback",
         scope: "openid profile email",
+        ui_locales: req.cookies.sl_language === "en" ? "en" : "vi",
         code_challenge: await oidc.calculatePKCECodeChallenge(verifier),
         code_challenge_method: "S256",
         state,
@@ -320,6 +321,7 @@ await start([], false, (app) => {
       redirectUrl: oidc.buildEndSessionUrl(await provider(), {
         id_token_hint: s.idToken!,
         post_logout_redirect_uri: origin + "/",
+        ui_locales: req.cookies.sl_language === "en" ? "en" : "vi",
       }).href,
     });
   });

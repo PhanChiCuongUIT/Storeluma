@@ -20,3 +20,17 @@ Giới hạn: chưa đo tải lớn, chưa production, chưa SMTP/push. Chi ti�
 - Ảnh sau điều chỉnh: [đăng nhập](screenshots/06-login-refined.png), [TOTP](screenshots/07-otp-refined.png), [hàng hóa](screenshots/08-workspace-refined.png), [menu điện thoại](screenshots/09-mobile-refined.png).
 - Bộ lọc Kho và Đơn bán được kiểm tra thêm tại 320, 390, 680, 768 và 1440 px: 10/10 tổ hợp đạt; các tab Bán hàng, Trả hàng và Ca thu ngân không làm tràn trang. Ảnh bổ sung: [đơn bán](screenshots/10-sales-filters-refined.png), [kho](screenshots/11-stock-filters-refined.png).
 - Kiểm tra bằng Chromium/viewport mô phỏng, chưa thử trên điện thoại vật lý. Kết quả kiểm thử nghiệp vụ ban đầu ở trên được giữ riêng với đợt kiểm tra giao diện này.
+
+
+## Ngôn ngữ, chế độ hiển thị và hồi quy ngày 12/11/2026
+
+- Lượt `npm test` ban đầu: 153 đạt, 1 lỗi kiểm tra, 5 ca phụ thuộc chưa chạy. W8-26 so sánh cả tên hàng và tiền trong cùng ô nên báo khác nhau khi đổi `85.000` thành `85,000`; đã sửa phép đối chiếu để chỉ lấy tên hàng, tiếp tục kiểm tra nhãn và nền giấy.
+- Chạy xác nhận toàn bộ `npx playwright test tests/week08.spec.ts`: **31/31 đạt**, không bỏ qua hoặc retry/flaky. Ghép kết quả cuối của các nhóm: **159/159 ca đã được xác nhận đạt**; tổng thời gian hai lượt 1302.3 giây. Môi trường Docker Compose mới với volume kiểm thử riêng; giữ nguyên volume đang sử dụng. Gồm toàn bộ các ca xác thực, kiến trúc, migration và tuần 4-9.
+- DISPLAY-01–04: bảng dịch và tham số, không dịch tên dữ liệu, lựa chọn theo hệ thống, lưu qua tải lại, OIDC/TOTP tiếng Anh, đổi ngôn ngữ Keycloak, lỗi đăng nhập, xác nhận đăng xuất và giữ bản nháp biểu mẫu.
+- W8-26: biên nhận tiếng Anh giữ tên hàng, nền trắng khi xem và in từ chế độ tối. W9-14: nhãn CSV tiếng Anh, dữ liệu hàng giữ nguyên, kiểm tra chủ sở hữu tệp và từ chối locale không hỗ trợ.
+- Rà soát 160 tổ hợp: 10 trang × 2 ngôn ngữ × 2 chế độ màu × 4 chiều rộng (320, 390, 768, 1440 px). Không tràn ngang toàn trang, không lỗi JavaScript. Ảnh được chụp sau khi dữ liệu tải xong.
+- `npm run typecheck`, `npm run build`: đạt. `npm audit --omit=dev`: 0 lỗ hổng ở thời điểm kiểm tra.
+- Compose bổ sung readiness của Keycloak trước Gateway; probe HTTP nội bộ trả 200 trên image 26.4.7. Cổng quản trị health không công bố ra host.
+- Ảnh: [đăng nhập English/tối](screenshots/12-login-dark-english.png), [TOTP tiếng Việt/tối](screenshots/13-otp-dark-vietnamese.png), [danh mục English/tối](screenshots/14-catalog-dark-english.png), [báo cáo điện thoại/tối](screenshots/15-reports-dark-mobile.png).
+
+Kết quả dùng Chromium trên Windows và môi trường Compose. Chưa kiểm tra điện thoại/máy in vật lý hoặc triển khai production. Các kết quả lịch sử phía trên được giữ riêng theo lần kiểm chứng.

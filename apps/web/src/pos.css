@@ -2,7 +2,7 @@
   flex-direction: row;
   display: flex;
   gap: 6px;
-  border-bottom: 1px solid #dfe6ee;
+  border-bottom: 1px solid var(--sl-border, #dfe6ee);
   padding-bottom: 10px;
 }
 .pos-tabs button {
@@ -10,18 +10,18 @@
   background: transparent;
   padding: 11px 18px;
   border-radius: 8px;
-  color: #66758b;
+  color: var(--sl-muted, #66758b);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 .pos-tabs button[aria-selected="true"] {
-  background: #e8f5fa;
-  color: #086e97;
+  background: var(--sl-accent-soft, #e8f5fa);
+  color: var(--sl-accent-text, #086e97);
 }
 .pos-card {
-  background: white;
-  border: 1px solid #dfe6ee;
+  background: var(--sl-surface, white);
+  border: 1px solid var(--sl-border, #dfe6ee);
   border-radius: 12px;
   margin: 18px 0;
   padding: 22px;
@@ -37,7 +37,7 @@
 }
 .pos-card small,
 .pos-muted {
-  color: #718096;
+  color: var(--sl-muted, #718096);
   font-size: 12px;
 }
 .pos-form {
@@ -51,7 +51,7 @@
 }
 .pos-empty {
   text-align: center;
-  color: #718096;
+  color: var(--sl-muted, #718096);
   padding: 32px;
 }
 .pos-total {
@@ -62,14 +62,14 @@
 }
 .pos-total strong {
   font-size: 24px;
-  color: #076b91;
+  color: var(--sl-accent-text, #076b91);
 }
 .return-line {
   display: grid;
   grid-template-columns: 1fr 110px 180px;
   gap: 18px;
   align-items: center;
-  border-bottom: 1px solid #eef1f5;
+  border-bottom: 1px solid var(--sl-border, #eef1f5);
   padding-bottom: 16px;
 }
 .return-line small {
@@ -79,18 +79,18 @@
 .return-badge {
   border-radius: 20px;
   padding: 7px 12px;
-  background: #fff5dd;
-  color: #9a6808;
+  background: var(--sl-warning-soft, #fff5dd);
+  color: var(--sl-warning-text, #9a6808);
   font-size: 12px;
   font-weight: 600;
 }
 .return-badge.completed {
-  background: #e9f6ef;
-  color: #26724d;
+  background: var(--sl-success-soft, #e9f6ef);
+  color: var(--sl-success-text, #26724d);
 }
 .return-badge.cancelled {
-  background: #eff1f5;
-  color: #66758b;
+  background: var(--sl-surface-raised, #eff1f5);
+  color: var(--sl-muted, #66758b);
 }
 .return-history {
   display: grid;
@@ -101,9 +101,9 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  border: 1px solid #dfe6ee;
+  border: 1px solid var(--sl-border, #dfe6ee);
   border-radius: 10px;
-  background: #fff;
+  background: var(--sl-surface, #fff);
   padding: 17px;
   text-align: left;
   cursor: pointer;
@@ -111,15 +111,15 @@
 }
 .return-history span {
   flex: 1;
-  color: #718096;
+  color: var(--sl-muted, #718096);
   font-size: 13px;
 }
 .return-history .selected {
-  border-color: #1684ac;
-  background: #f0f9fc;
+  border-color: var(--sl-accent-border, #1684ac);
+  background: var(--sl-surface, #f0f9fc);
 }
 .refund-panel {
-  background: #f1f8fb;
+  background: var(--sl-surface, #f1f8fb);
   padding: 20px;
   border-radius: 10px;
   margin-top: 20px;
@@ -131,10 +131,10 @@
   margin: 0;
 }
 .pos-success {
-  background: #edf8f1;
+  background: var(--sl-success-soft, #edf8f1);
   padding: 16px;
   border-radius: 8px;
-  color: #276846;
+  color: var(--sl-success-text, #276846);
 }
 .after-sales {
   margin-top: 10px;
@@ -159,20 +159,20 @@
   gap: 8px;
   text-align: left;
   padding: 16px;
-  border: 1px solid #e2e8ef;
+  border: 1px solid var(--sl-border, #e2e8ef);
   border-radius: 10px;
-  background: white;
+  background: var(--sl-surface, white);
   font: inherit;
   cursor: pointer;
 }
 .shift-history span,
 .shift-history small {
   font-size: 12px;
-  color: #718096;
+  color: var(--sl-muted, #718096);
 }
 .shift-history .selected {
-  background: #eef8fb;
-  border-color: #2b8fac;
+  background: var(--sl-accent-soft, #eef8fb);
+  border-color: var(--sl-accent-border, #2b8fac);
 }
 .drawer-metrics {
   display: grid;
@@ -182,13 +182,13 @@
 .drawer-metrics article {
   display: grid;
   gap: 12px;
-  border: 1px solid #e2e8ef;
+  border: 1px solid var(--sl-border, #e2e8ef);
   border-radius: 10px;
-  background: #fff;
+  background: var(--sl-surface, #fff);
   padding: 18px 14px;
 }
 .drawer-metrics small {
-  color: #718096;
+  color: var(--sl-muted, #718096);
 }
 .drawer-metrics strong {
   font-size: 17px;
@@ -198,32 +198,32 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  background: linear-gradient(110deg, #f4fbfe, #fff);
+  background: linear-gradient(110deg, var(--sl-surface, #f4fbfe), var(--sl-surface, #fff));
 }
 .drawer-balance h2 {
   font-size: 32px;
-  color: #0b7197;
+  color: var(--sl-accent-text, #0b7197);
   margin: 9px 0;
 }
 .drawer-balance p {
   font-size: 12px;
-  color: #718096;
+  color: var(--sl-muted, #718096);
 }
 .cash-out {
-  color: #a14435;
+  color: var(--sl-danger-text, #a14435);
 }
 .cash-in {
-  color: #26724d;
+  color: var(--sl-success-text, #26724d);
 }
 .pending-cash {
-  border-left: 3px solid #d49c27;
-  background: #fffbf0;
+  border-left: 3px solid var(--sl-accent-border, #d49c27);
+  background: var(--sl-surface, #fffbf0);
 }
 .pos-modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: #15243777;
+  background: var(--sl-canvas, #15243777);
   display: grid;
   place-items: center;
   padding: 20px;
@@ -233,7 +233,7 @@
   max-width: 500px;
   max-height: 90vh;
   overflow: auto;
-  background: white;
+  background: var(--sl-surface, white);
   border-radius: 14px;
   padding: 28px;
   display: grid;
@@ -247,14 +247,14 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: #e8edf2;
+  background: var(--sl-accent-soft, #e8edf2);
   overflow: auto;
   padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  color: #172331;
+  color: var(--sl-text, #172331);
 }
 .receipt-controls {
   display: flex;
@@ -266,7 +266,7 @@
 .receipt-controls small {
   width: 100%;
   text-align: center;
-  color: #66758b;
+  color: var(--sl-muted, #66758b);
 }
 .receipt-paper {
   background: #fff;
@@ -336,7 +336,7 @@
 }
 .receipt-total {
   font-weight: bold;
-  border-top: 1px dashed #aaa;
+  border-top: 1px dashed var(--sl-border, #aaa);
 }
 .receipt-reprint {
   display: block;
@@ -420,7 +420,7 @@
   .receipt-overlay {
     position: static;
     display: block;
-    background: white;
+    background: var(--sl-surface, white);
     padding: 0;
     overflow: visible;
   }
@@ -439,6 +439,6 @@
   }
   body.receipt-printing {
     margin: 0;
-    background: white;
+    background: var(--sl-surface, white);
   }
 }

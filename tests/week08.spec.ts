@@ -1186,6 +1186,16 @@ test.describe.serial("Week 8 POS, returns and drawer settlement", () => {
     await expect(
       receipt.getByText("Biên nhận nội bộ, không phải hóa đơn điện tử."),
     ).toBeVisible();
+    const receiptNames=()=>page.locator('.receipt-paper tbody tr td:first-child').evaluateAll(cells=>cells.map(cell=>Array.from(cell.childNodes).filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>node.textContent).join('').trim()));
+    const itemNames=await receiptNames();
+    await page.evaluate(()=>{window.storelumaPreferences.setLanguage('en');window.storelumaPreferences.setTheme('dark');});
+    await expect(page.getByRole('button',{name:'Print receipt',exact:true})).toBeVisible();
+    expect(await receiptNames()).toEqual(itemNames);
+    await expect(page.locator('.receipt-paper')).toHaveCSS('background-color','rgb(255, 255, 255)');
+    await page.emulateMedia({media:'print'});
+    await expect(page.locator('.receipt-paper')).toHaveCSS('background-color','rgb(255, 255, 255)');
+    await page.emulateMedia({media:'screen'});
+    await page.evaluate(()=>{window.storelumaPreferences.setLanguage('vi');window.storelumaPreferences.setTheme('system');});
     await page.evaluate(() => {
       (window as any).printCalls = 0;
       window.print = () => {

@@ -31,7 +31,7 @@ Storeluma is a business management application for household business owners and
 - View sales and returns by completion date, net revenue, authorized cost and gross profit, top-selling items, current stock and drawer cash flows.
 - Export UTF-8 CSV asynchronously, with expiry, formula-safe labels and authorization checked again at download.
 - Track low stock, overdue cash collection/refunds, orders under review, returns awaiting approval and unapproved shift variances. Acknowledge work, configure location thresholds and open the source document.
-- Use a Vietnamese interface that supports desktop and mobile screens.
+- Switch between Vietnamese and English, with light, dark or system appearance across the application and sign-in screens.
 
 ## Technology and architecture
 
@@ -86,7 +86,9 @@ node tools/demo-login.mjs owner
 
 Sign in using the displayed username, password, and TOTP code. If the code expires, run the command again to obtain a new one. Replace `owner` with `cashier` or `outsider` to check access using another account.
 
-After signing in, create a business and its first location. Once the location is ready, select it as the working location and manage staff in the staff section. Access depends on the user's role and assigned locations within each business. The application interface is in Vietnamese.
+After signing in, create a business and its first location. Once the location is ready, select it as the working location and manage staff in the staff section. Access depends on the user's role and assigned locations within each business. Language and appearance controls are available before and after sign-in. Preferences persist in the browser and are shared with Keycloak on the same host. Product names and business data remain unchanged when switching languages; monetary values remain in VND.
+
+For an existing local environment, run `node tools/configure-branding.mjs` after Keycloak is ready to enable both languages without changing accounts. Compose shares the preference script and color palette with the login theme and waits for Keycloak readiness before starting Gateway.
 
 Use **Hàng hóa** to add a product and its first SKU, then add packaging units and prices. Add a supplier in **Nhà cung cấp**. In **Nhập hàng**, select a location, choose the supplier and items, enter received quantities and purchase prices, save a draft, and post it. A draft changes neither stock nor payables. Posting a purchase does not record a cash payment.
 
@@ -144,7 +146,7 @@ GitHub Actions builds the application and audits runtime dependencies, and runs 
 | `apps/web` | Frontend and Storeluma assets |
 | `services` | Gateway, business services, and migrations |
 | `packages/platform` | Shared database, HTTP, and messaging components |
-| `infra/keycloak` | Vietnamese login theme |
+| `infra/keycloak` | Bilingual login theme with light and dark appearance |
 | `tests` | Integration and browser tests |
 | `tools` | Environment setup and application configuration tools |
 | `compose.yaml` | Docker service and infrastructure configuration |

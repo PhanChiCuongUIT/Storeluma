@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useState } from "react";
 import { useCommand, vnd, when } from "./after-sales";
 type Row = Record<string, any>;
@@ -65,38 +66,34 @@ export function ShiftDesk({
     <section className="drawer-desk">
       <div className="sales-list-heading">
         <div>
-          <h2>Ca thu ngân</h2>
-          <p>Đối chiếu tiền đầu ca, tiền bán, tiền hoàn và thu chi tại quầy.</p>
+          <h2>{t("Ca thu ngân")}</h2>
+          <p>{t("Đối chiếu tiền đầu ca, tiền bán, tiền hoàn và thu chi tại quầy.")}</p>
         </div>
         <div className="pos-actions">
           <button
             className="button secondary"
             disabled={busy}
             onClick={() => void run(() => load(detail?.id))}
-          >
-            Làm mới ca
-          </button>
+          >{t("Làm mới ca")}</button>
           {writable && !current && (
             <button
               className="button primary"
               disabled={busy}
               onClick={() => form("open")}
-            >
-              Mở ca mới
-            </button>
+            >{t("Mở ca mới")}</button>
           )}
         </div>
       </div>
       {role === 'CASHIER' && current && current.cashier_id !== subjectId && (
-        <p className="pos-card">Quầy đang có ca do người khác mở.</p>
+        <p className="pos-card">{t("Quầy đang có ca do người khác mở.")}</p>
       )}
       {error && (
         <p className="alert error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       <div className="drawer-layout">
-        <aside className="shift-history" aria-label="Lịch sử ca">
+        <aside className="shift-history" aria-label={t("Lịch sử ca")}>
           {rows
             .filter((s) => role !== "CASHIER" || s.cashier_id === subjectId)
             .map((s) => (
@@ -110,7 +107,7 @@ export function ShiftDesk({
                   })
                 }
               >
-                <strong>{s.status === "OPEN" ? "Đang mở" : "Đã đóng"}</strong>
+                <strong>{s.status === "OPEN" ? t("Đang mở") : t("Đã đóng")}</strong>
                 <span>{when(s.opened_at)}</span>
                 <small>
                   {s.status === "CLOSED"
@@ -125,10 +122,10 @@ export function ShiftDesk({
             <>
               <div className="drawer-metrics">
                 {[
-                  ["Đầu ca", detail.opening_cash],
-                  ["Thu bán hàng", detail.totals.sales],
-                  ["Hoàn khách", detail.totals.refunds],
-                  ["Thu / chi khác", detail.totals.adjustments],
+                  [t("Đầu ca"), detail.opening_cash],
+                  [t("Thu bán hàng"), detail.totals.sales],
+                  [t("Hoàn khách"), detail.totals.refunds],
+                  [t("Thu / chi khác"), detail.totals.adjustments],
                 ].map(([k, v]) => (
                   <article key={k}>
                     <small>{k}</small>
@@ -138,7 +135,7 @@ export function ShiftDesk({
               </div>
               <article className="drawer-balance pos-card">
                 <div>
-                  <small>TIỀN DỰ KIẾN TẠI QUẦY</small>
+                  <small>{t("TIỀN DỰ KIẾN TẠI QUẦY")}</small>
                   <h2>{vnd(detail.expected_cash ?? detail.expected_now)}</h2>
                   <p>
                     {detail.status === "OPEN"
@@ -153,9 +150,7 @@ export function ShiftDesk({
                         className="button secondary"
                         disabled={busy}
                         onClick={() => form("entry")}
-                      >
-                        Thu / chi quầy
-                      </button>
+                      >{t("Thu / chi quầy")}</button>
                       <button
                         className="button primary"
                         disabled={busy}
@@ -165,18 +160,14 @@ export function ShiftDesk({
                             form("close");
                           })
                         }
-                      >
-                        Chốt ca
-                      </button>
+                      >{t("Chốt ca")}</button>
                     </>
                   )}
                   {detail.status === "CLOSED" && (
                     <div>
-                      <p>
-                        Thực đếm <b>{vnd(detail.counted_cash)}</b>
+                      <p>{t("Thực đếm")+" "}<b>{vnd(detail.counted_cash)}</b>
                       </p>
-                      <p>
-                        Chênh lệch <b>{vnd(detail.difference_vnd)}</b>
+                      <p>{t("Chênh lệch")+" "}<b>{vnd(detail.difference_vnd)}</b>
                       </p>
                     </div>
                   )}
@@ -185,11 +176,10 @@ export function ShiftDesk({
               {(detail.pendingPayments.length > 0 ||
                 detail.pendingRefunds.length > 0) && (
                 <div className="pos-card pending-cash">
-                  <strong>Chưa thể chốt ca</strong>
+                  <strong>{t("Chưa thể chốt ca")}</strong>
                   <p>
-                    {detail.pendingPayments.length} khoản chờ thu ·{" "}
-                    {detail.pendingRefunds.length} khoản chờ hoàn
-                  </p>
+                    {detail.pendingPayments.length}{" "+t("khoản chờ thu ·")}{" "}
+                    {detail.pendingRefunds.length}{" "+t("khoản chờ hoàn")}</p>
                   {detail.pendingPayments.map((p: Row) => (
                     <p key={p.id}>
                       {p.order_code}: {vnd(p.amount_vnd)}
@@ -201,8 +191,8 @@ export function ShiftDesk({
                 <article className="pos-card">
                   <h3>
                     {detail.variance_approved_by
-                      ? "Đã xác nhận chênh lệch"
-                      : "Chênh lệch chờ quản lý xác nhận"}
+                      ? t("Đã xác nhận chênh lệch")
+                      : t("Chênh lệch chờ quản lý xác nhận")}
                   </h3>
                   <p>{detail.close_note}</p>
                   {detail.variance_approval_note && (
@@ -212,24 +202,22 @@ export function ShiftDesk({
                     <button
                       className="button secondary"
                       onClick={() => form("variance")}
-                    >
-                      Xác nhận chênh lệch
-                    </button>
+                    >{t("Xác nhận chênh lệch")}</button>
                   )}
                 </article>
               )}
               <article className="pos-card">
                 <header>
-                  <h3>Giao dịch trong ca</h3>
-                  <small>200 giao dịch gần nhất</small>
+                  <h3>{t("Giao dịch trong ca")}</h3>
+                  <small>{t("200 giao dịch gần nhất")}</small>
                 </header>
                 <div className="table-wrap">
                   <table>
                     <thead>
                       <tr>
-                        <th>Thời điểm</th>
-                        <th>Nội dung</th>
-                        <th>Số tiền</th>
+                        <th>{t("Thời điểm")}</th>
+                        <th>{t("Nội dung")}</th>
+                        <th>{t("Số tiền")}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -241,12 +229,12 @@ export function ShiftDesk({
                             {l.payment_id
                               ? "Thu đơn " + l.order_code
                               : l.refund_id
-                                ? "Hoàn tiền khách"
+                                ? t("Hoàn tiền khách")
                                 : l.kind === "REVERSAL"
-                                  ? "Đảo phiếu thu/chi"
+                                  ? t("Đảo phiếu thu/chi")
                                   : l.kind === "IN"
-                                    ? "Thu tại quầy"
-                                    : "Chi tại quầy"}
+                                    ? t("Thu tại quầy")
+                                    : t("Chi tại quầy")}
                             {l.reason && <small>{l.reason}</small>}
                           </td>
                           <td
@@ -267,9 +255,7 @@ export function ShiftDesk({
                                     setReversal(l.cash_entry_id);
                                     form("reverse");
                                   }}
-                                >
-                                  Đảo phiếu
-                                </button>
+                                >{t("Đảo phiếu")}</button>
                               )}
                           </td>
                         </tr>
@@ -277,13 +263,13 @@ export function ShiftDesk({
                     </tbody>
                   </table>
                   {!detail.ledger.length && (
-                    <p className="pos-empty">Ca chưa có giao dịch.</p>
+                    <p className="pos-empty">{t("Ca chưa có giao dịch.")}</p>
                   )}
                 </div>
               </article>
             </>
           ) : (
-            <p className="pos-card pos-empty">Chưa có ca để đối chiếu.</p>
+            <p className="pos-card pos-empty">{t("Chưa có ca để đối chiếu.")}</p>
           )}
         </div>
       </div>
@@ -293,7 +279,7 @@ export function ShiftDesk({
             className="pos-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Xử lý ca thu ngân"
+            aria-label={t("Xử lý ca thu ngân")}
             onSubmit={(e) => {
               e.preventDefault();
               void run(async () => {
@@ -337,37 +323,34 @@ export function ShiftDesk({
             <h2>
               {
                 {
-                  open: "Mở ca thu ngân",
-                  close: "Chốt tiền cuối ca",
-                  entry: "Thu / chi tại quầy",
-                  variance: "Xác nhận chênh lệch",
-                  reverse: "Đảo phiếu thu / chi",
+                  open: t("Mở ca thu ngân"),
+                  close: t("Chốt tiền cuối ca"),
+                  entry: t("Thu / chi tại quầy"),
+                  variance: t("Xác nhận chênh lệch"),
+                  reverse: t("Đảo phiếu thu / chi"),
                 }[mode]
               }
             </h2>
             {mode === "close" && (
-              <p>
-                Tiền dự kiến <strong>{vnd(detail?.expected_now)}</strong>
+              <p>{t("Tiền dự kiến")+" "}<strong>{vnd(detail?.expected_now)}</strong>
               </p>
             )}
             {mode === "entry" && (
-              <label>
-                Loại giao dịch
-                <select value={kind} onChange={(e) => setKind(e.target.value)}>
-                  <option value="OUT">Chi từ quầy</option>
-                  <option value="IN">Thu thêm vào quầy</option>
+              <label>{t("Loại giao dịch")}<select value={kind} onChange={(e) => setKind(e.target.value)}>
+                  <option value="OUT">{t("Chi từ quầy")}</option>
+                  <option value="IN">{t("Thu thêm vào quầy")}</option>
                 </select>
               </label>
             )}
             {["open", "close", "entry"].includes(mode) && (
               <label>
                 {mode === "open"
-                  ? "Tiền đầu ca"
+                  ? t("Tiền đầu ca")
                   : mode === "close"
-                    ? "Tiền thực đếm"
-                    : "Số tiền"}
+                    ? t("Tiền thực đếm")
+                    : t("Số tiền")}
                 <input
-                  aria-label="Số tiền xử lý ca"
+                  aria-label={t("Số tiền xử lý ca")}
                   required
                   type="number"
                   min={mode === "entry" ? 1 : 0}
@@ -378,9 +361,7 @@ export function ShiftDesk({
               </label>
             )}
             {mode !== "open" && (
-              <label>
-                Lý do / ghi chú
-                <textarea
+              <label>{t("Lý do / ghi chú")}<textarea
                   required={mode !== "close" || amount !== detail?.expected_now}
                   minLength={3}
                   maxLength={500}
@@ -390,28 +371,21 @@ export function ShiftDesk({
               </label>
             )}
             {mode === "reverse" && (
-              <p>
-                Ghi bút toán ngược vào ca đang mở; phiếu gốc và ca đã đóng được
-                giữ nguyên.
-              </p>
+              <p>{t("Ghi bút toán ngược vào ca đang mở; phiếu gốc và ca đã đóng được giữ nguyên.")}</p>
             )}
             {error && (
               <p role="alert" className="alert error">
-                {error}
+                {t(error)}
               </p>
             )}
             <div className="pos-actions">
-              <button className="button primary" disabled={busy}>
-                Lưu xác nhận
-              </button>
+              <button className="button primary" disabled={busy}>{t("Lưu xác nhận")}</button>
               <button
                 className="button secondary"
                 type="button"
                 disabled={busy}
                 onClick={() => setMode("")}
-              >
-                Quay lại
-              </button>
+              >{t("Quay lại")}</button>
             </div>
           </form>
         </div>

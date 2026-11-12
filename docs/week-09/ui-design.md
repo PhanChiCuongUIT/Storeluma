@@ -20,3 +20,13 @@ Giao diện dùng API thật, trạng thái chờ/lỗi và kiểm tra version. 
 - Liên kết Đến nội dung chính cho phép bỏ qua menu bằng bàn phím. Những mục hiện có tiếp tục tuân theo vai trò và dùng API nghiệp vụ.
 
 Nguồn tham khảo bố cục: [shadcn/ui login-03](https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/blocks/login-03/page.tsx), [shadcn/ui sidebar-07](https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/blocks/sidebar-07/components/app-sidebar.tsx), [Tabler](https://github.com/tabler/tabler) và [mẫu đăng nhập Tabler](https://preview.tabler.io/sign-in.html). Áp dụng cách phân cấp nội dung, nhóm điều hướng và khoảng cách; phần triển khai sử dụng React/CSS hiện có, không thêm framework hoặc mẫu dữ liệu vào sản phẩm.
+
+## Ngôn ngữ và chế độ hiển thị
+
+Đợt hoàn thiện ngày 12/11/2026 bổ sung tiếng Việt/English và sáng/tối/theo hệ thống. Thanh lựa chọn có mặt trước và sau đăng nhập; lựa chọn được lưu bằng cookie cùng host và được áp dụng từ đầu trang. Với chế độ theo hệ thống, trang cập nhật khi trình duyệt nhận thay đổi chế độ màu của thiết bị.
+
+Ứng dụng sử dụng bảng dịch cho nội dung giao diện, trạng thái, thông báo nghiệp vụ và nhãn truy cập. Tên hàng, địa điểm, hộ kinh doanh, ghi chú và dữ liệu nhập không được dịch. Thay đổi ngôn ngữ không tải lại ứng dụng hoặc xóa bản nháp biểu mẫu. Số tiền giữ đơn vị VND; kỳ báo cáo giữ múi giờ Việt Nam. CSV lưu ngôn ngữ lúc yêu cầu xuất, chỉ dịch nhãn cột và dòng tổng hợp.
+
+Keycloak kế thừa `keycloak.v2`, dùng message bundle Việt/Anh và bộ chọn ngôn ngữ của chính Keycloak. Màu sắc và lựa chọn hiển thị được chia sẻ qua tài nguyên mount trong Compose, theo [cơ chế theme của Keycloak](https://www.keycloak.org/ui-customization/themes). Không thay thế xử lý biểu mẫu hoặc kiểm tra mã TOTP. Các trang lỗi, hết hạn, xác thực và xác nhận đăng xuất dùng cùng palette; cấu hình TOTP và cập nhật mật khẩu có nhãn tiếng Việt tương ứng khi được yêu cầu bởi tài khoản.
+
+Chế độ tối phân biệt nền làm việc, thẻ, đường viền, chữ chính và trạng thái; logo gốc đặt trên nền trắng. Biên nhận giữ nền trắng cả khi xem và in. Các thiết kế [shadcn/ui login](https://ui.shadcn.com/blocks/login) và [Tabler](https://github.com/tabler/tabler) tiếp tục là nguồn tham khảo về khoảng cách, phân cấp nội dung và cách trình bày bộ chọn.

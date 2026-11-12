@@ -1,7 +1,7 @@
 .stock-room {
-  --stock-green: #28745e;
-  --stock-border: #e2e7e9;
-  color: #273b45;
+  --stock-green: var(--sl-success-text, #28745e);
+  --stock-border: var(--sl-border, #e2e7e9);
+  color: var(--sl-text, #273b45);
 }
 .stock-tabs {
   display: flex;
@@ -17,12 +17,12 @@
   padding: 12px 2px 15px;
   white-space: nowrap;
   font-weight: 600;
-  color: #73818b;
+  color: var(--sl-muted, #73818b);
   cursor: pointer;
 }
 .stock-tabs button.selected {
-  border-color: #226d80;
-  color: #226d80;
+  border-color: var(--sl-accent-border, #226d80);
+  color: var(--sl-accent-text, #226d80);
 }
 .stock-location {
   display: flex;
@@ -34,7 +34,7 @@
 .stock-location .eyebrow {
   font-size: 10px;
   letter-spacing: 1.4px;
-  color: #859199;
+  color: var(--sl-muted, #859199);
 }
 .stock-site-label select {
   font-size: 17px;
@@ -43,17 +43,17 @@
   background: transparent;
   padding: 6px 28px 6px 0;
   max-width: 100%;
-  color: #263c46;
+  color: var(--sl-text, #263c46);
 }
 .stock-location-note {
   font-size: 12px;
-  color: #4e7566;
+  color: var(--sl-muted, #4e7566);
   text-align: right;
   white-space: nowrap;
 }
 .stock-location-note small {
   display: block;
-  color: #89949a;
+  color: var(--sl-muted, #89949a);
   margin-top: 7px;
   font-size: 11px;
 }
@@ -61,12 +61,12 @@
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #3e9275;
+  background: var(--sl-success-solid, #3e9275);
   border-radius: 50%;
   margin-right: 7px;
 }
 .stock-dot.off {
-  background: #a38b4e;
+  background: var(--sl-warning-solid, #a38b4e);
 }
 .stock-page-heading {
   display: flex;
@@ -82,7 +82,7 @@
 }
 .stock-page-heading p {
   font-size: 13px;
-  color: #75858e;
+  color: var(--sl-muted, #75858e);
   margin: 0;
   line-height: 1.65;
 }
@@ -100,8 +100,8 @@
 }
 .stock-filters input,
 .stock-filters select {
-  border: 1px solid #dce3e6;
-  background: white;
+  border: 1px solid var(--sl-border, #dce3e6);
+  background: var(--sl-surface, white);
   border-radius: 6px;
   padding: 9px 11px;
   min-height: 39px;
@@ -112,7 +112,7 @@
   gap: 7px;
   align-items: center;
   font-size: 11px;
-  color: #778891;
+  color: var(--sl-muted, #778891);
 }
 .stock-filters .button {
   font-size: 12px;
@@ -127,7 +127,7 @@
   letter-spacing: 0.3px;
   text-transform: uppercase;
   white-space: nowrap;
-  background: #f9fbfc;
+  background: var(--sl-surface, #f9fbfc);
 }
 .stock-table th,
 .stock-table td {
@@ -143,36 +143,36 @@
   display: block;
   font-size: 10px;
   margin-top: 6px;
-  color: #8c9aa3;
+  color: var(--sl-muted, #8c9aa3);
 }
 .stock-table .numeric {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .stock-available {
-  color: #23775e;
+  color: var(--sl-success-text, #23775e);
   font-weight: 700;
 }
 .stock-negative {
-  color: #ba5b48;
+  color: var(--sl-danger-text, #ba5b48);
 }
 .stock-positive {
-  color: #277e63;
+  color: var(--sl-success-text, #277e63);
 }
 .stock-muted,
 .stock-table .muted {
-  color: #8a98a0;
+  color: var(--sl-muted, #8a98a0);
   font-size: 12px;
 }
 .stock-empty {
   text-align: center;
   padding: 44px 24px;
-  color: #85939b;
+  color: var(--sl-muted, #85939b);
 }
 .stock-empty h3 {
   font-size: 15px;
   font-weight: 600;
-  color: #536b78;
+  color: var(--sl-muted, #536b78);
   margin: 0 0 10px;
 }
 .stock-empty p {
@@ -185,8 +185,8 @@
   justify-content: space-between;
   gap: 14px;
   padding: 17px 20px;
-  border-top: 1px solid #edf0f1;
-  color: #85939c;
+  border-top: 1px solid var(--sl-border, #edf0f1);
+  color: var(--sl-muted, #85939c);
   font-size: 11px;
 }
 .stock-sku-scope {
@@ -194,8 +194,8 @@
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
-  background: #f1f7f8;
-  color: #50727a;
+  background: var(--sl-surface-raised, #f1f7f8);
+  color: var(--sl-accent-text, #50727a);
   font-size: 12px;
   flex-wrap: wrap;
 }
@@ -203,7 +203,7 @@
 .stock-back {
   border: 0;
   background: none;
-  color: #226d80;
+  color: var(--sl-accent-text, #226d80);
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -219,12 +219,12 @@
   line-height: 1.6;
 }
 .commerce-badge.counting {
-  background: #fff5df;
-  color: #8e691d;
+  background: var(--sl-warning-soft, #fff5df);
+  color: var(--sl-warning-text, #8e691d);
 }
 .commerce-badge.submitted {
-  background: #eef0fc;
-  color: #6665a0;
+  background: var(--sl-surface, #eef0fc);
+  color: var(--sl-accent-text, #6665a0);
 }
 .stock-draft-layout {
   display: grid;
@@ -245,7 +245,7 @@
 .stock-picker > input,
 .stock-detail-bottom textarea {
   width: 100%;
-  border: 1px solid #dce3e6;
+  border: 1px solid var(--sl-border, #dce3e6);
   border-radius: 6px;
   padding: 11px;
   font: inherit;
@@ -265,12 +265,12 @@
   text-align: left;
   padding: 14px 10px;
   border: 0;
-  border-bottom: 1px solid #edf0f1;
-  background: white;
+  border-bottom: 1px solid var(--sl-border, #edf0f1);
+  background: var(--sl-surface, white);
   cursor: pointer;
 }
 .stock-picker-list button:hover {
-  background: #f3f8f9;
+  background: var(--sl-surface, #f3f8f9);
 }
 .stock-picker-list button:disabled {
   opacity: 0.5;
@@ -287,16 +287,16 @@
   display: block;
   margin-top: 5px;
   font-size: 10px;
-  color: #8b9ba4;
+  color: var(--sl-muted, #8b9ba4);
 }
 .stock-picker-list b {
-  color: #3a8090;
+  color: var(--sl-accent-text, #3a8090);
   font-size: 18px;
   font-weight: 400;
 }
 .stock-selected-line {
   padding: 18px 0;
-  border-bottom: 1px solid #e8edef;
+  border-bottom: 1px solid var(--sl-border, #e8edef);
   margin-bottom: 17px;
 }
 .stock-line-title {
@@ -306,9 +306,9 @@
 }
 .stock-remove {
   border: 0;
-  background: #f6f8f9;
+  background: var(--sl-surface, #f6f8f9);
   border-radius: 5px;
-  color: #7d8b92;
+  color: var(--sl-muted, #7d8b92);
   cursor: pointer;
   font-size: 18px;
   width: 27px;
@@ -326,19 +326,19 @@
   flex-direction: column;
   gap: 7px;
   font-size: 10px;
-  color: #7a8d97;
+  color: var(--sl-muted, #7a8d97);
   min-width: 90px;
   max-width: 160px;
 }
 .stock-number-label input {
   width: 100%;
   min-width: 85px;
-  border: 1px solid #dbe3e7;
+  border: 1px solid var(--sl-border, #dbe3e7);
   border-radius: 5px;
   padding: 9px;
   font: inherit;
   font-size: 12px;
-  color: #314954;
+  color: var(--sl-muted, #314954);
 }
 .stock-line-inputs .c-field {
   max-width: 200px;
@@ -358,8 +358,8 @@
   font-size: 12px;
   line-height: 1.7;
   padding: 12px 15px;
-  background: #f5f8fa;
-  color: #6e818c;
+  background: var(--sl-surface, #f5f8fa);
+  color: var(--sl-muted, #6e818c);
   border-radius: 5px;
 }
 .stock-actions {
@@ -374,9 +374,9 @@
   font-size: 12px;
 }
 .stock-actions .danger {
-  background: #fff5f3;
-  color: #b05e4d;
-  border: 1px solid #f0d9d3;
+  background: var(--sl-surface, #fff5f3);
+  color: var(--sl-danger-text, #b05e4d);
+  border: 1px solid var(--sl-border, #f0d9d3);
 }
 .stock-steps {
   display: flex;
@@ -392,33 +392,33 @@
   white-space: nowrap;
   gap: 8px;
   font-size: 12px;
-  color: #9ca8ae;
+  color: var(--sl-muted, #9ca8ae);
 }
 .stock-steps span {
   display: grid;
   place-items: center;
-  border: 1px solid #dce4e7;
+  border: 1px solid var(--sl-border, #dce4e7);
   border-radius: 50%;
   width: 24px;
   height: 24px;
   font-size: 10px;
 }
 .stock-steps li.current {
-  color: #276d80;
+  color: var(--sl-accent-text, #276d80);
   font-weight: 600;
 }
 .stock-steps li.current span {
-  border-color: #276d80;
-  background: #276d80;
-  color: white;
+  border-color: var(--sl-accent-border, #276d80);
+  background: var(--sl-accent-solid, #276d80);
+  color: var(--sl-on-accent, white);
 }
 .stock-freeze-notice {
   padding: 16px 20px;
-  border: 1px solid #eaddbc;
-  background: #fffbf1;
+  border: 1px solid var(--sl-border, #eaddbc);
+  background: var(--sl-surface, #fffbf1);
   border-radius: 8px;
   margin-bottom: 24px;
-  color: #8c7137;
+  color: var(--sl-warning-text, #8c7137);
 }
 .stock-freeze-notice strong {
   font-size: 12px;
@@ -432,11 +432,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   padding: 22px 0 26px;
-  border-top: 1px solid #e2e8eb;
+  border-top: 1px solid var(--sl-border, #e2e8eb);
 }
 .stock-document-meta small {
   display: block;
-  color: #93a0a8;
+  color: var(--sl-muted, #93a0a8);
   font-size: 9px;
   letter-spacing: 1px;
   margin-bottom: 10px;

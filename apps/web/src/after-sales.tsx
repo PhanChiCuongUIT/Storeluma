@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./pos.css";
@@ -9,19 +10,19 @@ type Api = (
   key?: string,
 ) => Promise<any>;
 export const vnd = (n: any) =>
-  new Intl.NumberFormat("vi-VN").format(BigInt(n ?? "0")) + " ₫";
+  new Intl.NumberFormat(locale()).format(BigInt(n ?? "0")) + " ₫";
 export const when = (n: string) =>
-  new Date(n).toLocaleString("vi-VN", {
+  new Date(n).toLocaleString(locale(), {
     dateStyle: "short",
     timeStyle: "short",
   });
-export const returnLabels: Record<string, string> = {
+export const returnLabels: Record<string, string> = localizedLabels({
   REQUESTED: "Chờ duyệt",
   APPROVED: "Chờ nhận hàng",
   REFUND_PENDING: "Chờ hoàn tiền",
   COMPLETED: "Hoàn tất",
   CANCELLED: "Đã hủy",
-};
+});
 export function useCommand(api: Api, path: string) {
   const keys = useRef(new Map<string, string>()),
     guard = useRef(false);
@@ -84,12 +85,10 @@ export function ReceiptView({
             ),
           )
         }
-      >
-        Xem / in biên nhận
-      </button>
+      >{t("Xem / in biên nhận")}</button>
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {t(error)}
         </p>
       )}
       {data &&
@@ -98,19 +97,15 @@ export function ReceiptView({
             className="receipt-overlay"
             role="dialog"
             aria-modal="true"
-            aria-label="Biên nhận bán hàng"
+            aria-label={t("Biên nhận bán hàng")}
           >
             <div className="receipt-controls">
-              <button className="button primary" onClick={() => window.print()}>
-                In biên nhận
-              </button>
+              <button className="button primary" onClick={() => window.print()}>{t("In biên nhận")}</button>
               <button
                 className="button secondary"
                 onClick={() => setData(null)}
-              >
-                Đóng bản in
-              </button>
-              <small>Khổ giấy 80 mm · Chọn máy in hoặc lưu PDF</small>
+              >{t("Đóng bản in")}</button>
+              <small>{t("Khổ giấy 80 mm · Chọn máy in hoặc lưu PDF")}</small>
             </div>
             <article className="receipt-paper">
               <img src="/brand/Logo_Storeluma.png" alt="Storeluma" />
@@ -120,9 +115,9 @@ export function ReceiptView({
                 <br />
                 {s!.siteAddress}
               </p>
-              <h3>BIÊN NHẬN BÁN HÀNG</h3>
+              <h3>{t("BIÊN NHẬN BÁN HÀNG")}</h3>
               {data.reprint && (
-                <strong className="receipt-reprint">BẢN IN LẠI</strong>
+                <strong className="receipt-reprint">{t("BẢN IN LẠI")}</strong>
               )}
               <p>
                 {s!.number}
@@ -132,8 +127,8 @@ export function ReceiptView({
               <table>
                 <thead>
                   <tr>
-                    <th>Mặt hàng</th>
-                    <th>Thành tiền</th>
+                    <th>{t("Mặt hàng")}</th>
+                    <th>{t("Thành tiền")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -145,8 +140,7 @@ export function ReceiptView({
                           {l.quantity} {l.unitName} × {vnd(l.priceVnd)}
                           {l.discountVnd !== "0" && (
                             <>
-                              <br />
-                              Giảm {vnd(l.discountVnd)}
+                              <br />{t("Giảm")+" "}{vnd(l.discountVnd)}
                             </>
                           )}
                         </small>
@@ -158,32 +152,28 @@ export function ReceiptView({
               </table>
               <dl>
                 <div>
-                  <dt>Tiền hàng</dt>
+                  <dt>{t("Tiền hàng")}</dt>
                   <dd>{vnd(s!.subtotalVnd)}</dd>
                 </div>
                 <div>
-                  <dt>Giảm giá</dt>
+                  <dt>{t("Giảm giá")}</dt>
                   <dd>{vnd(s!.discountVnd)}</dd>
                 </div>
                 <div className="receipt-total">
-                  <dt>Đã thanh toán</dt>
+                  <dt>{t("Đã thanh toán")}</dt>
                   <dd>{vnd(s!.paidVnd)}</dd>
                 </div>
                 <div>
-                  <dt>Khách đưa</dt>
+                  <dt>{t("Khách đưa")}</dt>
                   <dd>{vnd(s!.tenderedVnd)}</dd>
                 </div>
                 <div>
-                  <dt>Tiền thừa</dt>
+                  <dt>{t("Tiền thừa")}</dt>
                   <dd>{vnd(s!.changeVnd)}</dd>
                 </div>
               </dl>
-              <p>
-                Thanh toán tiền mặt
-                <br />
-                Cảm ơn quý khách!
-              </p>
-              <footer>Biên nhận nội bộ, không phải hóa đơn điện tử.</footer>
+              <p>{t("Thanh toán tiền mặt")}<br />{t("Cảm ơn quý khách!")}</p>
+              <footer>{t("Biên nhận nội bộ, không phải hóa đơn điện tử.")}</footer>
             </article>
           </div>,
           document.body,
@@ -243,7 +233,7 @@ export function ReturnDetail({
   useEffect(() => {
     if (d) onChange();
   }, [d?.status]);
-  if (!d) return <p role="status">{readError || "Đang đọc phiếu trả…"}</p>;
+  if (!d) return <p role="status">{readError || t("Đang đọc phiếu trả…")}</p>;
   const refund = d.progress?.refund,
     manager = ["OWNER", "MANAGER"].includes(role),
     canPay = ["OWNER", "MANAGER", "CASHIER"].includes(role);
@@ -256,7 +246,7 @@ export function ReturnDetail({
       )}
       <header>
         <div>
-          <small>PHIẾU TRẢ HÀNG</small>
+          <small>{t("PHIẾU TRẢ HÀNG")}</small>
           <h3>{d.code}</h3>
         </div>
         <span className={"return-badge " + d.status.toLowerCase()}>
@@ -268,10 +258,10 @@ export function ReturnDetail({
         <table>
           <thead>
             <tr>
-              <th>Mặt hàng</th>
-              <th>Lượng trả</th>
-              <th>Tiếp nhận</th>
-              <th>Tiền hoàn</th>
+              <th>{t("Mặt hàng")}</th>
+              <th>{t("Lượng trả")}</th>
+              <th>{t("Tiếp nhận")}</th>
+              <th>{t("Tiền hoàn")}</th>
             </tr>
           </thead>
           <tbody>
@@ -282,7 +272,7 @@ export function ReturnDetail({
                   {l.quantity} {l.unitName}
                 </td>
                 <td>
-                  {l.disposition === "QUARANTINE" ? "Cách ly" : "Bán lại"}
+                  {l.disposition === "QUARANTINE" ? t("Cách ly") : t("Bán lại")}
                 </td>
                 <td>{vnd(l.refundVnd)}</td>
               </tr>
@@ -291,18 +281,18 @@ export function ReturnDetail({
         </table>
       </div>
       <div className="pos-total">
-        <span>Tổng hoàn cho khách</span>
+        <span>{t("Tổng hoàn cho khách")}</span>
         <strong>{vnd(d.amount_vnd)}</strong>
       </div>
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {t(error)}
         </p>
       )}
       {d.status === "REQUESTED" && canPay && (
         <div className="pos-form">
           <label>
-            {d.late_return ? "Lý do duyệt quá hạn 7 ngày" : "Ghi chú xử lý"}
+            {d.late_return ? t("Lý do duyệt quá hạn 7 ngày") : t("Ghi chú xử lý")}
             <textarea
               value={note}
               maxLength={500}
@@ -323,9 +313,7 @@ export function ReturnDetail({
                     await refresh();
                   })
                 }
-              >
-                Duyệt nhận hàng trả
-              </button>
+              >{t("Duyệt nhận hàng trả")}</button>
             )}
             <button
               className="button secondary"
@@ -339,25 +327,22 @@ export function ReturnDetail({
                   await refresh();
                 })
               }
-            >
-              Hủy yêu cầu trả
-            </button>
+            >{t("Hủy yêu cầu trả")}</button>
           </div>
         </div>
       )}
       {d.status === "APPROVED" && (
-        <p className="pos-muted">
-          Đang chờ kho tiếp nhận.{" "}
-          {d.progress?.last_error ?? "Phiếu sẽ tự cập nhật khi nhận xong."}
+        <p className="pos-muted">{t("Đang chờ kho tiếp nhận.")}{" "}
+          {t(d.progress?.last_error ?? "Phiếu sẽ tự cập nhật khi nhận xong.")}
         </p>
       )}
       {d.status === "REFUND_PENDING" && (
         <div className="refund-panel">
-          <h4>Hàng đã nhận lại</h4>
-          <p>Chỉ xác nhận sau khi đã giao đủ tiền hoàn cho khách.</p>
+          <h4>{t("Hàng đã nhận lại")}</h4>
+          <p>{t("Chỉ xác nhận sau khi đã giao đủ tiền hoàn cho khách.")}</p>
           {!refund && (
             <p>
-              {d.progress?.last_error ?? "Đang chuẩn bị yêu cầu hoàn tiền…"}
+              {t(d.progress?.last_error ?? "Đang chuẩn bị yêu cầu hoàn tiền…")}
             </p>
           )}
           {refund?.status === "PENDING" && canPay && (
@@ -375,9 +360,7 @@ export function ReturnDetail({
                       await refresh();
                     })
                   }
-                >
-                  Chuẩn bị hoàn tiền trên ca
-                </button>
+                >{t("Chuẩn bị hoàn tiền trên ca")}</button>
               ) : (
                 <>
                   <label className="sale-check">
@@ -385,9 +368,7 @@ export function ReturnDetail({
                       type="checkbox"
                       checked={cashPaid}
                       onChange={(e) => setCashPaid(e.target.checked)}
-                    />
-                    Đã giao đủ tiền hoàn cho khách
-                  </label>
+                    />{t("Đã giao đủ tiền hoàn cho khách")}</label>
                   <button
                     className="button primary"
                     disabled={
@@ -404,22 +385,19 @@ export function ReturnDetail({
                         await refresh();
                       })
                     }
-                  >
-                    Xác nhận đã hoàn tiền
-                  </button>
+                  >{t("Xác nhận đã hoàn tiền")}</button>
                 </>
               )}
-              {!shift && <p>Cần ca đang mở mà bạn được phép xử lý để hoàn tiền mặt.</p>}
+              {!shift && <p>{t("Cần ca đang mở mà bạn được phép xử lý để hoàn tiền mặt.")}</p>}
             </>
           )}
           {refund?.status === "SUCCEEDED" && (
-            <p>Đã ghi nhận tiền hoàn. Đang hoàn tất phiếu.</p>
+            <p>{t("Đã ghi nhận tiền hoàn. Đang hoàn tất phiếu.")}</p>
           )}
         </div>
       )}
       {d.status === "COMPLETED" && (
-        <p className="pos-success">
-          Đã nhận hàng và hoàn tiền · {when(d.completed_at)}
+        <p className="pos-success">{t("Đã nhận hàng và hoàn tiền ·")+" "}{when(d.completed_at)}
         </p>
       )}
     </article>
@@ -458,13 +436,13 @@ export function AfterSales({
     <section className="after-sales">
       <div className="sales-list-heading">
         <div>
-          <h2>Trả hàng</h2>
+          <h2>{t("Trả hàng")}</h2>
           <p>
             {data.returnStatus === "FULL"
-              ? "Đã trả toàn bộ hàng."
+              ? t("Đã trả toàn bộ hàng.")
               : data.returnStatus === "PARTIAL"
-                ? "Đơn đã có hàng trả một phần."
-                : "Lập phiếu từ hàng trên đơn bán này."}
+                ? t("Đơn đã có hàng trả một phần.")
+                : t("Lập phiếu từ hàng trên đơn bán này.")}
           </p>
         </div>
         {["OWNER", "MANAGER", "CASHIER"].includes(role) && (
@@ -482,20 +460,16 @@ export function AfterSales({
               setReason("");
               setForm(true);
             }}
-          >
-            Lập phiếu trả
-          </button>
+          >{t("Lập phiếu trả")}</button>
         )}
       </div>
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {t(error)}
         </p>
       )}
       {active && (
-        <p className="pos-muted">
-          Hoàn tất phiếu đang xử lý trước khi lập lần trả tiếp theo.
-        </p>
+        <p className="pos-muted">{t("Hoàn tất phiếu đang xử lý trước khi lập lần trả tiếp theo.")}</p>
       )}
       {form && (
         <form
@@ -524,15 +498,12 @@ export function AfterSales({
             <div className="return-line" key={l.id}>
               <div>
                 <strong>{l.name}</strong>
-                <small>
-                  Đã bán {l.quantity} {l.unitName} · Đã trả{" "}
+                <small>{t("Đã bán")+" "}{l.quantity} {l.unitName}{" "+t("· Đã trả")}{" "}
                   {data.returned.find((x: Row) => x.orderLineId === l.id)
                     ?.quantity ?? "0"}
                 </small>
               </div>
-              <label>
-                Lượng trả
-                <input
+              <label>{t("Lượng trả")}<input
                   aria-label={"Lượng trả " + (i + 1)}
                   type="number"
                   min="0"
@@ -549,9 +520,7 @@ export function AfterSales({
                   }
                 />
               </label>
-              <label>
-                Tình trạng
-                <select
+              <label>{t("Tình trạng")}<select
                   aria-label={"Tình trạng trả " + (i + 1)}
                   value={l.disposition}
                   onChange={(e) =>
@@ -564,15 +533,13 @@ export function AfterSales({
                     )
                   }
                 >
-                  <option value="SELLABLE">Có thể bán lại</option>
-                  <option value="QUARANTINE">Hỏng / cần cách ly</option>
+                  <option value="SELLABLE">{t("Có thể bán lại")}</option>
+                  <option value="QUARANTINE">{t("Hỏng / cần cách ly")}</option>
                 </select>
               </label>
             </div>
           ))}
-          <label>
-            Lý do trả hàng
-            <textarea
+          <label>{t("Lý do trả hàng")}<textarea
               required
               minLength={3}
               maxLength={500}
@@ -581,16 +548,12 @@ export function AfterSales({
             />
           </label>
           <div className="pos-actions">
-            <button className="button primary" disabled={busy}>
-              Gửi yêu cầu trả hàng
-            </button>
+            <button className="button primary" disabled={busy}>{t("Gửi yêu cầu trả hàng")}</button>
             <button
               className="button secondary"
               type="button"
               onClick={() => setForm(false)}
-            >
-              Quay lại
-            </button>
+            >{t("Quay lại")}</button>
           </div>
         </form>
       )}
@@ -670,15 +633,15 @@ export function ReturnQueue({
     <section>
       <div className="sales-list-heading">
         <div>
-          <h2>Phiếu trả hàng</h2>
-          <p>Duyệt, theo dõi nhận hàng và hoàn tiền.</p>
+          <h2>{t("Phiếu trả hàng")}</h2>
+          <p>{t("Duyệt, theo dõi nhận hàng và hoàn tiền.")}</p>
         </div>
         <select
-          aria-label="Lọc phiếu trả"
+          aria-label={t("Lọc phiếu trả")}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="">Tất cả trạng thái</option>
+          <option value="">{t("Tất cả trạng thái")}</option>
           {Object.entries(returnLabels).map(([k, v]) => (
             <option key={k} value={k}>
               {v}
@@ -686,7 +649,7 @@ export function ReturnQueue({
           ))}
         </select>
       </div>
-      {error && <p className="alert error">{error}</p>}
+      {error && <p className="alert error">{t(error)}</p>}
       <div className="return-history">
         {rows.map((d) => (
           <button key={d.id} onClick={() => setSelected(d)}>
@@ -697,16 +660,14 @@ export function ReturnQueue({
         ))}
       </div>
       {!rows.length && (
-        <p className="pos-card pos-empty">Chưa có phiếu trả phù hợp.</p>
+        <p className="pos-card pos-empty">{t("Chưa có phiếu trả phù hợp.")}</p>
       )}
       {selected && (
         <>
           <button
             className="button secondary"
             onClick={() => openOrder(selected.order_id)}
-          >
-            Mở đơn bán gốc
-          </button>
+          >{t("Mở đơn bán gốc")}</button>
           <ReturnDetail
             key={selected.id}
             api={api}

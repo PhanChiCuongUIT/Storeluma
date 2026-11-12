@@ -1,3 +1,4 @@
+import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState } from "react";
 import "./management.css";
 type Row = Record<string, any>;
@@ -15,13 +16,13 @@ export type SourceLink = {
   code?: string;
 };
 const money = (v: any) =>
-  new Intl.NumberFormat("vi-VN").format(BigInt(v ?? 0)) + " ₫";
+  new Intl.NumberFormat(locale()).format(BigInt(v ?? 0)) + " ₫";
 const qty = (v: any) =>
-  new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 3 }).format(
+  new Intl.NumberFormat(locale(), { maximumFractionDigits: 3 }).format(
     Number(v ?? 0),
   );
 const date = (v: string) =>
-  new Date(v).toLocaleString("vi-VN", {
+  new Date(v).toLocaleString(locale(), {
     dateStyle: "short",
     timeStyle: "short",
   });
@@ -40,10 +41,10 @@ function Freshness({ value }: { value?: Row }) {
     >
       <span className="dot" />
       {!value
-        ? "Đang tải dữ liệu…"
+        ? t("Đang tải dữ liệu…")
         : value.initializing
-          ? "Đang tổng hợp dữ liệu ban đầu."
-          : `${value.stale ? "Đồng bộ đang chậm. " : ""}Đã đối chiếu dữ liệu đến ${date(value.dataAsOf)}.`}
+          ? t("Đang tổng hợp dữ liệu ban đầu.")
+          : t("{0}Đã đối chiếu dữ liệu đến {1}.", [value.stale ? "Đồng bộ đang chậm. " : "", date(value.dataAsOf)])}
     </p>
   );
 }
@@ -57,14 +58,12 @@ function SiteSelect({
   onChange: (s: string) => void;
 }) {
   return (
-    <label>
-      Địa điểm
-      <select
-        aria-label="Địa điểm báo cáo"
+    <label>{t("Địa điểm")}<select
+        aria-label={t("Địa điểm báo cáo")}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
-        <option value="">Tất cả địa điểm được giao</option>
+        <option value="">{t("Tất cả địa điểm được giao")}</option>
         {sites.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}
@@ -107,22 +106,18 @@ function Pagination({
       <span>
         {total
           ? `${offset + 1}–${Math.min(offset + 50, total)} / ${total}`
-          : "0 kết quả"}
+          : t("0 kết quả")}
       </span>
       <button
         className="button secondary"
         disabled={!offset}
         onClick={() => onChange(Math.max(0, offset - 50))}
-      >
-        Trước
-      </button>
+      >{t("Trước")}</button>
       <button
         className="button secondary"
         disabled={offset + 50 >= total}
         onClick={() => onChange(offset + 50)}
-      >
-        Tiếp
-      </button>
+      >{t("Tiếp")}</button>
     </div>
   );
 }
@@ -196,7 +191,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
     setExporting(true);
     setError("");
     setJob(null);
-    const payload = JSON.stringify({ kind: pane, filters });
+    const payload = JSON.stringify({ kind: pane, filters, language: window.storelumaPreferences.language });
     if (exportKey.current.payload !== payload)
       exportKey.current = { payload, key: crypto.randomUUID() };
     try {
@@ -219,7 +214,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      throw new Error("Tệp đang được xử lý lâu hơn dự kiến. Thử xuất lại sau.");
+      throw new Error(t("Tệp đang được xử lý lâu hơn dự kiến. Thử xuất lại sau."));
     } catch (e) {
       if (mounted.current) setError((e as Error).message);
     } finally {
@@ -245,7 +240,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
     }
   }
   const siteName = (id: string) =>
-    sites.find((s) => s.id === id)?.name ?? "Địa điểm";
+    sites.find((s) => s.id === id)?.name ?? t("Địa điểm");
   const totals = data?.totals,
     max = Math.max(
       1,
@@ -255,12 +250,12 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
       ]),
     );
   return (
-    <section className="management-room" aria-label="Báo cáo kinh doanh">
-      <div className="report-tabs" role="group" aria-label="Loại báo cáo">
+    <section className="management-room" aria-label={t("Báo cáo kinh doanh")}>
+      <div className="report-tabs" role="group" aria-label={t("Loại báo cáo")}>
         {[
-          ["sales", "Kết quả bán hàng"],
-          ["stock", "Tồn kho hiện tại"],
-          ["cash", "Thu chi tại quầy"],
+          ["sales", t("Kết quả bán hàng")],
+          ["stock", t("Tồn kho hiện tại")],
+          ["cash", t("Thu chi tại quầy")],
         ].map(([k, n]) => (
           <button
             key={k}
@@ -276,19 +271,15 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
         <SiteSelect sites={sites} value={siteId} onChange={setSite} />
         {pane !== "stock" && (
           <>
-            <label>
-              Từ ngày
-              <input
-                aria-label="Từ ngày báo cáo"
+            <label>{t("Từ ngày")}<input
+                aria-label={t("Từ ngày báo cáo")}
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
               />
             </label>
-            <label>
-              Đến ngày
-              <input
-                aria-label="Đến ngày báo cáo"
+            <label>{t("Đến ngày")}<input
+                aria-label={t("Đến ngày báo cáo")}
                 type="date"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
@@ -301,9 +292,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
             className="button secondary"
             disabled={loading}
             onClick={() => setRevision((n) => n + 1)}
-          >
-            Làm mới
-          </button>
+          >{t("Làm mới")}</button>
           <button
             className="button primary"
             disabled={
@@ -314,79 +303,77 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
             }
             onClick={() => void exportFile()}
           >
-            {exporting ? "Đang xuất…" : "Xuất CSV"}
+            {exporting ? t("Đang xuất…") : t("Xuất CSV")}
           </button>
           {job && (
             <button
               className="button secondary"
               onClick={() => void download()}
-            >
-              Tải tệp CSV
-            </button>
+            >{t("Tải tệp CSV")}</button>
           )}
         </div>
       </div>
       <Freshness value={(data ?? stock)?.freshness} />
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {t(error)}
         </p>
       )}
-      {loading && <div className="report-empty">Đang tải báo cáo…</div>}
+      {loading && <div className="report-empty">{t("Đang tải báo cáo…")}</div>}
       {data && pane === "sales" && (
         <>
           <div className="report-metrics">
             <Metric
-              label="Doanh thu thuần"
+              label={t("Doanh thu thuần")}
               value={money(totals.revenue_vnd)}
-              note="Sau giảm giá và trả hàng"
+              note={t("Sau giảm giá và trả hàng")}
               accent
             />
             <Metric
-              label="Bán hàng"
+              label={t("Bán hàng")}
               value={money(totals.sales_vnd)}
-              note={`${totals.orders} đơn hoàn tất`}
+              note={t("{0} đơn hoàn tất", [totals.orders])}
             />
             <Metric
-              label="Trả hàng"
+              label={t("Trả hàng")}
               value={money(totals.returns_vnd)}
-              note={`${totals.returns} phiếu hoàn tất`}
+              note={t("{0} phiếu hoàn tất", [totals.returns])}
             />
             {data.costVisible ? (
               <Metric
-                label="Lãi gộp"
+                label={t("Lãi gộp")}
                 value={money(totals.profit_vnd)}
-                note={`Giá vốn thuần ${money(totals.cost_vnd)}`}
+                note={t("Giá vốn thuần {0}", [money(totals.cost_vnd)])}
               />
             ) : (
               <Metric
-                label="Giảm giá"
+                label={t("Giảm giá")}
                 value={money(totals.discount_vnd)}
-                note="Trong các đơn hoàn tất"
+                note={t("Trong các đơn hoàn tất")}
               />
             )}
           </div>
           <section className="report-card">
             <div className="report-card-heading">
               <div>
-                <h2>Bán hàng theo ngày</h2>
-                <p>Ghi nhận theo ngày hoàn tất • Giờ Việt Nam</p>
+                <h2>{t("Bán hàng theo ngày")}</h2>
+                <p>{t("Ghi nhận theo ngày hoàn tất • Giờ Việt Nam")}</p>
               </div>
               <div className="chart-legend">
-                <span>Bán hàng</span>
-                <span>Trả hàng</span>
+                <span>{t("Bán hàng")}</span>
+                <span>{t("Trả hàng")}</span>
               </div>
             </div>
             <div
               className="report-chart"
-              aria-label="Biểu đồ bán hàng và trả hàng"
+              aria-label={t("Biểu đồ bán hàng và trả hàng")}
             >
               <div className="report-chart-bars">
                 {data.daily.map((r: Row) => (
                   <div
                     className="report-day"
                     key={r.day}
-                    title={`${r.day}: bán ${money(r.sales_vnd)}, trả ${money(r.returns_vnd)}`}
+                    title={t("{0}: bán {1}, trả {2}", [r.day, money(r.sales_vnd), money(r.returns_vnd)])}
                   >
                     <div className="report-bar-pair">
                       <i
@@ -408,15 +395,15 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
               </div>
             </div>
             <details className="report-daily">
-              <summary>Xem số liệu từng ngày</summary>
+              <summary>{t("Xem số liệu từng ngày")}</summary>
               <div className="report-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>Ngày</th>
-                      <th>Bán hàng</th>
-                      <th>Trả hàng</th>
-                      <th>Thuần</th>
+                      <th>{t("Ngày")}</th>
+                      <th>{t("Bán hàng")}</th>
+                      <th>{t("Trả hàng")}</th>
+                      <th>{t("Thuần")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -436,16 +423,16 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
           <div className="report-columns">
             <section className="report-card">
               <div className="report-card-heading">
-                <h2>Hàng bán nổi bật</h2>
-                <small>Theo doanh thu thuần</small>
+                <h2>{t("Hàng bán nổi bật")}</h2>
+                <small>{t("Theo doanh thu thuần")}</small>
               </div>
               <div className="report-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>Hàng hóa</th>
-                      <th>Số lượng thuần</th>
-                      <th>Doanh thu</th>
+                      <th>{t("Hàng hóa")}</th>
+                      <th>{t("Số lượng thuần")}</th>
+                      <th>{t("Doanh thu")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -464,23 +451,21 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                   </tbody>
                 </table>
                 {!data.top.length && (
-                  <p className="report-empty">
-                    Chưa có bán hàng hoặc trả hàng trong kỳ.
-                  </p>
+                  <p className="report-empty">{t("Chưa có bán hàng hoặc trả hàng trong kỳ.")}</p>
                 )}
               </div>
             </section>
             <section className="report-card">
               <div className="report-card-heading">
-                <h2>Theo địa điểm</h2>
+                <h2>{t("Theo địa điểm")}</h2>
               </div>
               <div className="report-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>Địa điểm</th>
-                      <th>Đơn</th>
-                      <th>Doanh thu</th>
+                      <th>{t("Địa điểm")}</th>
+                      <th>{t("Đơn")}</th>
+                      <th>{t("Doanh thu")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -494,7 +479,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                   </tbody>
                 </table>
                 {!data.bySite.length && (
-                  <p className="report-empty">Chưa có giao dịch hoàn tất.</p>
+                  <p className="report-empty">{t("Chưa có giao dịch hoàn tất.")}</p>
                 )}
               </div>
             </section>
@@ -505,29 +490,29 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
         <>
           <div className="report-metrics">
             <Metric
-              label="Dòng hàng theo địa điểm"
+              label={t("Dòng hàng theo địa điểm")}
               value={String(stock.total)}
-              note="Theo bộ lọc hiện tại"
+              note={t("Theo bộ lọc hiện tại")}
               accent
             />
             {stock.totals.value_vnd !== undefined && (
               <Metric
-                label="Giá trị tồn"
+                label={t("Giá trị tồn")}
                 value={money(stock.totals.value_vnd)}
-                note="Gồm hàng cách ly; theo giá vốn"
+                note={t("Gồm hàng cách ly; theo giá vốn")}
               />
             )}
           </div>
           <section className="report-card">
             <div className="report-card-heading">
               <div>
-                <h2>Tồn kho hiện tại</h2>
-                <p>Khả dụng = tồn thực tế − đang giữ − cách ly.</p>
+                <h2>{t("Tồn kho hiện tại")}</h2>
+                <p>{t("Khả dụng = tồn thực tế − đang giữ − cách ly.")}</p>
               </div>
               <input
                 type="search"
-                aria-label="Tìm hàng trong báo cáo"
-                placeholder="Tìm tên hoặc mã hàng…"
+                aria-label={t("Tìm hàng trong báo cáo")}
+                placeholder={t("Tìm tên hoặc mã hàng…")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -536,15 +521,15 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
               <table>
                 <thead>
                   <tr>
-                    <th>Hàng hóa</th>
-                    <th>Địa điểm</th>
-                    <th>Đơn vị</th>
-                    <th>Tồn thực tế</th>
-                    <th>Đang giữ</th>
-                    <th>Cách ly</th>
-                    <th>Khả dụng</th>
+                    <th>{t("Hàng hóa")}</th>
+                    <th>{t("Địa điểm")}</th>
+                    <th>{t("Đơn vị")}</th>
+                    <th>{t("Tồn thực tế")}</th>
+                    <th>{t("Đang giữ")}</th>
+                    <th>{t("Cách ly")}</th>
+                    <th>{t("Khả dụng")}</th>
                     {stock.totals.value_vnd !== undefined && (
-                      <th>Giá trị tồn</th>
+                      <th>{t("Giá trị tồn")}</th>
                     )}
                   </tr>
                 </thead>
@@ -569,7 +554,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                 </tbody>
               </table>
               {!stock.items.length && (
-                <p className="report-empty">Không có hàng phù hợp.</p>
+                <p className="report-empty">{t("Không có hàng phù hợp.")}</p>
               )}
             </div>
             <Pagination
@@ -584,47 +569,44 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
         <>
           <div className="report-metrics">
             <Metric
-              label="Thu bán hàng"
+              label={t("Thu bán hàng")}
               value={money(data.cash.totals.receipts_vnd)}
-              note="Các khoản thu đã ghi sổ"
+              note={t("Các khoản thu đã ghi sổ")}
               accent
             />
             <Metric
-              label="Hoàn tiền khách"
+              label={t("Hoàn tiền khách")}
               value={money(data.cash.totals.refunds_vnd)}
-              note="Các khoản hoàn đã ghi sổ"
+              note={t("Các khoản hoàn đã ghi sổ")}
             />
             <Metric
-              label="Thu khác / chi khác"
+              label={t("Thu khác / chi khác")}
               value={money(data.cash.totals.other_in_vnd)}
-              note={`Chi khác ${money(data.cash.totals.other_out_vnd)}`}
+              note={t("Chi khác {0}", [money(data.cash.totals.other_out_vnd)])}
             />
             <Metric
-              label="Dòng tiền thuần"
+              label={t("Dòng tiền thuần")}
               value={money(data.cash.totals.net_vnd)}
-              note="Không gồm tiền đầu ca"
+              note={t("Không gồm tiền đầu ca")}
             />
           </div>
           <section className="report-card">
             <div className="report-card-heading">
               <div>
-                <h2>Thu chi theo ngày</h2>
-                <p>
-                  Dòng tiền tại quầy theo ngày ghi sổ. Doanh thu được trình bày
-                  riêng trong kết quả bán hàng.
-                </p>
+                <h2>{t("Thu chi theo ngày")}</h2>
+                <p>{t("Dòng tiền tại quầy theo ngày ghi sổ. Doanh thu được trình bày riêng trong kết quả bán hàng.")}</p>
               </div>
             </div>
             <div className="report-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Ngày</th>
-                    <th>Thu bán</th>
-                    <th>Hoàn khách</th>
-                    <th>Thu khác</th>
-                    <th>Chi khác</th>
-                    <th>Thuần</th>
+                    <th>{t("Ngày")}</th>
+                    <th>{t("Thu bán")}</th>
+                    <th>{t("Hoàn khách")}</th>
+                    <th>{t("Thu khác")}</th>
+                    <th>{t("Chi khác")}</th>
+                    <th>{t("Thuần")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -645,7 +627,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                 </tbody>
               </table>
               {!data.cash.daily.length && (
-                <p className="report-empty">Chưa có thu chi trong kỳ.</p>
+                <p className="report-empty">{t("Chưa có thu chi trong kỳ.")}</p>
               )}
             </div>
           </section>
@@ -654,21 +636,21 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
     </section>
   );
 }
-const kinds: Record<string, string> = {
+const kinds: Record<string, string> = localizedLabels({
   LOW_STOCK: "Sắp hết hàng",
   PAYMENT_PENDING: "Chờ thu tiền",
   REFUND_PENDING: "Chờ hoàn tiền",
   ORDER_REVIEW: "Đối chiếu đơn",
   RETURN_APPROVAL: "Duyệt trả hàng",
   SHIFT_VARIANCE: "Chênh lệch ca",
-};
-const statuses: Record<string, string> = {
+});
+const statuses: Record<string, string> = localizedLabels({
   ACTIVE: "Đang cần xử lý",
   OPEN: "Chưa tiếp nhận",
   ACKNOWLEDGED: "Đã tiếp nhận",
   RESOLVED: "Đã giải quyết",
   ALL: "Tất cả",
-};
+});
 export function WorkRoom({
   tenant,
   sites,
@@ -743,31 +725,29 @@ export function WorkRoom({
     }
   }
   return (
-    <section className="management-room" aria-label="Công việc cần xử lý">
+    <section className="management-room" aria-label={t("Công việc cần xử lý")}>
       <div className="report-metrics">
         <Metric
-          label="Chưa tiếp nhận"
+          label={t("Chưa tiếp nhận")}
           value={String(data?.counts.open ?? "—")}
-          note="Cần phân công xử lý"
+          note={t("Cần phân công xử lý")}
           accent
         />
         <Metric
-          label="Đã tiếp nhận"
+          label={t("Đã tiếp nhận")}
           value={String(data?.counts.acknowledged ?? "—")}
-          note="Theo dõi đến khi hoàn tất"
+          note={t("Theo dõi đến khi hoàn tất")}
         />
         <Metric
-          label="Đã giải quyết"
+          label={t("Đã giải quyết")}
           value={String(data?.counts.resolved ?? "—")}
-          note="Đối chiếu từ chứng từ nguồn"
+          note={t("Đối chiếu từ chứng từ nguồn")}
         />
       </div>
       <div className="report-toolbar">
         <SiteSelect sites={sites} value={siteId} onChange={setSite} />
-        <label>
-          Trạng thái
-          <select
-            aria-label="Trạng thái công việc"
+        <label>{t("Trạng thái")}<select
+            aria-label={t("Trạng thái công việc")}
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -778,14 +758,12 @@ export function WorkRoom({
             ))}
           </select>
         </label>
-        <label>
-          Loại công việc
-          <select
-            aria-label="Loại công việc"
+        <label>{t("Loại công việc")}<select
+            aria-label={t("Loại công việc")}
             value={kind}
             onChange={(e) => setKind(e.target.value)}
           >
-            <option value="">Tất cả loại</option>
+            <option value="">{t("Tất cả loại")}</option>
             {Object.entries(kinds).map(([k, n]) => (
               <option key={k} value={k}>
                 {n}
@@ -797,17 +775,13 @@ export function WorkRoom({
           <button
             className="button secondary"
             onClick={() => setRevision((n) => n + 1)}
-          >
-            Làm mới
-          </button>
+          >{t("Làm mới")}</button>
           {["OWNER", "MANAGER"].includes(role) && (
             <button
               className="button secondary"
               aria-expanded={rules}
               onClick={() => setRules((v) => !v)}
-            >
-              Cấu hình nhắc việc
-            </button>
+            >{t("Cấu hình nhắc việc")}</button>
           )}
         </div>
       </div>
@@ -823,19 +797,16 @@ export function WorkRoom({
       <Freshness value={data?.freshness} />
       {error && (
         <p className="alert error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       <section className="report-card">
         <div className="report-card-heading">
           <div>
-            <h2>Danh sách công việc</h2>
-            <p>
-              Tiếp nhận để theo dõi. Công việc tự khép lại khi chứng từ hoặc tồn
-              kho được xử lý.
-            </p>
+            <h2>{t("Danh sách công việc")}</h2>
+            <p>{t("Tiếp nhận để theo dõi. Công việc tự khép lại khi chứng từ hoặc tồn kho được xử lý.")}</p>
           </div>
-          <small>{data?.total ?? 0} công việc</small>
+          <small>{data?.total ?? 0}{" "+t("công việc")}</small>
         </div>
         {data?.items.map((item: Row) => (
           <article className="work-item" key={item.id}>
@@ -853,52 +824,45 @@ export function WorkRoom({
                   {statuses[item.status]}
                 </span>
               </div>
-              <h3>{item.title}</h3>
+              <h3>{t(item.title)}</h3>
               <p>
-                {sites.find((s) => s.id === item.site_id)?.name ?? "Địa điểm"} ·{" "}
+                {sites.find((s) => s.id === item.site_id)?.name ?? t("Địa điểm")} ·{" "}
                 {date(item.created_at)}
               </p>
               {item.kind === "LOW_STOCK" && (
-                <p>
-                  Khả dụng {qty(item.detail.available)} {item.detail.baseUnit} ·
-                  Ngưỡng nhắc {qty(item.detail.threshold)}
+                <p>{t("Khả dụng")+" "}{qty(item.detail.available)} {item.detail.baseUnit}{" "+t("· Ngưỡng nhắc")+" "}{qty(item.detail.threshold)}
                 </p>
               )}
               {item.detail.amountVnd && (
-                <p>Số tiền {money(item.detail.amountVnd)}</p>
+                <p>{t("Số tiền")+" "}{money(item.detail.amountVnd)}</p>
               )}
               {item.detail.differenceVnd && (
-                <p>Chênh lệch {money(item.detail.differenceVnd)}</p>
+                <p>{t("Chênh lệch")+" "}{money(item.detail.differenceVnd)}</p>
               )}
             </div>
             <div className="work-actions">
               <button
                 className="button secondary"
                 onClick={() => onOpen({ ...item.detail, siteId: item.site_id })}
-              >
-                Mở {item.kind === "LOW_STOCK" ? "tồn kho" : "chứng từ"}
+              >{t("Mở")+" "}{item.kind === "LOW_STOCK" ? t("tồn kho") : t("chứng từ")}
               </button>
               {item.status === "OPEN" && (
                 <button
                   className="button primary"
                   disabled={busy}
                   onClick={() => void acknowledge(item)}
-                >
-                  Tiếp nhận
-                </button>
+                >{t("Tiếp nhận")}</button>
               )}
             </div>
           </article>
         ))}
         {data && !data.items.length && (
           <div className="report-empty">
-            <strong>Không có công việc phù hợp</strong>
-            <p>
-              Các phát sinh mới sẽ xuất hiện tại đây theo phạm vi được giao.
-            </p>
+            <strong>{t("Không có công việc phù hợp")}</strong>
+            <p>{t("Các phát sinh mới sẽ xuất hiện tại đây theo phạm vi được giao.")}</p>
           </div>
         )}
-        {!data && !error && <p className="report-empty">Đang tải công việc…</p>}
+        {!data && !error && <p className="report-empty">{t("Đang tải công việc…")}</p>}
         {data && (
           <Pagination offset={offset} total={data.total} onChange={setOffset} />
         )}
@@ -970,16 +934,11 @@ function Rules({
           .finally(() => setBusy(false));
       }}
     >
-      <h2>Cấu hình nhắc việc</h2>
-      <p>
-        Ngưỡng tồn áp dụng theo đơn vị cơ sở của từng hàng. Khoản thu hoặc hoàn
-        quá thời gian chờ sẽ được nhắc.
-      </p>
+      <h2>{t("Cấu hình nhắc việc")}</h2>
+      <p>{t("Ngưỡng tồn áp dụng theo đơn vị cơ sở của từng hàng. Khoản thu hoặc hoàn quá thời gian chờ sẽ được nhắc.")}</p>
       <div className="report-toolbar">
-        <label>
-          Địa điểm cấu hình
-          <select
-            aria-label="Địa điểm cấu hình"
+        <label>{t("Địa điểm cấu hình")}<select
+            aria-label={t("Địa điểm cấu hình")}
             value={site}
             onChange={(e) => setSite(e.target.value)}
             disabled={busy}
@@ -993,10 +952,8 @@ function Rules({
         </label>
         {rule && (
           <>
-            <label>
-              Ngưỡng tồn khả dụng
-              <input
-                aria-label="Ngưỡng tồn khả dụng"
+            <label>{t("Ngưỡng tồn khả dụng")}<input
+                aria-label={t("Ngưỡng tồn khả dụng")}
                 required
                 type="number"
                 min="0"
@@ -1008,10 +965,8 @@ function Rules({
                 }
               />
             </label>
-            <label>
-              Thời gian chờ (phút)
-              <input
-                aria-label="Thời gian chờ"
+            <label>{t("Thời gian chờ (phút)")}<input
+                aria-label={t("Thời gian chờ")}
                 required
                 type="number"
                 min="1"
@@ -1022,21 +977,17 @@ function Rules({
                 }
               />
             </label>
-            <button className="button primary" disabled={busy} type="submit">
-              Lưu cấu hình
-            </button>
+            <button className="button primary" disabled={busy} type="submit">{t("Lưu cấu hình")}</button>
           </>
         )}
       </div>
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {t(error)}
         </p>
       )}
       {saved && (
-        <p role="status" className="alert success">
-          Đã lưu cấu hình nhắc việc.
-        </p>
+        <p role="status" className="alert success">{t("Đã lưu cấu hình nhắc việc.")}</p>
       )}
     </form>
   );

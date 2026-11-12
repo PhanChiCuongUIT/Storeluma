@@ -20,7 +20,7 @@ const base32=bytes=>{let bits=0,value=0,out='';for(const b of bytes){value=(valu
 const accounts=['owner','cashier','outsider'].map((username,i)=>({username,subject:`00000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`,password:secret().slice(0,20)+'Aa1!',otpSecret:base32(randomBytes(20))}));
 writeFileSync(`${target}/accounts.json`,JSON.stringify(accounts,null,2));
 const realm={realm:'storeluma',enabled:true,displayName:'Storeluma',registrationAllowed:false,resetPasswordAllowed:false,sslRequired:'none',accessTokenLifespan:900,
-  loginTheme:'storeluma',internationalizationEnabled:true,supportedLocales:['vi'],defaultLocale:'vi',
+  loginTheme:'storeluma',internationalizationEnabled:true,supportedLocales:['vi','en'],defaultLocale:'vi',
   browserFlow:'storeluma-browser',authenticationFlows:[{alias:'storeluma-browser',description:'Password and TOTP required',providerId:'basic-flow',topLevel:true,builtIn:false,authenticationExecutions:[{authenticator:'auth-username-password-form',requirement:'REQUIRED',priority:10,userSetupAllowed:false,authenticatorFlow:false},{authenticator:'auth-otp-form',requirement:'REQUIRED',priority:20,userSetupAllowed:false,authenticatorFlow:false}]}],
   bruteForceProtected:true,failureFactor:5,permanentLockout:false,
   clients:[{clientId:'storeluma-web',enabled:true,publicClient:false,secret:env.OIDC_SECRET,standardFlowEnabled:true,directAccessGrantsEnabled:false,
