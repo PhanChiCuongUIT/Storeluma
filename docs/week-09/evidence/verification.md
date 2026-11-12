@@ -44,3 +44,5 @@ Kết quả dùng Chromium trên Windows và môi trường Compose. Chưa kiể
 - Kiểm tra menu ở 320, 390, 768 và 1440 px, trước và sau đăng nhập. Enter, phím mũi tên, Home/End, Escape, Tab và bấm ngoài được kiểm tra tự động. Đăng nhập TOTP, thông báo lỗi và đăng xuất tiếp tục hoạt động.
 - Rà soát lại 160 tổ hợp trang/ngôn ngữ/theme/viewport: không tràn ngang toàn trang hoặc lỗi JavaScript. Các ảnh 12-15 đã thay bằng giao diện mới; [ảnh menu lựa chọn](screenshots/16-appearance-menu.png) bổ sung trạng thái mở.
 - Typecheck và build Gateway/ứng dụng đạt. Không đổi dịch vụ nghiệp vụ, cơ sở dữ liệu hoặc dữ liệu người dùng. Kết quả hồi quy toàn hệ thống của lần trước được giữ riêng ở trên; lần này tập trung kiểm tra phần giao diện và xác thực bị tác động.
+
+Lượt CI đầu sau thay đổi đạt 155 ca; W4-16 dừng do locator theo `alt` khớp cả hai ảnh logo sáng/tối, khiến bốn ca phụ thuộc chưa chạy. Đã sửa phép kiểm tra sang ảnh được công bố trong cây truy cập, yêu cầu đúng một logo đang hiển thị và ảnh đã tải. Kiểm tra riêng locator ở cả sáng, tối và theo hệ thống đều đạt; workflow tiếp tục chạy toàn bộ 160 ca trên commit sửa lỗi, không loại ca kiểm thử.

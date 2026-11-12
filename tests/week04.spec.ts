@@ -154,8 +154,10 @@ test.describe.serial('Week 4 foundation - live PostgreSQL / RabbitMQ / Keycloak'
     await ownerPage.getByRole('button',{name:'+ Thêm địa điểm',exact:true}).click();
     const dialog=ownerPage.getByRole('dialog');await dialog.getByLabel('Tên địa điểm',{exact:true}).fill('Cửa hàng Nam Long');await dialog.getByLabel('Mã địa điểm',{exact:true}).fill('CH03');await dialog.getByLabel('Địa chỉ',{exact:true}).fill('TP. Hồ Chí Minh');await dialog.getByRole('button',{name:'Tạo mới'}).click();
     await expect(dialog).toHaveCount(0);const card=ownerPage.locator('article').filter({hasText:'Cửa hàng Nam Long'});await expect(card.getByText('Sẵn sàng',{exact:true})).toBeVisible({timeout:45000});
-    await expect(ownerPage.getByAltText('Storeluma')).toBeVisible();
-    expect(await ownerPage.getByAltText('Storeluma').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
+    const visibleLogo=ownerPage.getByRole('img',{name:'Storeluma',exact:true});
+    await expect(visibleLogo).toHaveCount(1);
+    await expect(visibleLogo).toBeVisible();
+    expect(await visibleLogo.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
     await expect(ownerPage.locator('body')).not.toContainText(/Tuần 4|Đồ án|Bản chạy phát triển|Nền hệ thống|Đúng người\. Đúng quyền/);
     const search=ownerPage.getByLabel('Tìm địa điểm',{exact:true});
     await search.fill('cua hang nam long');await expect(ownerPage.locator('article')).toHaveCount(1);await expect(card).toBeVisible();
