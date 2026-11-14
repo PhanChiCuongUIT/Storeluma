@@ -133,6 +133,8 @@ Start the services before running `npm test`. The test suite uses real backend s
 
 Authentication tests wait for a fresh TOTP window before each login to avoid reusing a code across suites. Keep one test process per account set; the suite runs with one worker.
 
+The access-control regression suite (`npx playwright test tests/week10-access.spec.ts`) checks the five business roles across service APIs, confidential inventory values, household and location isolation, forged identity headers, and permission changes within an existing session. It also verifies that a previously successful command cannot be replayed after the caller loses its permission. Fixtures are created through the application APIs; these checks are included in the full CI run.
+
 Test fixture IDs are stored under `tmp/fixtures/<compose-project>` so separate Compose projects do not reuse each other's records. Set `TEST_FIXTURE_DIR` to a new empty directory after replacing or resetting a test database. Use a fresh test environment for a full run: the business creation tests deliberately exercise the normal owner limit and must not bypass it.
 
 The suite also checks upgrades from existing inventory and finance schemas to stocktaking, reservations, returns and cash refunds. It creates uniquely named disposable databases, runs the actual migration runner, verifies preserved history and rollback, then drops only those test databases. Run the build before the tests so the compiled migration runner is available.
