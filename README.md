@@ -137,6 +137,8 @@ The access-control regression suite (`npx playwright test tests/week10-access.sp
 
 The connected business scenario (`npx playwright test tests/week10-integration.spec.ts`) follows purchase receipt, cash sale, partial damaged return, refund, drawer expense, settlement and report export. It compares stock movements, payables, cash ledger entries and report totals, including concurrent retries and permission changes before payment, refund and CSV download. The browser checks the resulting figures and downloads the actual CSV on the same backend.
 
+The [messaging recovery tests](docs/testing/messaging-recovery.md) exercise process death at commit/ACK and confirm/Outbox boundaries, a lost publisher confirm, and concurrent consumers. They run the actual Finance service in temporary containers, verify broker redelivery and exact business record counts, and restore the regular service after each test. These checks also run in CI.
+
 Test fixture IDs are stored under `tmp/fixtures/<compose-project>` so separate Compose projects do not reuse each other's records. Set `TEST_FIXTURE_DIR` to a new empty directory after replacing or resetting a test database. Use a fresh test environment for a full run: the business creation tests deliberately exercise the normal owner limit and must not bypass it.
 
 The suite also checks upgrades from existing inventory and finance schemas to stocktaking, reservations, returns and cash refunds. It creates uniquely named disposable databases, runs the actual migration runner, verifies preserved history and rollback, then drops only those test databases. Run the build before the tests so the compiled migration runner is available.

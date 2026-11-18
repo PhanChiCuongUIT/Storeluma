@@ -48,6 +48,7 @@ jobs:
             tmp/week08/screenshots/
             tmp/week09/screenshots/
             tmp/week10/screenshots/
+            tmp/week11/messaging-results.json
             tmp/playwright-results.json
             playwright-report/
             test-results/
