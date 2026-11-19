@@ -75,7 +75,13 @@ async function step(s: any) {
       });
       stage = "PAYMENT";
     } else if (stage === "PAYMENT") {
-      payment = await workflowCall("finance", "payment/create", pay);
+      payment = s.payment
+        ? await workflowCall("finance", "payment/query", {
+            tenantId: s.tenant_id,
+            orderId: s.order_id,
+            paymentId: s.payment_id,
+          })
+        : await workflowCall("finance", "payment/create", pay);
       if (payment.status === "SUCCEEDED") {
         stage = "COMMIT";
         status = "COMMITTING";
@@ -112,7 +118,7 @@ async function step(s: any) {
     ).slice(0, 500);
     if (
       [400, 403, 404, 409, 422].includes(code) &&
-      ["RESERVE", "PREPARE", "PAYMENT"].includes(stage)
+      (["RESERVE", "PREPARE"].includes(stage) || (stage === "PAYMENT" && !s.payment))
     ) {
       stage = "CANCEL";
     }
@@ -127,11 +133,12 @@ async function step(s: any) {
       )
     ).rows[0];
     const lease = (
-      await c.query("SELECT * FROM checkout_sagas WHERE id=$1 FOR UPDATE", [
-        s.id,
-      ])
+      await c.query(
+        "SELECT * FROM checkout_sagas WHERE id=$1 AND lease_token=$2 AND lease_until>clock_timestamp() FOR UPDATE",
+        [s.id, s.lease_token],
+      )
     ).rows[0];
-    if (lease.lease_token !== s.lease_token) return;
+    if (!lease) return;
     let lines = latest.lines;
     if (status === "COMPLETED") {
       lines = structuredClone(lines);

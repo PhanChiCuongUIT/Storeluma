@@ -1,29 +1,7 @@
-import { test, expect, type BrowserContext, type Page, type APIResponse } from '@playwright/test';
+import { test, expect, type BrowserContext, type Page } from '@playwright/test';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { fillFreshTotp } from './helpers/totp';
-
-const accounts = JSON.parse(readFileSync('infra/generated/accounts.json', 'utf8'));
-const origin = 'http://localhost:4100';
-async function good(response: APIResponse) {
-  expect(response.status(), await response.text()).toBeLessThan(300);
-  return response.json();
-}
-async function login(page: Page, index: number) {
-  await page.goto('/auth/login');
-  await page.locator('#username').fill(accounts[index].username);
-  await page.locator('#password').fill(accounts[index].password);
-  await page.locator('#kc-login').click();
-  await fillFreshTotp(page, accounts[index].otpSecret);
-  await page.locator('#kc-login').click();
-  await expect(page).toHaveURL(origin + '/');
-}
-async function api(ctx: BrowserContext, path: string, method = 'GET', data?: unknown, key?: string) {
-  const session = await good(await ctx.request.get('/auth/session'));
-  return ctx.request.fetch(path, { method, data, headers: {
-    origin, 'x-csrf-token': session.csrf, ...(key ? { 'idempotency-key': key } : {}),
-  } });
-}
+import { accounts, api, good, login } from './helpers/business-api';
 
 // One connected business scenario, with exact stock/cash assertions at each boundary.
 // All setup and commands use public APIs; no SQL edits, mocks or broker injection.

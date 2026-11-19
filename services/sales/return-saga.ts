@@ -31,11 +31,12 @@ async function step(s: any) {
   await transaction(async (c) => {
     const current = await readReturn(c, s.tenant_id, s.return_id, true),
       lease = (
-        await c.query("SELECT * FROM return_sagas WHERE id=$1 FOR UPDATE", [
-          s.id,
-        ])
+        await c.query(
+          "SELECT * FROM return_sagas WHERE id=$1 AND lease_token=$2 AND lease_until>clock_timestamp() FOR UPDATE",
+          [s.id, s.lease_token],
+        )
       ).rows[0];
-    if (lease.lease_token !== s.lease_token) return;
+    if (!lease) return;
     if (status !== current.status) {
       await c.query(
         "UPDATE returns SET status=$2,version=version+1,completed_at=CASE WHEN $2='COMPLETED' THEN clock_timestamp() ELSE completed_at END WHERE id=$1",
