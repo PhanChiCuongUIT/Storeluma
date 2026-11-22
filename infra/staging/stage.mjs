@@ -1,19 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { root, stagingContext } from './context.mjs';
 import { setTimeout as sleep } from 'node:timers/promises';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));
-const state = resolve(root, 'tmp/https-staging');
+const { project, state, commit, revision, env, args } = stagingContext(process.env.STORELUMA_DRILL_ID);
 const origin = 'https://storeluma.localhost:9443';
-const project = 'storeluma-https-stage';
-const git = (...command) => execFileSync('git', command, { cwd: root, encoding: 'utf8' }).trim();
-const commit = git('rev-parse', 'HEAD');
-const revision = commit + (git('status', '--porcelain') ? '-dirty' : '');
-const env = { ...process.env, STAGING_REVISION: revision };
-const args = ['compose', '-p', project, '--env-file', resolve(state, '.env'),
-  '-f', 'compose.yaml', '-f', 'infra/staging/compose.yaml'];
 const run = (...command) => execFileSync('docker', [...args, ...command], { cwd: root, env, stdio: 'inherit' });
 const capture = (...command) => execFileSync('docker', command, { cwd: root, env, encoding: 'utf8' }).trim();
 

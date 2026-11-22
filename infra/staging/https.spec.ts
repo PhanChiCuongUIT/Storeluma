@@ -1,13 +1,13 @@
 import { chromium, expect, test } from '@playwright/test';
 import { createHash, randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
 import { fillFreshTotp } from '../../tests/helpers/totp';
 
 const app = 'https://storeluma.localhost:9443';
 const identity = 'https://storeluma-id.localhost:9443';
-const files = 'tmp/https-staging/';
+const files = (process.env.STAGING_STATE_DIR ?? 'tmp/https-staging') + '/';
 
 // Verify both certificate chains and hostnames before pinning their public keys
 // in an ephemeral Chromium instance. The operating system trust store is untouched.
@@ -102,6 +102,15 @@ test('HTTPS edge, OIDC/TOTP session, cash sale and logout', async () => {
     await call(base + 'payments/' + payment.id + '/confirm', { siteId: site.id, version: payment.version, cashReceived: true });
     await expect.poll(async () => (await call(route)).status, { timeout: 30000 }).toBe('COMPLETED');
     expect((await call(route)).lines[0].costVnd).toBe('40000');
+    if (process.env.STORELUMA_DRILL_ID) {
+      writeFileSync(files + 'sale.json', JSON.stringify({ tenant: household.tenantId, order: order.id, payment: payment.id, sku: sku.id }));
+      await page.reload();
+      await page.getByLabel('Chọn hộ kinh doanh').selectOption(household.tenantId);
+      await page.getByRole('button', { name: 'Báo cáo', exact: true }).click();
+      await page.getByLabel('Địa điểm báo cáo').selectOption(site.id);
+      await expect(page.locator('.report-metric').first()).toContainText('100.000', { timeout: 30000 });
+      await page.screenshot({ path: files + 'sales-report.png', fullPage: true });
+    }
     const { redirectUrl } = await call('/auth/logout', {});
     expect(new URL(redirectUrl).origin).toBe(identity);
     await page.goto(redirectUrl);

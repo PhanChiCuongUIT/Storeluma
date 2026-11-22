@@ -1,0 +1,9 @@
+services:
+  postgres:
+    volumes: [restored_data:/var/lib/postgresql/data]
+    command: [postgres, -c, archive_mode=off]
+  rabbitmq:
+    volumes: [restored_broker:/var/lib/rabbitmq]
+volumes:
+  restored_data: {}
+  restored_broker: {}

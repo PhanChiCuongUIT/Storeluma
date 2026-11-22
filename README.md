@@ -145,6 +145,8 @@ The [load and backlog benchmark](benchmarks/README.md) measures catalog search, 
 
 The [HTTPS staging deployment](infra/staging/README.md) runs Caddy, Keycloak and the application on an isolated Compose network. CI checks sign-in, a cash sale and logout over HTTPS on ARM64 and records the tested service images.
 
+The [recovery drill](infra/recovery/README.md) restores PostgreSQL from an encrypted backup and archived WAL, then verifies cash sales against inventory after event replay. The [pilot deployment guide](infra/pilot/README.md) covers release digests, public HTTPS and scheduled off-host backups.
+
 Test fixture IDs are stored under `tmp/fixtures/<compose-project>` so separate Compose projects do not reuse each other's records. Set `TEST_FIXTURE_DIR` to a new empty directory after replacing or resetting a test database. Use a fresh test environment for a full run: the business creation tests deliberately exercise the normal owner limit and must not bypass it.
 
 The suite also checks upgrades from existing inventory and finance schemas to stocktaking, reservations, returns and cash refunds. It creates uniquely named disposable databases, runs the actual migration runner, verifies preserved history and rollback, then drops only those test databases. Run the build before the tests so the compiled migration runner is available.

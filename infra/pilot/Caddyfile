@@ -1,0 +1,17 @@
+{
+	admin off
+}
+
+{$APP_HOST} {
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy gateway:4100
+}
+
+{$IDENTITY_HOST} {
+	header Strict-Transport-Security "max-age=31536000"
+	@browser path /realms/storeluma/.well-known/openid-configuration /realms/storeluma/protocol/openid-connect/* /realms/storeluma/login-actions/* /resources/*
+	handle @browser {
+		reverse_proxy keycloak:8080
+	}
+	respond 404
+}

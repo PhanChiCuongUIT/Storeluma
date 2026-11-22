@@ -1,0 +1,26 @@
+services:
+  repository:
+    image: storeluma-drill-repository:pg17
+    entrypoint: [sh, /usr/local/bin/serve-repository.sh]
+    volumes: [repository_keys:/server:ro, repository_data:/vault/repository]
+    networks: [archive]
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 22"]
+      interval: 3s
+      retries: 20
+  postgres:
+    image: storeluma-recovery-postgres:pg17
+    networks: [default, archive]
+    depends_on: {repository: {condition: service_healthy}}
+    volumes: [archive_keys:/etc/pgbackrest:ro]
+    command: [postgres, -c, archive_mode=on, -c, archive_timeout=60s, -c, "archive_command=pgbackrest --stanza=storeluma archive-push %p"]
+networks:
+  archive: {internal: true}
+volumes:
+  archive_keys:
+    external: true
+    name: ${COMPOSE_PROJECT_NAME}_archive_keys
+  repository_keys:
+    external: true
+    name: ${COMPOSE_PROJECT_NAME}_repository_keys
+  repository_data: {}

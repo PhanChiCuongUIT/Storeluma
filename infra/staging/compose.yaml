@@ -9,7 +9,7 @@ x-app: &app
   networks: [default, edge]
   environment: *trust
   volumes:
-    - ./tmp/https-staging/root.crt:/etc/storeluma/ca.crt:ro
+    - ${STAGING_STATE_DIR:-./tmp/https-staging}/root.crt:/etc/storeluma/ca.crt:ro
 
 services:
   edge:
@@ -26,7 +26,7 @@ services:
   postgres:
     ports: !reset []
     volumes:
-      - ./tmp/https-staging/infra/generated/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ${STAGING_STATE_DIR:-./tmp/https-staging}/infra/generated/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
   rabbitmq:
     ports: !reset []
   keycloak:
@@ -38,7 +38,7 @@ services:
       KC_HTTP_ENABLED: 'true'
       KC_PROXY_HEADERS: xforwarded
     volumes:
-      - ./tmp/https-staging/infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro
+      - ${STAGING_STATE_DIR:-./tmp/https-staging}/infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro
   gateway:
     <<: *app
     ports: !reset []

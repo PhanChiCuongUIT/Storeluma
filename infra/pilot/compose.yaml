@@ -1,0 +1,81 @@
+x-identity: &identity
+  OIDC_ISSUER: https://${IDENTITY_HOST:?}/realms/storeluma
+  OIDC_INTERNAL: https://${IDENTITY_HOST:?}/realms/storeluma
+x-service: &service
+  networks: [default, edge]
+  environment: *identity
+services:
+  edge:
+    image: ${EDGE_IMAGE:?}
+    environment: {APP_HOST: '${APP_HOST:?}', IDENTITY_HOST: '${IDENTITY_HOST:?}'}
+    ports: ['80:80', '443:443']
+    volumes: ['./infra/pilot/Caddyfile:/etc/caddy/Caddyfile:ro', 'certificates:/data', 'caddy_config:/config']
+    networks:
+      edge:
+        aliases: ['${IDENTITY_HOST:?}']
+    restart: unless-stopped
+  postgres:
+    image: ${POSTGRES_IMAGE:?}
+    ports: !reset []
+    networks: [default, backup]
+    volumes:
+      - ${PILOT_CONFIG_DIR:?}/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ${PILOT_CONFIG_DIR:?}/pgbackrest:/etc/pgbackrest:ro
+    command: [postgres, -c, archive_mode=on, -c, archive_timeout=60s, -c, "archive_command=pgbackrest --stanza=storeluma archive-push %p"]
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE:?}
+    ports: !reset []
+  keycloak:
+    image: ${KEYCLOAK_IMAGE:?}
+    ports: !reset []
+    networks: [default, edge]
+    command: [start, --import-realm]
+    environment:
+      KC_HOSTNAME: https://${IDENTITY_HOST:?}
+      KC_HTTP_ENABLED: 'true'
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ${PILOT_CONFIG_DIR:?}/realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro
+  gateway:
+    <<: *service
+    build: !reset null
+    image: ${GATEWAY_IMAGE:?}
+    ports: !reset []
+    environment:
+      <<: *identity
+      WEB_ORIGIN: https://${APP_HOST:?}
+  business:
+    <<: *service
+    build: !reset null
+    image: ${BUSINESS_IMAGE:?}
+  catalog:
+    <<: *service
+    build: !reset null
+    image: ${CATALOG_IMAGE:?}
+  inventory:
+    <<: *service
+    build: !reset null
+    image: ${INVENTORY_IMAGE:?}
+  sales:
+    <<: *service
+    build: !reset null
+    image: ${SALES_IMAGE:?}
+  finance:
+    <<: *service
+    build: !reset null
+    image: ${FINANCE_IMAGE:?}
+  reporting:
+    <<: *service
+    build: !reset null
+    image: ${REPORTING_IMAGE:?}
+  notification:
+    <<: *service
+    build: !reset null
+    image: ${NOTIFICATION_IMAGE:?}
+networks:
+  default: {internal: true}
+  edge: {}
+  backup: {}
+volumes:
+  certificates: {}
+  caddy_config: {}

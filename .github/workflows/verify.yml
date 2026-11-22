@@ -1,5 +1,13 @@
 name: Verify Storeluma
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish_pilot:
+        description: Publish the verified ARM64 pilot images to GHCR
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -18,6 +26,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run setup
       - run: npm run build
+      - run: node --test infra/pilot/config.test.mjs
       - run: npx playwright install --with-deps chromium
       - run: docker compose up -d --build --wait
       - name: Run integration and migration tests
@@ -80,3 +89,50 @@ jobs:
       - name: Stop staging
         if: always() && hashFiles('tmp/https-staging/.env') != ''
         run: node infra/staging/stage.mjs down
+  recovery:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '24', cache: npm}
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Recover to a WAL restore point and sell through HTTPS
+        run: node infra/recovery/drill.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: recovery-measurements
+          path: tmp/recovery/latest.json
+          if-no-files-found: error
+          retention-days: 7
+  publish-pilot:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_pilot
+    needs: [verify, https-staging, recovery]
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '24', cache: npm}
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise the exact images to be published
+        run: node infra/recovery/drill.mjs
+      - name: Publish images and resolve registry digests
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          node infra/pilot/publish.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pilot-release
+          path: tmp/recovery/release.json
+          if-no-files-found: error
+          retention-days: 7
