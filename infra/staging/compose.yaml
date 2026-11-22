@@ -1,0 +1,62 @@
+x-trust: &trust
+  OIDC_ISSUER: https://storeluma-id.localhost:9443/realms/storeluma
+  OIDC_INTERNAL: https://storeluma-id.localhost:9443/realms/storeluma
+  NODE_EXTRA_CA_CERTS: /etc/storeluma/ca.crt
+x-app: &app
+  build:
+    labels:
+      org.opencontainers.image.revision: ${STAGING_REVISION:?Use the staging launcher}
+  networks: [default, edge]
+  environment: *trust
+  volumes:
+    - ./tmp/https-staging/root.crt:/etc/storeluma/ca.crt:ro
+
+services:
+  edge:
+    image: caddy:2-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
+    restart: unless-stopped
+    networks:
+      edge:
+        aliases: [storeluma-id.localhost]
+    ports: ['127.0.0.1:9080:9080', '127.0.0.1:9443:9443']
+    volumes:
+      - ./infra/staging/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+  postgres:
+    ports: !reset []
+    volumes:
+      - ./tmp/https-staging/infra/generated/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+  rabbitmq:
+    ports: !reset []
+  keycloak:
+    ports: !reset []
+    networks: [default, edge]
+    command: [start, --import-realm]
+    environment:
+      KC_HOSTNAME: https://storeluma-id.localhost:9443
+      KC_HTTP_ENABLED: 'true'
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./tmp/https-staging/infra/generated/storeluma-realm.json:/opt/keycloak/data/import/storeluma-realm.json:ro
+  gateway:
+    <<: *app
+    ports: !reset []
+    environment:
+      <<: *trust
+      WEB_ORIGIN: https://storeluma.localhost:9443
+  business: *app
+  catalog: *app
+  inventory: *app
+  sales: *app
+  finance: *app
+  reporting: *app
+  notification: *app
+
+networks:
+  default:
+    internal: true
+  edge: {}
+volumes:
+  caddy_data:
+  caddy_config:
