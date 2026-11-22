@@ -198,7 +198,8 @@ async function step(s: any) {
         { status, stage },
       );
     }
-    const delay = error ? Math.min(30, 2 ** Math.min(s.attempts, 5)) : 1;
+    // A persisted transition is ready for the next claim. Poll only when waiting for cash.
+    const delay = error ? Math.min(30, 2 ** Math.min(s.attempts, 5)) : stage === s.stage ? 0.5 : 0;
     await c.query(
       "UPDATE checkout_sagas SET stage=$2,payment=$3,stock_result=$4,last_error=$5,attempts=$6,next_attempt_at=now()+$7*interval '1 second',lease_token=null,lease_until=null,version=version+1,updated_at=clock_timestamp() WHERE id=$1",
       [

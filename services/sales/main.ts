@@ -16,5 +16,5 @@ setInterval(
     void checkoutTick().catch(() =>
       console.warn("Checkout recovery will retry."),
     ),
-  500,
+  250,
 );
