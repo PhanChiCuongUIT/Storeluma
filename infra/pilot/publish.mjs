@@ -22,6 +22,10 @@ for (const [service, imageId] of Object.entries(result.images)) {
   const digest = info().RepoDigests.find(ref => ref.startsWith(repository + '@')
     || ref.startsWith('docker.io/library/' + repository + '@'));
   assert.ok(digest, 'Missing registry digest for ' + service);
+  execFileSync('docker',['pull',digest],{stdio:'inherit'});
+  const fetched = JSON.parse(execFileSync('docker',['image','inspect',digest],{encoding:'utf8'}))[0];
+  assert.deepEqual(fetched.RootFS.Layers,info().RootFS.Layers);
+  assert.deepEqual(fetched.Config,info().Config);
   images[service] = digest;
 }
 assert.equal(Object.keys(images).length,12);
