@@ -24,7 +24,7 @@ Trình duyệt mở ứng dụng qua Caddy. Khi đăng nhập, người dùng đ
 | --- | --- |
 | Caddy và Keycloak | Tách tên miền ứng dụng và xác thực. Staging kiểm chứng chỉ bằng CA riêng. Cổng quản trị của Keycloak không được xuất qua proxy. |
 | Compose | Chỉ Caddy mở cổng. Kiểm danh sách cổng, trạng thái sẵn sàng, kiến trúc và image của 12 container. |
-| Phát hành | Workflow có bước phát hành theo yêu cầu. Bộ cài nhận manifest theo commit, kiểm digest của từng image, redirect URI và cấu hình cổng trước khi tải. |
+| Phát hành | Ngày 23/11, bản 169e868 đạt cả bốn job. GitHub Container Registry lưu chín image ARM64 của Storeluma. Danh sách triển khai cố định cả 12 image theo digest, gồm cả Caddy, Keycloak và RabbitMQ. |
 | Máy pilot | Bộ sinh cấu hình tạo khóa dịch vụ, realm, một chủ hộ và thông tin mã hóa backup. Lịch full, differential và kiểm archive được cài sau khi dịch vụ đáp ứng qua HTTPS. |
 
 Đích triển khai dự kiến sử dụng Ubuntu ARM64 và hai bản ghi DNS trỏ về máy chủ. Việc xác nhận chứng chỉ công khai, đường truyền đến bucket và giao dịch từ mạng bên ngoài cần thực hiện trên đích triển khai.
@@ -69,7 +69,7 @@ Hình chụp của hộ thử thứ hai, lập sau khi PostgreSQL đã phục h�
 
 ## 6. Rà soát đầu ra và chuẩn bị tuần 13
 
-Tuần 1–3 được rà soát qua đề cương, báo cáo khảo sát và hồ sơ thiết kế. Với các tuần có phần mềm chạy được, lượt hồi quy ngày 22/11 đã chạy đủ 189 ca trong 17.8 phút, không bỏ qua hoặc chạy lại.
+Tuần 1–3 được đối chiếu qua đề cương, báo cáo khảo sát và hồ sơ thiết kế. Ngày 23/11, bản phát hành 169e868 đạt 189/189 ca hồi quy trong 16 phút 30 giây. Không có ca bị bỏ qua hoặc phải chạy lại. Trên ARM64, bài phục hồi của bản này phát lại 25 sự kiện, đo được RPO 1,118 giây và RTO 90,5 giây.
 
 | Tuần | Nội dung đã đối chiếu |
 | --- | --- |
