@@ -63,8 +63,8 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     const invitation = await good(await cmd('invitations', { targetSubjectId: accounts[1].subject,
       role: 'CASHIER', siteIds: [site.id], ownerConfirmed: true }));
     await good(await api(staff, '/v1/invitations/accept', 'POST', { token: invitation.token }));
-    sku = (await good(await cmd('products', { name: 'Cà phê rang mộc 250g', categoryId: null,
-      sku: { code: 'AN-' + stamp, name: 'Cà phê rang mộc 250g', baseUnit: 'Gói', priceVnd: '100000' } }))).skus[0];
+    sku = (await good(await cmd('products', { name: 'Cà phê hạt rang mộc', categoryId: null,
+      sku: { code: 'AN-' + stamp, name: 'Cà phê hạt rang mộc', baseUnit: 'kg', priceVnd: '100000' } }))).skus[0];
     supplier = await good(await cmd('suppliers', { code: 'AN-' + stamp, name: 'Nhà cung cấp An Phú' }));
     shift = await good(await cmd('shifts', { siteId: site.id, openingCash: '500000' }, staff));
   });
@@ -228,6 +228,24 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     await page.setViewportSize({ width: 390, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: evidence + '/04-mobile.png', fullPage: false });
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.getByRole('button', { name: 'Đơn bán', exact: true }).click();
+    await page.getByLabel('Địa điểm bán hàng').selectOption(site.id);
+    await page.getByLabel('Trạng thái đơn bán').selectOption('COMPLETED');
+    await page.getByRole('row').filter({ hasText: sale.code }).getByRole('button', { name: 'Xem đơn' }).click();
+    await page.getByRole('button', { name: 'Xem / in biên nhận' }).click();
+    const paper = page.locator('.receipt-paper');
+    await expect(paper).toContainText(sku.name);
+    await expect(paper).toContainText('190.000');
+    await paper.screenshot({ path: evidence + '/05-receipt.png' });
+    await page.getByRole('button', { name: 'Đóng bản in' }).click();
+    await page.getByRole('tab', { name: 'Ca thu ngân', exact: true }).click();
+    const drawer = page.locator('.drawer-desk');
+    await expect(drawer.getByRole('heading', { name: 'Đã xác nhận chênh lệch' })).toBeVisible();
+    await expect(drawer).toContainText(sale.code);
+    for (const value of ['630.000', '629.000', '-1.000']) await expect(drawer).toContainText(value);
+    await drawer.screenshot({ path: evidence + '/06-drawer.png' });
     expect(errors).toEqual([]);
   });
 });
