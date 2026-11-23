@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
   postgres:
     image: ${POSTGRES_IMAGE:?}
+    restart: unless-stopped
     ports: !reset []
     networks: [default, backup]
     volumes:
@@ -24,9 +25,11 @@ services:
     command: [postgres, -c, archive_mode=on, -c, archive_timeout=60s, -c, "archive_command=pgbackrest --stanza=storeluma archive-push %p"]
   rabbitmq:
     image: ${RABBITMQ_IMAGE:?}
+    restart: unless-stopped
     ports: !reset []
   keycloak:
     image: ${KEYCLOAK_IMAGE:?}
+    restart: unless-stopped
     ports: !reset []
     networks: [default, edge]
     command: [start, --import-realm]

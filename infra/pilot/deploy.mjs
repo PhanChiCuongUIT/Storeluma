@@ -47,6 +47,7 @@ const config = JSON.parse(execFileSync('docker',[...compose,'config','--format',
 for (const service of services) {
   const s = config.services[service];
   assert.equal(s.image,release.images[service]);
+  assert.equal(s.restart,'unless-stopped','Missing restart policy for '+service);
   assert.ok(!s.build);
   if (service !== 'edge') assert.ok(!s.ports?.length);
 }
