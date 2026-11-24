@@ -1,0 +1,38 @@
+name: Measure checkout and backlog
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    env:
+      COMPOSE_PROJECT_NAME: storeluma-benchmark
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '24', cache: npm}
+      - run: npm ci
+      - run: npm run setup
+      - run: npx playwright install --with-deps chromium
+      - run: docker compose up -d --build --wait
+      - name: Exercise 600 scheduled sales and recover 100 pending receipts
+        run: npx playwright test --config benchmarks/playwright.config.ts
+      - name: Record runner and release
+        if: always()
+        run: |
+          mkdir -p tmp/week11/load
+          node --input-type=module -e "import os from 'node:os'; console.log(JSON.stringify({commit:process.env.GITHUB_SHA,arch:os.arch(),logicalCpus:os.availableParallelism(),memoryMiB:Math.round(os.totalmem()/1048576)}))" > tmp/week11/load/environment.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: checkout-measurements
+          path: |
+            tmp/week11/load/environment.json
+            tmp/week11/load/result.json
+            tmp/week11/load/recovery.json
+            tmp/week11/load/balances.json
+          retention-days: 14
+      - run: docker compose down
+        if: always() && hashFiles('.env') != ''
