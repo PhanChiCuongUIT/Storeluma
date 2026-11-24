@@ -1,0 +1,32 @@
+name: Prepare off-host recovery rehearsal
+on:
+  workflow_dispatch:
+    inputs:
+      recipient:
+        description: Single-use receiver RSA-3072 public key (base64 SPKI)
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '24', cache: npm}
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Back up synthetic data and stop the source host
+        env:
+          OFFHOST_RECIPIENT: ${{ inputs.recipient }}
+        run: node infra/recovery/drill.mjs send
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-offhost-rehearsal
+          path: tmp/recovery/offhost.bin
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0

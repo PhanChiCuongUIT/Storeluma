@@ -34,3 +34,21 @@ On the pilot host, schedule the launcher from the deployment checkout with the r
 ```
 
 Route nonzero exits to the operator. Monitor disk space for both `pg_wal` and the repository and check the age of the newest usable backup. Confirm available capacity against the actual full-backup size, WAL generation and retention. Rehearse on a replacement machine with write traffic disabled. Before reopening, compare ledger amounts, stock, saga states, Outbox and Inbox with source documents and any external payment provider.
+
+## Rehearse loss of the source host
+
+On the receiving machine use a clean checkout, Node 24, Chromium and Docker with Linux containers. Generate a single-use receiver key in an ignored directory.
+
+```sh
+node infra/recovery/transfer.mjs tmp/offhost-receiver
+```
+
+Run **Prepare off-host recovery rehearsal** on GitHub Actions at the revision to recover. Paste the contents of `recipient.txt` into its public-key field. The job creates fresh test accounts and a sale after the full backup, archives the target WAL, then stops the source stack. It exports only an authenticated, encrypted bundle addressed to the receiver. The private key stays on the receiving machine. The artifact expires after one day.
+
+Download the run's `encrypted-offhost-rehearsal` artifact, extract `offhost.bin` into the ignored directory and check out the exact source commit. The receiving machine must use the source PostgreSQL major version and a compatible CPU architecture. Leave ports 9080 and 9443 free for the isolated HTTPS stack.
+
+```sh
+node infra/recovery/drill.mjs receive tmp/offhost-receiver/offhost.bin tmp/offhost-receiver/receiver.pem
+```
+
+The command restores into fresh volumes and an empty broker, verifies the two WAL markers, replays retained events and completes another HTTPS sale. Read `tmp/recovery/latest.json` for the source revision, RPO, elapsed RTO including transfer, and checked amounts. This drill uses disposable credentials and a private CA. Use your own repository, escrow and public DNS for site acceptance.
