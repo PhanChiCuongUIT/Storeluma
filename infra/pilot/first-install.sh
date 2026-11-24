@@ -10,7 +10,7 @@ exec 9>/run/lock/storeluma-install.lock
 flock -n 9
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y ca-certificates git docker.io docker-compose-v2 cron
+apt-get install -y ca-certificates curl git docker.io docker-compose-v2 cron
 systemctl enable --now docker cron
 install -d -m 755 /opt/storeluma/bin /opt/storeluma/releases
 node=/opt/storeluma/bin/node
@@ -21,6 +21,19 @@ if [[ ! -x $node ]] || ! "$node" -e 'process.exit(Number(process.versions.node.s
   "$node_tmp" --version
   mv -f "$node_tmp" "$node"
 fi
+gh=/opt/storeluma/bin/gh
+if [[ ! -x $gh ]] || ! "$gh" --version | grep -q 'version 2.105.0 '; then
+  gh_archive=$(mktemp -d)
+  trap 'rm -f "$gh_archive/archive.tgz" "$gh_archive/gh"; rmdir "$gh_archive"' EXIT
+  curl -fLsS --retry 3 https://github.com/cli/cli/releases/download/v2.105.0/gh_2.105.0_linux_arm64.tar.gz -o "$gh_archive/archive.tgz"
+  echo "b1278c75107423d818f1937fd92cafc9e5e9b606631568f68d7fb816f5885a02  $gh_archive/archive.tgz" | sha256sum -c -
+  tar -xzOf "$gh_archive/archive.tgz" gh_2.105.0_linux_arm64/bin/gh > "$gh_archive/gh"
+  install -m 755 "$gh_archive/gh" "$gh.new"
+  mv -f "$gh.new" "$gh"
+fi
+# Verify using the trusted bootstrap script before executing files from any supplied commit.
+"$gh" attestation verify "$upload/release.json" --bundle "$upload/release.json.sigstore.json" --repo PhanChiCuongUIT/Storeluma \
+  --signer-workflow PhanChiCuongUIT/Storeluma/.github/workflows/verify.yml --source-ref refs/heads/main --source-digest "$commit" --deny-self-hosted-runners
 checkout=/opt/storeluma/releases/$commit
 if [[ ! -d $checkout/.git ]]; then
   stage=$(mktemp -d /opt/storeluma/releases/.checkout.XXXXXXXX)
@@ -54,6 +67,7 @@ pg_uid=$(docker run --rm --entrypoint id "$pg_image" -u postgres)
 chown "$pg_uid" "$config/pgbackrest" "$config/pgbackrest/pgbackrest.conf"
 "$node" infra/pilot/deploy.mjs deploy "$upload/release.json" "$config"
 install -m 600 "$upload/release.json" "$config/release.json.new"
+install -m 600 "$upload/release.json.sigstore.json" "$config/release.json.sigstore.json"
 mv -f "$config/release.json.new" "$config/release.json"
 ln -sfn "$checkout" /opt/storeluma/current
 cat > /etc/cron.d/storeluma-backup <<'CRON'
@@ -62,4 +76,8 @@ cat > /etc/cron.d/storeluma-backup <<'CRON'
 */10 * * * * root cd /opt/storeluma/current && /opt/storeluma/bin/node infra/pilot/deploy.mjs check-archive /etc/storeluma/release.json /etc/storeluma
 CRON
 chmod 644 /etc/cron.d/storeluma-backup
+cat > /etc/cron.d/storeluma-monitor <<'CRON'
+*/2 * * * * root cd /opt/storeluma/current && flock -n /run/lock/storeluma-monitor.lock /opt/storeluma/bin/node infra/pilot/monitor.mjs /etc/storeluma
+CRON
+chmod 644 /etc/cron.d/storeluma-monitor
 printf '%s\n' 'Pilot is ready. Read /etc/storeluma/owner-login.json privately for the first sign-in.'

@@ -8,7 +8,7 @@ function credentials(service,master){
   return createHmac('sha256',master).update('storeluma-amqp:'+service).digest('hex');
 }
 export const brokerUrl=(service,master)=>'amqp://sl_'+service+':'+credentials(service,master)+'@rabbitmq:5672';
-export function definitions(master){
+export function definitions(master,serviceSeeds={}){
   const users=[],permissions=[],topic_permissions=[],exchanges=[],queues=[],bindings=[];
   const exchange=(name,type)=>exchanges.push({name,type,vhost:'/',durable:true,auto_delete:false,internal:false,arguments:{}});
   const queue=(name,args={})=>queues.push({name,vhost:'/',durable:true,auto_delete:false,arguments:args});
@@ -17,7 +17,7 @@ export function definitions(master){
   for(const key of routes.deferred)bind('storeluma','storeluma.deferred',key);
   for(const service of services){
     const user='sl_'+service,salt=randomBytes(4),retry='storeluma.retry.'+service;
-    const hash=createHash('sha256').update(salt).update(credentials(service,master)).digest();
+    const hash=createHash('sha256').update(salt).update(credentials(service,serviceSeeds[service]??master)).digest();
     users.push({name:user,password_hash:Buffer.concat([salt,hash]).toString('base64'),hashing_algorithm:'rabbit_password_hashing_sha256',tags:[]});
     permissions.push({user,vhost:'/',configure:'^$',read:pattern([service]),write:pattern(['storeluma',retry])});
     topic_permissions.push({user,vhost:'/',exchange:'storeluma',write:pattern(routes.producers[service]),read:pattern(routes.consumers[service])});
@@ -27,8 +27,8 @@ export function definitions(master){
   }
   return {users,vhosts:[{name:'/'}],permissions,topic_permissions,exchanges,queues,bindings};
 }
-export function configureBroker(compose,env,master){
+export function configureBroker(compose,env,master,serviceSeeds={}){
   execFileSync('docker',[...compose,'exec','-T','-u','rabbitmq','rabbitmq','sh','-ec',
     'umask 077; file=$(mktemp); trap \'rm -f "$file"\' EXIT; cat > "$file"; rabbitmqctl import_definitions "$file"'],
-    {input:JSON.stringify(definitions(master)),env,stdio:['pipe','inherit','inherit']});
+    {input:JSON.stringify(definitions(master,serviceSeeds)),env,stdio:['pipe','inherit','inherit']});
 }

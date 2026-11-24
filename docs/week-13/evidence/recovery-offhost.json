@@ -1,0 +1,19 @@
+{
+  "revision": "46b580998748bea075434adb722aae8003b4a695",
+  "platform": "linux/amd64",
+  "incidentAt": "2026-11-24 10:17:38.652855+00",
+  "lastRecord": "2026-11-24 10:17:37.671162+00",
+  "rpoSeconds": 0.981,
+  "rtoUpperBoundSeconds": 438.1,
+  "receiverRestoreSeconds": 193.3,
+  "withinObjectives": true,
+  "replayed": 25,
+  "verifiedSales": 2,
+  "incomePerSale": 100000,
+  "stockCostPerSale": 40000,
+  "restoredProbe": [
+    "keep"
+  ],
+  "repositoryPlacement": "encrypted copy delivered to an independent recovery host",
+  "sourceRun": "https://github.com/PhanChiCuongUIT/Storeluma/actions/runs/45372872290"
+}

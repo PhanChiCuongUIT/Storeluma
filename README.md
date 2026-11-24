@@ -168,14 +168,16 @@ GitHub Actions builds the application and audits runtime dependencies, and runs 
 | `tools` | Environment setup and application configuration tools |
 | `compose.yaml` | Docker service and infrastructure configuration |
 
-## Development status
+## Deployment and scope
 
 The application currently runs locally with Docker Compose, HTTP, and Keycloak in development mode. Sample accounts are intended for testing. Login sessions last up to 15 minutes; users must sign in again after their session expires.
 
 Each sign-in attempt has a separate five-minute state and browser cookie. Expired attempts return to the sign-in screen with a retry action; revisiting a callback preserves an existing valid session. Start from `http://localhost:4100/`, rather than bookmarking a temporary identity-provider or callback URL.
 
-The current release is `0.9.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. Customer profiles and purchase history, electronic payments, customer credit, transfers, supplier payments, tax reporting and external email/push notifications remain planned. Management reports currently cover settled sales/returns, current inventory and cash movements at the register; gross profit is not net profit. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
+The current release is `0.9.0`. The implemented POS flow covers walk-in cash sales, receipts, partial/full returns, cash refunds and drawer settlement at one default register per location. A sale can reference a customer profile. Authorized staff can review purchase history and manage supplier payments. Electronic payments, customer credit, stock transfers, tax reporting and external customer notifications are outside the cash-sale workflow. Management reports currently cover settled sales/returns, current inventory and cash movements at the register; gross profit is not net profit. Offline checkout, CSV imports and purchase orders are not included. Unit conversion factors are immutable after creation; create a new unit for a different pack size. Browser printing is implemented; compatibility with a physical receipt printer depends on its driver and paper settings.
 
 Migrations preserve existing receipt history. Pre-upgrade movement balances are reconstructed in recorded-time order and marked in the stock card; new movements capture their actual locked before/after values. New databases apply the same numbered migrations at startup. Do not reset Docker volumes when upgrading an existing installation.
 
-Production deployment, HTTPS, account self-registration, email delivery, automatic session renewal, and backup and recovery procedures have not yet been implemented. Local service accounts currently own their databases and perform startup migrations; production migration roles, service identity rotation, and broker-level per-service credentials remain deployment work.
+The ARM64 pilot configuration uses signed release manifests, TLS, restricted runtime database and RabbitMQ accounts, archived WAL and scheduled backups. HTTPS and recovery rehearsals use synthetic data. An installation on a public domain still requires operator-owned infrastructure and site acceptance. [Pilot deployment](infra/pilot/README.md) · [Recovery procedure](infra/recovery/README.md)
+
+For a local Keycloak database created before the operations role was added, run `node tools/upgrade-local-realm.mjs` once after startup. The role has no assigned users by default.

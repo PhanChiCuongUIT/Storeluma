@@ -25,6 +25,7 @@ AGENTS.md
 /docs/week-07/evidence/*.json
 /tools/*
 !/tools/dev-setup.mjs
+!/tools/upgrade-local-realm.mjs
 !/tools/demo-login.mjs
 !/tools/configure-branding.mjs
 /docs/week-02/0[1-6]-*.md

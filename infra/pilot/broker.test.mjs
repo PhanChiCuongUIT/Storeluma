@@ -29,5 +29,10 @@ test('pilot service accounts publish owned routes, receive their retries and hav
     assert.equal(JSON.parse(flags)[0].configure,'^$');
     const topics=JSON.parse(docker(['exec','-u','rabbitmq',name,'rabbitmqctl','list_user_topic_permissions','sl_sales','--formatter','json']));
     assert.equal(new RegExp(topics[0].write).test('finance.payment-succeeded.v1'),false);
+    const rotated=randomBytes(32).toString('hex');
+    docker(['exec','-i','-u','rabbitmq',name,'sh','-ec','umask 077; f=$(mktemp); trap \'rm -f "$f"\' EXIT; cat > "$f"; rabbitmqctl import_definitions "$f"'],{input:JSON.stringify(definitions(master,{sales:rotated}))});
+    await assert.rejects(connect('sales'));
+    const newSales=await amqp.connect(brokerUrl('sales',rotated).replace('rabbitmq:5672','127.0.0.1:'+port));
+    await newSales.close();
   }finally{await finance?.close();await sales?.close();docker(['rm','-f',name]);}
 });

@@ -26,7 +26,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run setup
       - run: npm run build
-      - run: node --test infra/pilot/config.test.mjs infra/pilot/runtime-db.test.mjs infra/pilot/broker.test.mjs
+      - run: node --test infra/pilot/config.test.mjs infra/pilot/runtime-db.test.mjs infra/pilot/broker.test.mjs infra/pilot/rollout.test.mjs infra/pilot/monitor.test.mjs
       - run: npx playwright install --with-deps chromium
       - run: docker compose up -d --build --wait
       - name: Run integration and migration tests
@@ -116,6 +116,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with: {persist-credentials: false}
@@ -131,9 +133,44 @@ jobs:
         run: |
           printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           node infra/pilot/publish.mjs
+      - name: Inventory packages in all twelve release images
+        env:
+          SYFT_CHECK_FOR_APP_UPDATE: 'false'
+          SYFT_PARALLELISM: '2'
+        run: |
+          scanner="$RUNNER_TEMP/syft"
+          mkdir -p "$scanner"
+          curl -fLsS --retry 3 https://github.com/anchore/syft/releases/download/v1.57.2/syft_1.57.2_linux_arm64.tar.gz -o "$scanner/syft.tar.gz"
+          echo "8efe605309c98798e1ee0cffdcf8c05ca26819b4cd44c0b03650f1e963e9bdb6  $scanner/syft.tar.gz" | sha256sum -c -
+          tar -xzf "$scanner/syft.tar.gz" -C "$scanner" syft
+          PATH="$scanner:$PATH" node infra/pilot/release-evidence.mjs
+      - name: Attest Storeluma images, release manifest and package inventories
+        id: provenance
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-checksums: tmp/recovery/release-evidence/subjects.sha256
+      - name: Verify the signed release and reject a modified manifest
+        env:
+          BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+        run: |
+          cd tmp/recovery
+          cp "$BUNDLE" release.json.sigstore.json
+          node ../../infra/pilot/verify-manifest.mjs release.json gh
+          cp release.json changed.json
+          cp "$BUNDLE" changed.json.sigstore.json
+          printf '\n' >> changed.json
+          if node ../../infra/pilot/verify-manifest.mjs changed.json gh; then exit 1; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pilot-release-evidence
+          path: tmp/recovery/release-evidence
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: pilot-release
-          path: tmp/recovery/release.json
+          path: |
+            tmp/recovery/release.json
+            tmp/recovery/release.json.sigstore.json
           if-no-files-found: error
           retention-days: 7

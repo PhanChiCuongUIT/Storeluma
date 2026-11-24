@@ -22,6 +22,12 @@ Tám ca kiểm thử liên tiếp dùng chung một hộ, hai địa điểm và
 | Luồng nghiệp vụ từ nhập đến chốt ca | Đối chiếu công nợ hình thành khi nhập, tồn, khoản thu, tiền hoàn và kết quả sau chốt ca. Kịch bản dùng tiền mặt và khách lẻ. |
 | Quyền theo vai trò | Thu ngân lập phiếu trả, chủ hộ duyệt. Việc đổi quyền trong lúc một giao dịch đang chờ được kiểm lại tại dịch vụ. |
 | HTTPS và phát hành | Staging đã kiểm TLS, đăng nhập và bán qua HTTPS. Bản ARM64 đã phát hành lên GHCR. Chờ máy chủ và DNS để xác nhận chứng chỉ và thực hiện một giao dịch từ Internet. [Minh chứng tuần 12](../week-12/evidence/verification.md) |
-| Sao lưu và khôi phục | Đã khôi phục theo WAL, phát lại sự kiện và đối chiếu hai đơn trên cụm diễn tập. Kho sao lưu của phép đo nằm cùng máy Docker. Cần thử kho ngoài máy và khôi phục sang máy thay thế trước khi kết luận về môi trường triển khai. |
+| Sao lưu và khôi phục | Đã khôi phục theo WAL, phát lại sự kiện và đối chiếu hai đơn trên cụm diễn tập. Ngày 24/11 có thêm lượt khôi phục từ runner GitHub sang Docker Desktop độc lập. Xem [kết quả trên hai máy](evidence/recovery-offhost.json). Kho triển khai của cửa hàng còn cần nghiệm thu. |
 
-Nửa sau tuần 13 dành cho việc hoàn thiện báo cáo cuối kỳ, chọn sơ đồ và chứng từ để giải thích ranh giới dịch vụ, rồi tổng duyệt phần trình bày. Phạm vi hồ sơ khách hàng, thanh toán công nợ nhà cung cấp và đối soát hợp nhất được ghi trong [ma trận nghiệp vụ](../week-10/review-weeks-01-10.md).
+## Hồ sơ cuối kỳ
+
+- [Báo cáo tiến độ tuần 13](../../output/pdf/Storeluma_Bao_cao_Tuan_13.pdf)
+- [Báo cáo tổng kết Đồ án 2](../../output/pdf/Storeluma_Bao_cao_Do_an_2.pdf)
+- [Tài liệu trình bày](../../output/pdf/Storeluma_Trinh_bay_Do_an_2.pdf)
+- [Công việc trong tuần và kết quả kiểm thử](bao-cao-tuan-13.md)
+- [Hồ sơ khách hàng tại quầy](evidence/customers.png) và [tra chứng từ, cấp quyền hỗ trợ](evidence/operations.png)
