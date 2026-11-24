@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {Operations} from './operations.js';
 import {verifyProjectionCaller} from './projections.js';
 import { Controller, Get, Catch, HttpException, Module, type ArgumentsHost, type ExceptionFilter, Injectable, UnauthorizedException, type CanActivate, type ExecutionContext, type INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -49,7 +50,7 @@ class Health{
   @Get('health')async health(){await db.query('SELECT 1');if(!extraReady())throw new HttpException('Message broker unavailable',503);return {service:process.env.SERVICE_NAME,status:'ok',version:appVersion};}
 }
 export async function start(controllers:any[]=[],secure=true,configure?:(app:INestApplication)=>Promise<void>|void){
-  @Module({controllers:[Health,...controllers]})class App{}
+  @Module({controllers:[Health,...(secure?[Operations]:[]),...controllers]})class App{}
   const app=await NestFactory.create(App,{logger:['error','warn']});
   app.useGlobalFilters(new Errors());
   if(secure)app.useGlobalGuards(new AuthGuard());

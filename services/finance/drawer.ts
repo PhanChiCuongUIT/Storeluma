@@ -156,7 +156,7 @@ export class Drawer {
           if (
             current.site_id !== old.site_id ||
             current.status !== "OPEN" ||
-            old.kind === "REVERSAL"
+            old.shift_id == null || old.kind === "REVERSAL"
           )
             throw new ConflictException(
               "Cần ca đang mở cùng địa điểm và phiếu thu/chi gốc.",

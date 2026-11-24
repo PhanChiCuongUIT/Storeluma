@@ -9,7 +9,7 @@ import type {ActorRequest} from "../../packages/platform/http.js";
 export class Reconciliation {
   @Get() async list(@Req() r:ActorRequest,@Param("tenant") tenant:string,@Query() query:unknown){
     const p=z.object({siteId:z.uuid(),source:z.uuid().optional(),cursor:z.uuid().optional()}).strict().parse(query);
-    await authorize(r,tenant,"reconciliation.manage",p.siteId);
+    await authorize(r,tenant,"reconciliation.read",p.siteId);
     const rows=await db.query(`SELECT * FROM reconciliation_cases WHERE tenant_id=$1 AND site_id=$2 AND ($3::uuid IS NULL OR $3 IN (id,order_id,return_id,payment_id,saga_id))
       AND ($4::uuid IS NULL OR id>$4) ORDER BY id LIMIT 51`,[tenant,p.siteId,p.source??null,p.cursor??null]);
     return pageResult(rows.rows,50);
@@ -18,7 +18,7 @@ export class Reconciliation {
     z.uuid().parse(id);
     const source=(await db.query("SELECT * FROM reconciliation_cases WHERE tenant_id=$1 AND id=$2",[tenant,id])).rows[0];
     if(!source)throw new NotFoundException();
-    await authorize(r,tenant,"reconciliation.manage",source.site_id);
+    await authorize(r,tenant,"reconciliation.read",source.site_id);
     return (await db.query("SELECT action,actor,created_at,entity_id FROM audit WHERE tenant_id=$1 AND entity_id=ANY($2::uuid[]) ORDER BY created_at,id",[tenant,[id,source.order_id,source.return_id].filter(Boolean)])).rows;
   }
   @Post(":id/actions") async act(@Req() r:ActorRequest,@Param("tenant") tenant:string,@Param("id") id:string,@Body() body:unknown){

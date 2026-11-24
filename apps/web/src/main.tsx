@@ -3,6 +3,7 @@ import React,{useState,useEffect,useRef,type FormEvent} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
 import './product.css';
+import {Operations} from './operations';
 import {Commerce} from './commerce';
 import {StockRoom} from './stock';
 import {SalesRoom} from './sales';
@@ -12,7 +13,7 @@ import {Preferences,usePreferences} from './preferences';
 import './appearance.css';
 type Membership={id:string,tenant_id:string,tenant_name:string,subject_id:string,role:string,status:string,site_ids:string[],version:number};
 type Site={id:string,tenant_id:string,name:string,code:string,address:string,status:string,warehouse_ready:boolean,register_ready:boolean,version:number};
-type User={subjectId:string,username:string,memberships:Membership[]};
+type User={platformOperator?:boolean,subjectId:string,username:string,memberships:Membership[]};
 type Session={csrf:string,user:{subjectId:string,username:string},context?:{siteName:string,siteId:string,tenantId:string},expiresAt:number};
 type IconName='store'|'people'|'history'|'search'|'grid'|'list'|'plus'|'arrow'|'pin'|'check'|'pause'|'clock'|'copy'|'logout'|'chevron'|'shield';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
@@ -38,7 +39,7 @@ function App(){
   const selectedSite=session?.context?.tenantId===tenant?sites.find(s=>s.id===session.context?.siteId&&s.status==='ACTIVE'):undefined;
   const visibleSites=sites.filter(s=>(statusFilter==='ALL'||s.status===statusFilter)&&normalize(`${s.code} ${s.name} ${s.address}`).includes(normalize(query.trim())));
   const commerceTab=['products','suppliers','receipts','stock','orders','reports','work'].includes(tab);
-  const pageTitle=({reports:t("Báo cáo"),work:t("Công việc"),sites:t("Địa điểm kinh doanh"),staff:t("Nhân sự"),audit:t("Lịch sử thao tác"),products:t("Hàng hóa"),suppliers:t("Nhà cung cấp"),receipts:t("Nhập hàng"),stock:t("Kho hàng"),orders:t("Đơn bán hàng")} as Record<string,string>)[tab];
+  const pageTitle=({operations:t("Hỗ trợ và vận hành"),reports:t("Báo cáo"),work:t("Công việc"),sites:t("Địa điểm kinh doanh"),staff:t("Nhân sự"),audit:t("Lịch sử thao tác"),products:t("Hàng hóa"),suppliers:t("Nhà cung cấp"),receipts:t("Nhập hàng"),stock:t("Kho hàng"),orders:t("Đơn bán hàng")} as Record<string,string>)[tab];
   useEffect(()=>{setQuery('');setStatusFilter('ALL');},[tenant]);
   useEffect(()=>{
     if(!dialog)return;
@@ -79,7 +80,7 @@ function App(){
     void load();const timer=setInterval(load,2500);return()=>{alive=false;clearInterval(timer);};
   },[tenant,session?.csrf]);
   useEffect(()=>{
-    if(!tenant||!owner){if(!tenant||['staff','audit'].includes(tab))setTab('sites');setStaff([]);setAudit([]);return;}
+    if(!tenant||!owner){if((!tenant && tab!=='operations')||['staff','audit'].includes(tab))setTab('sites');setStaff([]);setAudit([]);return;}
     let alive=true;const path=tab==='staff'?'memberships':tab==='audit'?'audit':null;
     if(path)void api(`/v1/tenants/${tenant}/${path}`).then(rows=>{if(alive){if(path==='audit')setAudit(rows);else setStaff(rows);}}).catch(e=>{if(alive)setError(e.message);});
     return()=>{alive=false;};
@@ -144,6 +145,7 @@ function App(){
         <span className="nav-group-label">{t("Cửa hàng")}</span>
         <button aria-label={t("Địa điểm")} aria-current={tab==='sites'?'page':undefined} className={tab==='sites'?'active':''} onClick={()=>setTab('sites')}><Icon name="store"/>{t("Địa điểm")}</button>
         {owner&&<><button aria-label={t("Nhân sự")} aria-current={tab==='staff'?'page':undefined} className={tab==='staff'?'active':''} onClick={()=>setTab('staff')}><Icon name="people"/>{t("Nhân sự")}</button><button aria-label={t("Lịch sử thao tác")} aria-current={tab==='audit'?'page':undefined} className={tab==='audit'?'active':''} onClick={()=>setTab('audit')}><Icon name="history"/>{t("Lịch sử thao tác")}</button></>}
+        {(owner||me?.platformOperator)&&<button aria-current={tab==='operations'?'page':undefined} onClick={()=>setTab('operations')}><Icon name="shield"/>{t("Hỗ trợ và vận hành")}</button>}
       </nav>
       <div className="sidebar-account"><span className="avatar">{session.user.username.slice(0,1).toUpperCase()}</span><div><strong>{session.user.username}</strong><small>{current?roleLabel[current.role]:t("Tài khoản cá nhân")}</small></div></div>
     </aside>
@@ -153,6 +155,7 @@ function App(){
         <div className="page-heading"><div><span className="eyebrow">{current?.tenant_name??t("KHÔNG GIAN CỦA BẠN")}</span><h1>{pageTitle}</h1><p>{tab==='reports'?t("Theo dõi kết quả bán hàng, tồn kho và thu chi."):tab==='work'?t("Theo dõi phát sinh và xử lý các công việc trong ngày."):tab==='sites'?t("Theo dõi địa điểm và chọn nơi làm việc trong ngày."):tab==='staff'?t("Phân công đúng người, đúng địa điểm."):tab==='products'?t("Thiết lập hàng bán và quy cách đóng gói."):tab==='suppliers'?t("Quản lý thông tin và giao dịch với đối tác."):tab==='receipts'?t("Nhận hàng, kiểm tra và ghi nhận vào kho."):tab==='stock'?t("Theo dõi tồn, kiểm đếm và đối chiếu chứng từ."):tab==='orders'?t("Tạo đơn, thu tiền và theo dõi hàng đã bán."):t("Theo dõi những thay đổi trong hộ kinh doanh.")}</p></div><div className="heading-actions">{tab==='sites'?<><button className="button secondary" onClick={()=>open('tenant')}>{t("Tạo hộ kinh doanh")}</button>{owner&&<button className="button primary" aria-label={t("+ Thêm địa điểm")} onClick={()=>open('site')}><Icon name="plus"/>{t("Thêm địa điểm")}</button>}</>:tab==='staff'?<button className="button primary" aria-label={t("+ Mời nhân viên")} onClick={()=>open('invite')}><Icon name="plus"/>{t("Mời nhân viên")}</button>:null}</div></div>
         {error&&<div role="alert" className="alert error">{t(error)}<button aria-label={t("Đóng thông báo lỗi")} onClick={()=>setError('')}>×</button></div>}
         {notice&&<div role="status" className="alert success"><Icon name="check"/><span>{t(notice)}</span><button aria-label={t("Đóng thông báo")} onClick={()=>setNotice('')}>×</button></div>}
+        {tab==='operations'&&(owner||me?.platformOperator)&&<Operations key={tenant} api={api} tenant={tenant} sites={sites} owner={owner} operator={Boolean(me?.platformOperator)}/>}
         {commerceTab&&!['stock','orders','reports','work'].includes(tab)&&current&&<Commerce key={`${tenant}:${tab}:${current.role}:${current.version}`} tab={tab} tenant={tenant} role={current.role} sites={sites} api={api} subjectId={session.user.subjectId}/>}
         {tab==='stock'&&current&&<StockRoom initialSiteId={sourceLink?.siteId} initialSearch={sourceLink?.code} onOpenOrder={id=>{setSourceLink(null);setOrderLink(id);setTab('orders');}} key={`${tenant}:${current.role}:${current.version}:${sourceLink?.sourceId??''}`} tenant={tenant} role={current.role} sites={sites} api={api} subjectId={session.user.subjectId}/>}
         {tab==='orders'&&current&&<SalesRoom initialSiteId={sourceLink?.siteId} initialPane={sourceLink?.screen==='drawer'?'shifts':sourceLink?.screen==='returns'?'returns':'orders'} initialSourceId={sourceLink?.sourceId} key={`${tenant}:${current.role}:${current.version}:${sourceLink?.sourceId??''}`} tenant={tenant} role={current.role} sites={sites} api={api} initialOrderId={orderLink} subjectId={session.user.subjectId}/>}

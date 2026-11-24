@@ -21,6 +21,8 @@ export function SupplierPayments({path,site,supplier,debts,api,after}:Props){
     void load().catch(e=>{if(live)setError(e.message);});
     return()=>{live=false;};
   },[path,site,supplier,revision]);
+  const [entries,setEntries]=useState<Row[]>([]),[entryId,setEntryId]=useState("");
+  useEffect(()=>{let live=true;setEntries([]);setEntryId("");if(selected&&selected.kind!=="DRAWER"){const load=async()=>{const all=[];let cursor=null;do{const d=await api(path+"/cash-accounts/"+account+"/entries?siteId="+site+(cursor?"&cursor="+cursor:""));all.push(...d.items);cursor=d.nextCursor;}while(cursor);if(live)setEntries(all);};void load().catch(e=>{if(live)setError(e.message);});}return()=>{live=false;};},[account,selected?.kind,path,site,revision]);
   const ready=selected && (selected.kind!=="DRAWER" || current);
   return <section className="customer-panel"><h3>{t("Thanh toán nhà cung cấp")}</h3>
     {(error||action.error)&&<p role="alert">{t(error||action.error)}</p>}{notice&&<p role="status">{notice}</p>}
@@ -31,6 +33,11 @@ export function SupplierPayments({path,site,supplier,debts,api,after}:Props){
       <label>{t("Tên tài khoản")}<input name="name" required maxLength={120}/></label><button className="button secondary" disabled={action.busy}>{t("Tạo tài khoản tiền")}</button></form></details>
     <label>{t("Tài khoản tiền")}<select value={account} onChange={e=>setAccount(e.target.value)}>{accounts.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
     {selected?.kind==="DRAWER"&&!current&&<p>{t("Mở ca hoặc chọn tài khoản ngoài quầy.")}</p>}
+    {selected&&selected.kind!=="DRAWER"&&<details><summary>{t("Thu chi ngoài quầy")}</summary><form key={account+revision} onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);void action.run(async()=>{
+      await action.command("/cash-accounts/"+account+"/entries",{siteId:site,kind:entryId?"REVERSAL":f.get("kind"),amountVnd:entryId?undefined:f.get("amount"),reversalOf:entryId||undefined,reason:f.get("reason")});setEntryId("");refresh(v=>v+1);});}}>
+      <label>{t("Chứng từ gốc")}<select value={entryId} onChange={e=>setEntryId(e.target.value)}><option value="">{t("Lập phiếu mới")}</option>{entries.filter(v=>v.kind!=="REVERSAL"&&!entries.some(e=>e.reversal_of===v.id)).map(v=><option value={v.id} key={v.id}>{when(v.created_at)} · {vnd(v.amount_vnd)} · {v.reason}</option>)}</select></label>
+      {!entryId&&<><label>{t("Loại phiếu")}<select name="kind"><option value="IN">{t("Thu")}</option><option value="OUT">{t("Chi")}</option></select></label><label>{t("Số tiền")}<input required name="amount" pattern="[0-9]+" inputMode="numeric"/></label></>}
+      <label>{t("Lý do")}<input required name="reason" minLength={3} maxLength={500}/></label><button disabled={action.busy}>{entryId?t("Ghi chứng từ đảo"):t("Ghi sổ")}</button></form></details>}
     <form key={(reverse?.id??"pay")+":"+revision} onSubmit={e=>{e.preventDefault();const data=new FormData(e.currentTarget);
       void action.run(async()=>{
         if(reverse){await action.command("/supplier-payments/"+reverse.id+"/reverse",{version:reverse.version,targetAccountId:account,targetShiftId:current?.id,reason:data.get("reason")});}

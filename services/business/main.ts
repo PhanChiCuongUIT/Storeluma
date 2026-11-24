@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import {supportAccess,TenantOperations} from './operations.js';
+import {platformOperator} from '../../packages/platform/operations.js';
 import {Controller,Get,Post,Patch,Body,Param,Req,Headers,ForbiddenException,NotFoundException,ConflictException,BadRequestException} from '@nestjs/common';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import type {PoolClient} from 'pg';
@@ -48,10 +50,11 @@ async function createSite(c:PoolClient,tenantId:string,input:z.infer<typeof site
 class Business{
   @Post('internal/authorize')async authorize(@Req()r:ActorRequest,@Body()body:unknown){
     await verifyService(r,['catalog','inventory','finance','sales','reporting','notification']);
-    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['reconciliation.manage','finance.write','customer.read','customer.write','customer.anonymize','catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm','return.read','return.request','return.approve','refund.confirm','cash.write','cash.reverse','shift.approve','report.read','report.export','notification.read','notification.ack','notification.manage'])}).strict().parse(body);
+    const input=z.object({tenantId:z.uuid(),siteId:z.uuid().optional(),action:z.enum(['audit.read','reconciliation.read','reconciliation.manage','finance.write','customer.read','customer.write','customer.anonymize','catalog.read','catalog.write','supplier.read','supplier.write','receipt.read','receipt.write','receipt.post','receipt.opening','stock.read','payable.read','stock.count.read','stock.count.write','stock.count.approve','stock.count.cancel','stock.adjust.read','stock.adjust.write','stock.adjust.approve','stock.adjust.cancel','sale.read','sale.write','sale.checkout','sale.cancel','shift.read','shift.open','shift.close','payment.confirm','return.read','return.request','return.approve','refund.confirm','cash.write','cash.reverse','shift.approve','report.read','report.export','notification.read','notification.ack','notification.manage'])}).strict().parse(body);
+    if(input.siteId && input.action.startsWith('reconciliation.')){const delegated=await supportAccess(r,input.tenantId,input.siteId,input.action);if(delegated)return delegated;}
     const m=await membership(db,r.actor.sub!,input.tenantId);
     const roles:Record<string,string[]>={
-      'reconciliation.manage':['OWNER'],
+      'audit.read':['OWNER'],'reconciliation.read':['OWNER'],'reconciliation.manage':['OWNER'],
       'finance.write':['OWNER','ACCOUNTANT'],
       'customer.read':['OWNER','MANAGER','CASHIER','ACCOUNTANT'],'customer.write':['OWNER','MANAGER','CASHIER'],'customer.anonymize':['OWNER'],
       'report.read':['OWNER','MANAGER','ACCOUNTANT'],'report.export':['OWNER','MANAGER','ACCOUNTANT'],
@@ -73,12 +76,14 @@ class Business{
       if(!(await db.query("SELECT 1 FROM sites WHERE tenant_id=$1 AND id=ANY($2::uuid[]) AND status='ACTIVE' LIMIT 1",[input.tenantId,m.site_ids])).rowCount)throw new ForbiddenException('Không có địa điểm hoạt động trong phạm vi.');
     }
     const approvers=(await db.query("SELECT count(*)::int AS count FROM memberships WHERE tenant_id=$1 AND status='ACTIVE' AND (role='OWNER' OR (role='MANAGER' AND $2::uuid=ANY(site_ids)))",[input.tenantId,input.siteId??null])).rows[0].count;
-    const tenantName=(await db.query('SELECT name FROM tenants WHERE id=$1',[input.tenantId])).rows[0].name;
+    const tenant=(await db.query('SELECT name,operational_status FROM tenants WHERE id=$1',[input.tenantId])).rows[0];
+    if(tenant.operational_status==='SUSPENDED' && ['sale.write','sale.checkout','shift.open','receipt.write','receipt.post','receipt.opening','stock.count.write','stock.adjust.write','finance.write'].includes(input.action))throw new ConflictException('Hộ đang tạm dừng giao dịch mới.');
+    const tenantName=tenant.name;
     return {selfApprovalAllowed:m.role==='OWNER'&&approvers===1,tenantName,siteAddress:site?.address,role:m.role,siteIds:m.site_ids,warehouseId:site?.warehouse_id,registerId:site?.register_id,siteName:site?.name,costRead:['OWNER','ACCOUNTANT'].includes(m.role),permissionVersion:m.version};
   }
   @Get('me')async me(@Req()r:ActorRequest){
     const memberships=(await db.query(`SELECT m.*,t.name AS tenant_name FROM memberships m JOIN tenants t ON t.id=m.tenant_id WHERE subject_id=$1 ORDER BY t.created_at`,[r.actor.sub])).rows;
-    return {subjectId:r.actor.sub,username:r.actor.preferred_username,memberships};
+    return {subjectId:r.actor.sub,username:r.actor.preferred_username,memberships,platformOperator:platformOperator(r)};
   }
   @Post('tenants')async tenant(@Req()r:ActorRequest,@Body()body:unknown,@Headers('idempotency-key')key:string){
     const input=z.object({name:text,contact:z.string().trim().max(250).default(''),site:siteInput}).strict().parse(body);
@@ -175,4 +180,4 @@ await worker('business',['warehouse.ready','register.ready'],async(c,e)=>{
   const active=(await c.query(`UPDATE sites SET status='ACTIVE',version=version+1 WHERE id=$1 AND status='PROVISIONING' AND warehouse_ready AND register_ready RETURNING id`,[e.siteId])).rows[0];
   if(active){await audit(c,e.tenantId,'system:provisioning','SITE_ACTIVATED',e.siteId,null,{status:'ACTIVE'});await outbox(c,'site.activated',{tenantId:e.tenantId,siteId:e.siteId,warehouseId:e.warehouseId,registerId:e.registerId});}
 });
-await start([Business]);
+await start([Business,TenantOperations]);

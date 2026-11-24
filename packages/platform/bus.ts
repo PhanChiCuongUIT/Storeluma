@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import amqp, { type ConfirmChannel, type ChannelModel } from "amqplib";
 import type { PoolClient } from "pg";
 import { z } from "zod";
@@ -87,6 +88,11 @@ export async function worker(
       await ch.prefetch(8);
       const park = async (msg: amqp.ConsumeMessage, reason: string) => {
         try {
+          const parsed=eventSchema.safeParse((()=>{try{return JSON.parse(msg.content.toString());}catch{return null;}})());
+          const valid=parsed.success && keys.includes(parsed.data.type) ? parsed.data : null;
+          await db.query(`INSERT INTO dead_letters(fingerprint,event_id,event_type,tenant_id,reason,payload)
+            VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(fingerprint) DO NOTHING`,
+            [valid?.id??createHash("sha256").update(msg.content).digest("hex"),valid?.id,valid?.type,valid?.tenantId,reason,valid?msg.content.toString():null]);
           await publishConfirmed(ch, "", `${name}.dead`, msg.content, {
             ...msg.properties,
             headers: {
@@ -191,6 +197,21 @@ export async function worker(
     if (busy) return;
     busy = true;
     try {
+      await transaction(async c=>{
+        const letter=(await c.query("SELECT id,payload FROM dead_letters WHERE status='REQUESTED' ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED")).rows[0];
+        if(!letter)return;
+        await c.query("SAVEPOINT apply_replay");
+        try{
+          const event=eventSchema.parse(letter.payload);
+          if(!keys.includes(event.type))throw new Error("wrong route");
+          const fresh=await c.query("INSERT INTO inbox(id) VALUES($1) ON CONFLICT DO NOTHING RETURNING id",[event.id]);
+          if(fresh.rowCount)await handle(c,event);
+          await c.query("UPDATE dead_letters SET status='PROCESSED',version=version+1,processed_at=now() WHERE id=$1",[letter.id]);
+        }catch{
+          await c.query("ROLLBACK TO SAVEPOINT apply_replay");
+          await c.query("UPDATE dead_letters SET status='PARKED',version=version+1 WHERE id=$1",[letter.id]);
+        }
+      });
       const rows = await transaction(
         async (c) =>
           (

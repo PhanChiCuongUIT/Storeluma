@@ -2,7 +2,7 @@ import React,{useEffect,useState} from "react";
 import {t} from "./i18n";
 import {useCommand,when} from "./after-sales";
 type Row=Record<string,any>;
-export function Reconciliation({api,path,site}:{api:(path:string,method?:string,data?:unknown,key?:string)=>Promise<any>;path:string;site:string}){
+export function Reconciliation({api,path,site,readOnly=false}:{readOnly?:boolean;api:(path:string,method?:string,data?:unknown,key?:string)=>Promise<any>;path:string;site:string}){
   const [rows,setRows]=useState<Row[]>([]),[source,setSource]=useState(""),[query,search]=useState(""),[revision,refresh]=useState(0);
   const [selected,setSelected]=useState<Row|null>(null),[timeline,setTimeline]=useState<Row[]>([]),[error,setError]=useState("");
   const {command,busy,run,error:actionError}=useCommand(api,path);
@@ -19,7 +19,7 @@ export function Reconciliation({api,path,site}:{api:(path:string,method?:string,
     {!rows.length&&<p>{t("Chưa có hồ sơ đối soát tại địa điểm này.")}</p>}
     {rows.map(c=><p key={c.id}><code>{c.order_id}</code> · {c.stage} · {c.status} <button className="button secondary" disabled={busy} onClick={()=>void run(async()=>{const a=await api(path+"/reconciliation-cases/"+c.id+"/timeline");setTimeline(a);setSelected(c);})}>{t("Xem chi tiết")}</button></p>)}
     {selected&&<div><p>{t(selected.last_error??"")} · {when(selected.updated_at)}</p>{timeline.map((a,i)=><p key={i}>{when(a.created_at)} · {a.action}</p>)}
-      {selected.status!=="RESOLVED"&&<form onSubmit={e=>{e.preventDefault();const data=new FormData(e.currentTarget);void run(async()=>{await command("/reconciliation-cases/"+selected.id+"/actions",{version:selected.version,reason:data.get("reason"),action:data.get("action")});refresh(v=>v+1);});}}>
+      {!readOnly&&selected.status!=="RESOLVED"&&<form onSubmit={e=>{e.preventDefault();const data=new FormData(e.currentTarget);void run(async()=>{await command("/reconciliation-cases/"+selected.id+"/actions",{version:selected.version,reason:data.get("reason"),action:data.get("action")});refresh(v=>v+1);});}}>
         <label>{t("Thao tác")}<select name="action"><option value="RETRY_STEP">{t("Thử lại bước hiện tại")}</option>{!selected.return_id&&<option value="REQUEST_COMPENSATION">{t("Yêu cầu hủy trước khi thu tiền")}</option>}</select></label>
         <label>{t("Lý do")}<input required name="reason" minLength={3} maxLength={500}/></label><button disabled={busy} className="button primary">{t("Ghi nhận yêu cầu")}</button></form>}</div>}
   </section>;

@@ -259,6 +259,7 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     await page.getByLabel('Điện thoại',{exact:true}).fill('+84 912 345 670');
     await page.getByRole('button',{name:'Lưu',exact:true}).click();
     await expect(page.locator('.customer-panel li').filter({hasText:'Minh An'})).toBeVisible();
+    mkdirSync('tmp/week13',{recursive:true});await page.locator('.customer-panel').screenshot({path:'tmp/week13/customers.png'});
     const customer=(await good(await get('customers?q=0912345670',staff))).items[0];
     expect(customer.marketing_consent).toBe(false);
     const quote=await good(await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]},staff));
@@ -289,6 +290,9 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     await expect.poll(async()=>(await summary()).cash.totals.supplier_net_paid_vnd).toBe('250000');
     expect((await summary()).cash.totals.net_vnd).toBe('-120000');
     expect((await currentDrawer()).expected_cash).toBe('630000');
+    const outside=await good(await cmd('cash-accounts/'+account.id+'/entries',{siteId:site.id,kind:'OUT',amountVnd:'3000',reason:'Chi ngoài quầy'}));
+    await expect.poll(async()=>(await summary()).cash.totals.net_vnd).toBe('-123000');
+    await good(await cmd('cash-accounts/'+account.id+'/entries',{siteId:site.id,kind:'REVERSAL',reversalOf:outside.id,reason:'Đảo khoản chi ngoài quầy'}));
     const reverse={version:rows[0].version,targetAccountId:account.id,reason:'Đảo giao dịch thử'};
     await good(await cmd('supplier-payments/'+rows[0].id+'/reverse',reverse));
     expect((await cmd('supplier-payments/'+rows[0].id+'/reverse',reverse)).status()).toBe(409);

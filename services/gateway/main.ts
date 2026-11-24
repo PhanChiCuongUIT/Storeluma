@@ -1,3 +1,4 @@
+import {z} from "zod";
 import express, {
   type Request,
   type Response,
@@ -342,10 +343,24 @@ await start([], false, (app) => {
       return;
     }
     try {
+      const operationalServices=["business","catalog","inventory","sales","finance","reporting","notification"];
+      if(req.method==="GET" && /^\/v1\/tenants\/[\w-]+\/audit-trail$/.test(req.path)){
+        const source=req.query.source;
+        if(typeof source!=="string"||!z.uuid().safeParse(source).success){res.status(400).json({message:"Mã chứng từ không hợp lệ."});return;}
+        const local=req.path.replace(/audit-trail$/,"audit-records")+"?source="+encodeURIComponent(source);
+        const results=await Promise.all(operationalServices.map(async service=>{
+          const response=await fetch(process.env[service.toUpperCase()+"_URL"]+local,{headers:{authorization:"Bearer "+s.accessToken},signal:AbortSignal.timeout(6000)});
+          return {service,status:response.status,body:await response.json()};
+        }));
+        const failed=results.find(row=>row.status!==200);
+        if(failed){res.status(failed.status).json(failed.body);return;}
+        res.json(results.flatMap(({service,body})=>body.map((entry:Record<string,unknown>)=>({...entry,service}))).sort((a,b)=>a.created_at.localeCompare(b.created_at)));return;
+      }
+      const opsService=req.path.match(/^\/v1\/ops\/services\/([a-z]+)\/dead-letters(?:\/|$)/)?.[1];
       const resource = req.path.match(
         /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|reconciliation-cases|cash-accounts|supplier-payments|payables|customers|orders|sales|shifts|payments|returns|refunds|cash-entries|reports|report-exports|work-items|notification-rules)(?:\/|$)/,
       )?.[1];
-      const target =
+      const target = opsService && operationalServices.includes(opsService) ? process.env[opsService.toUpperCase()+"_URL"] :
         resource && ["reports","report-exports"].includes(resource) ? process.env.REPORTING_URL
         : resource && ["work-items","notification-rules"].includes(resource) ? process.env.NOTIFICATION_URL
         : resource && ["categories", "products", "skus"].includes(resource)

@@ -56,6 +56,34 @@ export class SupplierPayments {
       await auditEntry(c,t,r.actor.sub!,"ACCOUNT_CREATED",row.id,null,{kind:p.kind});return row;
     }));
   }
+  @Get("cash-accounts/:id/entries") async entries(@Req() r:ActorRequest,@Param("tenant") t:string,@Param("id") id:string,@Query("siteId") site:string,@Query("cursor") cursor?:string){
+    z.uuid().parse(id);z.uuid().parse(site);if(cursor)z.uuid().parse(cursor);await authorize(r,t,"payable.read",site);
+    const rows=await db.query("SELECT * FROM cash_entries WHERE tenant_id=$1 AND site_id=$2 AND account_id=$3 AND ($4::uuid IS NULL OR id>$4) ORDER BY id LIMIT 51",[t,site,id,cursor??null]);
+    return {items:rows.rows.slice(0,50),nextCursor:rows.rows.length>50?rows.rows[49].id:null};
+  }
+  @Post("cash-accounts/:id/entries") async entry(@Req() r:ActorRequest,@Param("tenant") t:string,@Param("id") id:string,@Body() body:unknown){
+    z.uuid().parse(id);
+    const p=z.object({siteId:z.uuid(),kind:z.enum(["IN","OUT","REVERSAL"]),amountVnd:positive.optional(),reversalOf:z.uuid().optional(),reason}).strict().parse(body);
+    await authorize(r,t,"finance.write",p.siteId);
+    return transaction(c=>idempotent(c,t+":account-entry:"+id+":"+r.actor.sub,r.get("idempotency-key")??"",p,async()=>{
+      await accountFor(c,t,p.siteId,id);
+      let amount:string;
+      if(p.kind==="REVERSAL"){
+        if(!p.reversalOf||p.amountVnd)throw new ConflictException("Chọn chứng từ gốc để đảo.");
+        const old=(await c.query("SELECT * FROM cash_entries WHERE tenant_id=$1 AND site_id=$2 AND id=$3 AND account_id=$4 AND kind<>'REVERSAL' FOR UPDATE",[t,p.siteId,p.reversalOf,id])).rows[0];
+        if(!old)throw new NotFoundException();
+        if((await c.query("SELECT 1 FROM cash_entries WHERE tenant_id=$1 AND reversal_of=$2",[t,old.id])).rowCount)throw new ConflictException("Phiếu đã được đảo.");
+        amount=(-BigInt(old.amount_vnd)).toString();
+      }else{
+        if(!p.amountVnd||p.reversalOf)throw new ConflictException("Nhập số tiền thực tế.");
+        amount=p.kind==="OUT"?"-"+p.amountVnd:p.amountVnd;
+      }
+      const row=(await c.query(`INSERT INTO cash_entries(id,tenant_id,site_id,kind,amount_vnd,reason,created_by,reversal_of,account_id)
+        VALUES(gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,[t,p.siteId,p.kind,amount,p.reason,r.actor.sub,p.reversalOf??null,id])).rows[0];
+      await c.query("INSERT INTO cash_ledger(id,tenant_id,site_id,cash_entry_id,account_id,amount_vnd,actor_id) VALUES(gen_random_uuid(),$1,$2,$3,$4,$5,$6)",[t,p.siteId,row.id,id,amount,r.actor.sub]);
+      await auditEntry(c,t,r.actor.sub!,"ACCOUNT_"+p.kind,row.id,null,{accountId:id,amount});return row;
+    }));
+  }
   @Get("supplier-payments") async list(@Req() r:ActorRequest,@Param("tenant") t:string,@Query() query:unknown){
     const p=z.object({siteId:z.uuid(),supplierId:z.uuid(),cursor:z.uuid().optional()}).strict().parse(query);
     await authorize(r,t,"payable.read",p.siteId);

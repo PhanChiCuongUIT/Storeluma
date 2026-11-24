@@ -51,7 +51,7 @@ export function CustomerPanel({path,site,role,api,select}:Props) {
       </>}</li>)}</ul>
     {cursor&&<button type="button" disabled={busy} onClick={()=>void run(async()=>{const d=await api(listUrl+"&cursor="+cursor);setRows([...rows,...d.items]);setCursor(d.nextCursor);})}>{t("Xem thêm")}</button>}
     {history&&<div><h3>{t("Lịch sử mua")} · {editing?.name}</h3>{!history.length&&<p>{t("Chưa có đơn tại địa điểm này.")}</p>}
-      {history.map(o=><p key={o.id}>{o.code} · {new Date(o.created_at).toLocaleDateString(locale())} · {Number(o.payable_vnd).toLocaleString(locale())} ₫ · {t(({DRAFT:"Đơn nháp",PENDING:"Chờ thu tiền",COMMITTING:"Đang xuất kho",COMPLETED:"Hoàn tất",CANCELLED:"Đã hủy",REVIEW:"Đang đối chiếu"} as Record<string,string>)[o.status])}</p>)}</div>}
+      {history.map(o=><p key={o.id}>{o.code} · {new Date(o.created_at).toLocaleDateString(locale())} · {BigInt(o.payable_vnd).toLocaleString(locale())} ₫ · {t(({DRAFT:"Đơn nháp",PENDING:"Chờ thu tiền",COMMITTING:"Đang xuất kho",COMPLETED:"Hoàn tất",CANCELLED:"Đã hủy",REVIEW:"Đang đối chiếu"} as Record<string,string>)[o.status])}</p>)}</div>}
     {form&&<form key={editing?.id??"new"} onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);void run(async()=>{
       const data={name:f.get("name"),phone,email:f.get("email"),note:f.get("note"),marketingConsent:f.has("consent"),
         ...(editing?{version:editing.version,status:f.get("active")?"ACTIVE":"INACTIVE"}:{})};
