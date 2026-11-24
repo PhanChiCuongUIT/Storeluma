@@ -121,12 +121,17 @@ test('checkout load and receipt backlog on a dedicated Compose stack', async ({ 
     expect(new Set(csrf).size).toBe(10);
     console.log('Starting 600 scheduled purchases across ten authenticated sessions');
     const samples: { search?: number; admission?: number; completion?: number; lag?: number; error?: string }[] = [];
+    const failures: { journey: number; lane: number; operation: string; cause: string }[] = [];
     const backlog = async () => Promise.all([catalog,sales].map(async db =>
       Number((await db.query('SELECT count(*) FROM outbox WHERE delivered_at IS NULL')).rows[0].count)));
     const beforeBacklog = await backlog();
     const start = performance.now();
     await Promise.all(lanes.map(async (ctx, lane) => {
+      let operation = 'start';
       const request = async (route: string, body?: unknown) => {
+        // Keep diagnostics usable in public CI. Paths contain document IDs and
+        // the transport error may include cookies, so record only route shape and error class.
+        operation = route.split('?')[0].replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, ':id');
         const response = await ctx.request.fetch(base + route, { method: body === undefined ? 'GET' : 'POST',
           data: body, headers: { origin: 'http://localhost:4100', 'x-csrf-token': csrf[lane], 'idempotency-key': randomUUID() } });
         try {
@@ -159,7 +164,12 @@ test('checkout load and receipt backlog on a dedicated Compose stack', async ({ 
             { siteId: site.id, version: pending.checkout.payment.version, cashReceived: true });
           await until(() => request(route), d => d.status === 'COMPLETED');
           sample.completion = performance.now() - sent;
-        } catch (e) { sample.error = e instanceof Error ? e.message : 'request failed'; }
+        } catch (e) {
+          const message = e instanceof Error ? e.message : '';
+          const cause = message.match(/HTTP \d{3}|ECONNRESET|ECONNREFUSED|EPIPE|ETIMEDOUT|socket hang up|Timeout|Search missed SKU|Timed out waiting/i)?.[0] ?? 'request failed';
+          sample.error = cause;
+          failures.push({ journey: i + 1, lane, operation, cause });
+        }
         if ((i + 1) % 60 === 0) console.log(i + 1, 'scheduled journeys;', samples.filter(s => s?.error).length, 'errors so far');
       }
     }));
@@ -168,12 +178,13 @@ test('checkout load and receipt backlog on a dedicated Compose stack', async ({ 
     const result = { samples: samples.length, errors: samples.filter(s => s.error).length, wallMs: round(wallMs),
       search: values('search'), admission: values('admission'), completion: values('completion'), scheduleLag: values('lag'),
       beforeBacklog, afterBacklog: await backlog(), docker: docker('info','--format','{{.NCPU}} CPUs, {{.MemTotal}} bytes, engine {{.ServerVersion}}') };
-    save('samples', samples); save('result', result);
+    save('samples', samples); save('result', result); save('failures', failures);
+    if (failures.length) console.log('Failed journeys:', JSON.stringify(failures));
     const money = (await finance.query('SELECT count(*)::int n,sum(amount_vnd)::text total FROM cash_ledger WHERE shift_id=$1', [shift.id])).rows[0];
     const stock = (await inventory.query("SELECT count(*)::int n,sum(qty_base)::text qty,sum(value_vnd)::text cost FROM stock_movements WHERE tenant_id=$1 AND document_type='SALE'", [tenant])).rows[0];
+    save('balances', { money, stock });
     expect(money).toEqual({ n: 600, total: '60000000' });
     expect(stock).toEqual({ n: 600, qty: '-600.000', cost: '-24000000' });
-    save('balances', { money, stock });
     expect(result.errors).toBe(0);
     expect(result.search.p95).toBeLessThan(800);
     expect(result.completion.p95).toBeLessThan(3000);

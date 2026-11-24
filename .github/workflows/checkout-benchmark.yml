@@ -33,6 +33,7 @@ jobs:
             tmp/week11/load/result.json
             tmp/week11/load/recovery.json
             tmp/week11/load/balances.json
+            tmp/week11/load/failures.json
           retention-days: 14
       - run: docker compose down
         if: always() && hashFiles('.env') != ''
