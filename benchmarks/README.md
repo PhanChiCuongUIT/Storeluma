@@ -1,5 +1,7 @@
 # Checkout load and event recovery
 
+To measure a clean ARM64 runner, dispatch **Measure checkout and backlog** in GitHub Actions. Download the aggregate measurements and runner configuration from its artifact. The workload runs separately from verification and publishing.
+
 Use a disposable Compose project with its own volumes and the repository's generated test accounts. The benchmark creates a household, inserts background data, starts cash transactions and temporarily stops Finance. It uses the same localhost ports as the development stack. Keep the Compose project selection in the environment for both commands.
 
 ```sh

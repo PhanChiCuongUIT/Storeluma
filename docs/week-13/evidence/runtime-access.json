@@ -1,0 +1,16 @@
+{
+  "sourceRevision": "46b580998748bea075434adb722aae8003b4a695",
+  "checkedAt": "2026-11-24T15:58:19.551Z",
+  "platform": "linux/amd64",
+  "runtimeDatabases": 8,
+  "limitedBrokerIdentities": 7,
+  "sales": 2,
+  "amountPerSale": 100000,
+  "rotatedService": "finance",
+  "otherGatewayStayedUp": true,
+  "observedNotifications": [
+    "alert",
+    "recovered"
+  ],
+  "receiver": "isolated loopback HTTP sink"
+}

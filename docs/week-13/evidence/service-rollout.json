@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-11-24T10:31:32.680Z",
+  "service": "notification",
+  "prior": "sha256:1fadb3558ae031f0a81c5bc5fc90ff071bd365dfd462a5fc76524f1c6516677a",
+  "candidate": "sha256:4f58cfbba53d9610e7a941c2a34c50ecb613796eebe0c680117740ee6d67c4ee",
+  "unchangedContainers": 12,
+  "betweenReleases": "completed HTTPS checkout",
+  "incomeAfterRollback": 100000,
+  "platform": "linux/amd64",
+  "data": "restored synthetic household"
+}

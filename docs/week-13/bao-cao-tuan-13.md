@@ -26,8 +26,12 @@ Tuần 13 dành cho việc rà soát sản phẩm, hoàn thiện báo cáo và c
 
 ## Kiểm thử và bàn giao
 
-GitHub Actions chạy 192 ca hồi quy trên commit c18bdff. Cả 192 ca đạt ngay lượt đầu, không bỏ qua ca nào. Hai job ARM64 kiểm đăng nhập và bán qua HTTPS, sau đó kiểm phục hồi PostgreSQL theo WAL. Trên cụm diễn tập cùng máy, RPO là 1,065 giây và RTO là 58,7 giây. Bản ghi sau điểm phục hồi bị loại, hai đơn bán đối chiếu được với tiền và kho. Ở lượt kiểm trên hai máy, nguồn chạy trên GitHub, đích chạy trên Docker Desktop. Thời gian thao tác ở máy đích là 193,3 giây, RPO 0,981 giây. Khoảng từ trước khi khởi động máy nguồn đến khi kiểm xong hai đơn trên máy đích là 438,1 giây. Đây là cận trên của RTO trong lượt thử. [Số đo trên hai máy](evidence/recovery-offhost.json)
+GitHub Actions chạy 192 ca hồi quy trên commit 12b2791. Cả 192 ca đạt ngay lượt đầu, không bỏ qua ca nào. Hai job ARM64 kiểm đăng nhập và bán qua HTTPS, sau đó kiểm phục hồi PostgreSQL theo WAL. Trên cụm diễn tập cùng máy, RPO là 1,071 giây và RTO là 89,7 giây. Bản ghi sau điểm phục hồi bị loại, hai đơn bán đối chiếu được với tiền và kho. Ở lượt kiểm trên hai máy, nguồn chạy trên GitHub, đích chạy trên Docker Desktop. Thời gian thao tác ở máy đích là 193,3 giây, RPO 0,981 giây. Khoảng từ trước khi khởi động máy nguồn đến khi kiểm xong hai đơn trên máy đích là 438,1 giây. Đây là cận trên của RTO trong lượt thử. [Số đo trên hai máy](evidence/recovery-offhost.json)
 
 Mốc nghiệm thu bản chạy trực tuyến còn cần tên miền, máy đích và giao dịch từ mạng ngoài.
 
-Hồ sơ gồm báo cáo tổng kết, tài liệu trình bày, kịch bản thao tác, ảnh biên nhận, sổ quỹ, báo cáo bán hàng và giao diện vận hành. [Kịch bản và minh chứng](README.md) · [Kết quả kiểm thử](https://github.com/PhanChiCuongUIT/Storeluma/actions/runs/45331683397)
+Lượt phát hành ARM64 đạt đủ bốn job. Manifest 12 image có chữ ký và có danh mục phần mềm SPDX theo image. Lệnh cài từ chối bản manifest đã sửa trong phép kiểm trên CI. Khi thử thay riêng Notification trên cụm AMD64, 12 container còn lại giữ nguyên. Một đơn bán trong lúc dùng image mới vẫn đối chiếu được khoản thu 100.000 đồng sau khi quay lại image cũ.
+
+Trên cụm dùng quyền runtime, tám dịch vụ ứng dụng kết nối bằng tài khoản PostgreSQL riêng. Bảy dịch vụ nghiệp vụ dùng tài khoản RabbitMQ riêng. Hai đơn 100.000 đồng đều hoàn tất qua HTTPS, một đơn trước và một đơn sau khi đổi thông tin đăng nhập của Finance. Trong lần thử cảnh báo, bộ nhận nội bộ ghi đúng một thông báo khi có sự kiện lỗi và một thông báo khi đã xử lý. [Số liệu đổi quyền](evidence/runtime-access.json) · [Kết quả thay dịch vụ](evidence/service-rollout.json)
+
+Hồ sơ gồm báo cáo tổng kết, tài liệu trình bày, kịch bản thao tác, ảnh biên nhận, sổ quỹ, báo cáo bán hàng và giao diện vận hành. [Kịch bản và minh chứng](README.md) · [Kết quả kiểm thử](https://github.com/PhanChiCuongUIT/Storeluma/actions/runs/45375029984)
