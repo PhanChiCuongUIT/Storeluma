@@ -1,4 +1,5 @@
 import {createHash} from "node:crypto";
+import routes from "./routes.json" with {type:"json"};
 import amqp, { type ConfirmChannel, type ChannelModel } from "amqplib";
 import type { PoolClient } from "pg";
 import { z } from "zod";
@@ -56,20 +57,17 @@ export async function worker(
         if (channel === ch) channel = undefined;
         void link.close().catch(() => {});
       });
+      const managed=process.env.BROKER_TOPOLOGY_MODE==="managed";
+      const retryExchange=managed?"storeluma.retry."+name:"";
+      if(!managed){
       await ch.assertExchange("storeluma", "topic", { durable: true });
       await ch.assertExchange("storeluma.dead", "fanout", { durable: true });
-      for (const [queue, routes] of Object.entries({
-        reporting: ['catalog.projection-updated.v1','inventory.projection-updated.v1','sales.projection-updated.v1','finance.projection-updated.v1'],
-        notification: ['catalog.projection-updated.v1','inventory.projection-updated.v1','sales.projection-updated.v1','finance.projection-updated.v1'],
-        business: ["warehouse.ready", "register.ready"],
-        inventory: ["site.provision.requested", "catalog.sku-updated.v1"],
-        finance: ["site.provision.requested", "inventory.receipt-posted.v1"],
-      })) {
+      for (const [queue, subscriptions] of Object.entries(routes.consumers)) {
         await ch.assertQueue(queue, {
           durable: true,
           arguments: { "x-dead-letter-exchange": "storeluma.dead" },
         });
-        for (const route of routes)
+        for (const route of subscriptions)
           await ch.bindQueue(queue, "storeluma", route);
       }
       // Keep old queue arguments compatible, but stop cross-service fanout.
@@ -78,13 +76,14 @@ export async function worker(
       await ch.unbindQueue(`${name}.dead`, "storeluma.dead", "");
       // Retain legacy domain events; current read models bootstrap from source snapshots.
       await ch.assertQueue("storeluma.deferred", { durable: true });
-      for (const route of ["site.activated", "inventory.stock-changed.v1", "sales.order-completed.v1", "finance.payment-succeeded.v1", "sales.return-completed.v1", "finance.refund-succeeded.v1"])
+      for (const route of routes.deferred)
         await ch.bindQueue("storeluma.deferred", "storeluma", route);
       await ch.assertQueue(name, {
         durable: true,
         arguments: { "x-dead-letter-exchange": "storeluma.dead" },
       });
       for (const key of keys) await ch.bindQueue(name, "storeluma", key);
+      }
       await ch.prefetch(8);
       const park = async (msg: amqp.ConsumeMessage, reason: string) => {
         try {
@@ -93,7 +92,7 @@ export async function worker(
           await db.query(`INSERT INTO dead_letters(fingerprint,event_id,event_type,tenant_id,reason,payload)
             VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(fingerprint) DO NOTHING`,
             [valid?.id??createHash("sha256").update(msg.content).digest("hex"),valid?.id,valid?.type,valid?.tenantId,reason,valid?msg.content.toString():null]);
-          await publishConfirmed(ch, "", `${name}.dead`, msg.content, {
+          await publishConfirmed(ch, retryExchange, `${name}.dead`, msg.content, {
             ...msg.properties,
             headers: {
               ...msg.properties.headers,
@@ -152,7 +151,7 @@ export async function worker(
           }
           setTimeout(
             () => {
-              void publishConfirmed(ch, "", name, msg.content, {
+              void publishConfirmed(ch, retryExchange, name, msg.content, {
                 ...msg.properties,
                 headers: {
                   ...msg.properties.headers,
@@ -198,10 +197,11 @@ export async function worker(
     busy = true;
     try {
       await transaction(async c=>{
-        const letter=(await c.query("SELECT id,payload FROM dead_letters WHERE status='REQUESTED' ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED")).rows[0];
+        const letter=(await c.query("SELECT id,payload,payload_hash=encode(sha256(convert_to(payload::text,'UTF8')),'hex') AS intact FROM dead_letters WHERE status='REQUESTED' ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED")).rows[0];
         if(!letter)return;
         await c.query("SAVEPOINT apply_replay");
         try{
+          if(!letter.intact)throw new Error('Parked event digest mismatch');
           const event=eventSchema.parse(letter.payload);
           if(!keys.includes(event.type))throw new Error("wrong route");
           const fresh=await c.query("INSERT INTO inbox(id) VALUES($1) ON CONFLICT DO NOTHING RETURNING id",[event.id]);

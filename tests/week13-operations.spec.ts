@@ -45,9 +45,10 @@ test("W13 operations require an operator, a scoped grant for documents and an au
     const bd=new Pool({host:"127.0.0.1",port:Number(config.PG_HOST_PORT??55432),database:"business_db",user:"business",password:config.BUSINESS_DB_PASSWORD});
     let event:any;
     try{event=(await bd.query("SELECT payload FROM outbox WHERE type='site.provision.requested' AND payload->>'siteId'=$1",[site])).rows[0].payload;}finally{await bd.end();}
-    const letter=(await pool.query("INSERT INTO dead_letters(fingerprint,event_id,event_type,tenant_id,reason,payload) VALUES($1,$2,$3,$4,'retry-exhausted',$5) RETURNING id,version",[event.id,event.id,event.type,tenant,event])).rows[0];
+    const letter=(await pool.query("INSERT INTO dead_letters(fingerprint,event_id,event_type,tenant_id,reason,payload) VALUES($1,$2,$3,$4,'retry-exhausted',$5) RETURNING id,version,payload_hash",[event.id,event.id,event.type,tenant,event])).rows[0];
     const retry="/v1/ops/services/finance/dead-letters/"+letter.id+"/replay";
-    for(let i=0;i<3;i++)await good(await request(operator,retry,{version:letter.version,reason:"Đã kiểm tra sự kiện gốc"}));
+    expect((await request(operator,retry,{version:letter.version,payloadHash:'0'.repeat(64),reason:'Kiểm tra nội dung khác'})).status()).toBe(409);
+    for(let i=0;i<3;i++)await good(await request(operator,retry,{version:letter.version,payloadHash:letter.payload_hash,reason:"Đã kiểm tra sự kiện gốc"}));
     await expect.poll(async()=>(await pool.query("SELECT status FROM dead_letters WHERE id=$1",[letter.id])).rows[0].status).toBe("PROCESSED");
     expect((await pool.query("SELECT 1 FROM registers WHERE tenant_id=$1 AND site_id=$2",[tenant,site])).rowCount).toBe(1);
     expect((await pool.query("SELECT 1 FROM replay_audit WHERE letter_id=$1",[letter.id])).rowCount).toBe(1);

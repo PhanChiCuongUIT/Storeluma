@@ -12,6 +12,7 @@ export function CustomerPanel({path,site,role,api,select}:Props) {
   const [q,search]=useState(""),[rows,setRows]=useState<Customer[]>([]),[cursor,setCursor]=useState<string|null>(null);
   const [editing,edit]=useState<Customer|null>(null),[form,show]=useState(false),[history,setHistory]=useState<History[]|null>(null);
   const [error,fail]=useState(""),[busy,setBusy]=useState(false),[revision,refresh]=useState(0);
+  const [spent,setSpent]=useState("0");
   const [duplicates,setDuplicates]=useState<Customer[]>([]),[phone,setPhone]=useState("");
   const endpoint=path+"/customers";
   const listUrl=endpoint+"?active="+Boolean(select)+"&q="+encodeURIComponent(q);
@@ -44,13 +45,13 @@ export function CustomerPanel({path,site,role,api,select}:Props) {
       {select ? <button type="button" className="button secondary small" onClick={()=>select(c.id,c.name)}>{t("Chọn")}</button> : <>
         <button type="button" className="button secondary small" disabled={busy||!site} onClick={()=>void run(async()=>{
           edit(c);show(false);setHistory([]);const all:History[]=[];let cursor=null;
-          do {const data=await api(endpoint+"/"+c.id+"/history?siteId="+site+(cursor?"&cursor="+cursor:""));all.push(...data.items);cursor=data.nextCursor;}while(cursor);
+          do {const data=await api(endpoint+"/"+c.id+"/history?siteId="+site+(cursor?"&cursor="+cursor:""));all.push(...data.items);setSpent(data.totalSpentVnd);cursor=data.nextCursor;}while(cursor);
           setHistory(all);
         })}>{t("Lịch sử mua")}</button>
         {role!=="ACCOUNTANT"&&<button type="button" className="button secondary small" onClick={()=>start(c)}>{t("Chỉnh sửa")}</button>}
       </>}</li>)}</ul>
     {cursor&&<button type="button" disabled={busy} onClick={()=>void run(async()=>{const d=await api(listUrl+"&cursor="+cursor);setRows([...rows,...d.items]);setCursor(d.nextCursor);})}>{t("Xem thêm")}</button>}
-    {history&&<div><h3>{t("Lịch sử mua")} · {editing?.name}</h3>{!history.length&&<p>{t("Chưa có đơn tại địa điểm này.")}</p>}
+    {history&&<div><h3>{t("Lịch sử mua")} · {editing?.name}</h3><p>{t("Chi tiêu sau hoàn trả")} · {BigInt(spent).toLocaleString(locale())} ₫</p>{!history.length&&<p>{t("Chưa có đơn tại địa điểm này.")}</p>}
       {history.map(o=><p key={o.id}>{o.code} · {new Date(o.created_at).toLocaleDateString(locale())} · {BigInt(o.payable_vnd).toLocaleString(locale())} ₫ · {t(({DRAFT:"Đơn nháp",PENDING:"Chờ thu tiền",COMMITTING:"Đang xuất kho",COMPLETED:"Hoàn tất",CANCELLED:"Đã hủy",REVIEW:"Đang đối chiếu"} as Record<string,string>)[o.status])}</p>)}</div>}
     {form&&<form key={editing?.id??"new"} onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);void run(async()=>{
       const data={name:f.get("name"),phone,email:f.get("email"),note:f.get("note"),marketingConsent:f.has("consent"),

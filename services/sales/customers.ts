@@ -85,6 +85,11 @@ export class Customers {
     const rows=await db.query(`SELECT id,code,status,payable_vnd,created_at FROM orders WHERE tenant_id=$1 AND customer_id=$2 AND site_id=$3
       AND ($4::uuid IS NULL OR id>$4) AND ($5::timestamptz IS NULL OR created_at >= $5) AND ($6::timestamptz IS NULL OR created_at < $6)
       ORDER BY id LIMIT $7`,[tenant,id,p.siteId,p.cursor??null,p.from??null,p.to??null,p.limit+1]);
-    return {...pageResult(rows.rows,p.limit),dataAsOf:new Date().toISOString()};
+    const totals=(await db.query(`SELECT COALESCE(sum(o.payable_vnd - COALESCE((SELECT sum(r.amount_vnd) FROM returns r
+      WHERE r.tenant_id=o.tenant_id AND r.order_id=o.id AND r.status='COMPLETED'),0)),0)::text AS "totalSpentVnd", now() AS "dataAsOf"
+      FROM orders o WHERE o.tenant_id=$1 AND o.customer_id=$2 AND o.site_id=$3 AND o.status='COMPLETED'
+      AND ($4::timestamptz IS NULL OR o.created_at >= $4) AND ($5::timestamptz IS NULL OR o.created_at < $5)`,
+      [tenant,id,p.siteId,p.from??null,p.to??null])).rows[0];
+    return {...pageResult(rows.rows,p.limit),...totals};
   }
 }

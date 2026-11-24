@@ -10,7 +10,10 @@ Storeluma is a business management application for household business owners and
 - Select a business and working location within the user's assigned scope.
 - Search locations by name, code, or address, filter by status, and switch between card and list views.
 - Invite staff, accept invitations, manage roles and location assignments, and block or reactivate members.
-- View the business's activity log.
+- Trace a document across service audit records, review incomplete transactions, and grant time-limited support access to a platform operator.
+- Manage customer profiles, attach a customer to a sale, and review purchases and refunds. Issued documents retain their original customer snapshot.
+- Allocate supplier payments across payables, reverse a payment and record expenses against the selected account.
+- Inspect queue backlog and replay an individual dead letter with a recorded reason and an event content check.
 - Manage categories, products, SKUs, barcodes, packaging units, and selling prices, with price history and optimistic version checks.
 - Search and update suppliers, deactivate them, and view their receiving and payable history by location.
 - Create, edit, and cancel receipt drafts; authorized managers can post receipts to inventory.

@@ -1,0 +1,67 @@
+{
+  "consumers": {
+    "business": [
+      "warehouse.ready",
+      "register.ready"
+    ],
+    "inventory": [
+      "site.provision.requested",
+      "catalog.sku-updated.v1"
+    ],
+    "finance": [
+      "site.provision.requested",
+      "inventory.receipt-posted.v1"
+    ],
+    "reporting": [
+      "catalog.projection-updated.v1",
+      "inventory.projection-updated.v1",
+      "sales.projection-updated.v1",
+      "finance.projection-updated.v1"
+    ],
+    "notification": [
+      "catalog.projection-updated.v1",
+      "inventory.projection-updated.v1",
+      "sales.projection-updated.v1",
+      "finance.projection-updated.v1"
+    ],
+    "sales": [],
+    "catalog": []
+  },
+  "deferred": [
+    "site.activated",
+    "inventory.stock-changed.v1",
+    "sales.order-completed.v1",
+    "finance.payment-succeeded.v1",
+    "sales.return-completed.v1",
+    "finance.refund-succeeded.v1"
+  ],
+  "producers": {
+    "business": [
+      "site.provision.requested",
+      "site.activated"
+    ],
+    "inventory": [
+      "warehouse.ready",
+      "inventory.receipt-posted.v1",
+      "inventory.stock-changed.v1",
+      "inventory.projection-updated.v1"
+    ],
+    "catalog": [
+      "catalog.sku-updated.v1",
+      "catalog.projection-updated.v1"
+    ],
+    "finance": [
+      "register.ready",
+      "finance.payment-succeeded.v1",
+      "finance.refund-succeeded.v1",
+      "finance.projection-updated.v1"
+    ],
+    "sales": [
+      "sales.order-completed.v1",
+      "sales.return-completed.v1",
+      "sales.projection-updated.v1"
+    ],
+    "reporting": [],
+    "notification": []
+  }
+}

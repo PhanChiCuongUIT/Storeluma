@@ -1,4 +1,6 @@
 x-identity: &identity
+  STORELUMA_SCHEMA_MODE: verify
+  BROKER_TOPOLOGY_MODE: managed
   OIDC_ISSUER: https://${IDENTITY_HOST:?}/realms/storeluma
   OIDC_INTERNAL: https://${IDENTITY_HOST:?}/realms/storeluma
 x-service: &service
@@ -47,34 +49,64 @@ services:
     environment:
       <<: *identity
       WEB_ORIGIN: https://${APP_HOST:?}
+      DATABASE_URL: ${GATEWAY_RUNTIME_URL:?}
+      RABBIT_URL: ''
   business:
     <<: *service
     build: !reset null
     image: ${BUSINESS_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${BUSINESS_RUNTIME_URL:?}
+      RABBIT_URL: ${BUSINESS_BROKER_URL:?}
   catalog:
     <<: *service
     build: !reset null
     image: ${CATALOG_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${CATALOG_RUNTIME_URL:?}
+      RABBIT_URL: ${CATALOG_BROKER_URL:?}
   inventory:
     <<: *service
     build: !reset null
     image: ${INVENTORY_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${INVENTORY_RUNTIME_URL:?}
+      RABBIT_URL: ${INVENTORY_BROKER_URL:?}
   sales:
     <<: *service
     build: !reset null
     image: ${SALES_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${SALES_RUNTIME_URL:?}
+      RABBIT_URL: ${SALES_BROKER_URL:?}
   finance:
     <<: *service
     build: !reset null
     image: ${FINANCE_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${FINANCE_RUNTIME_URL:?}
+      RABBIT_URL: ${FINANCE_BROKER_URL:?}
   reporting:
     <<: *service
     build: !reset null
     image: ${REPORTING_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${REPORTING_RUNTIME_URL:?}
+      RABBIT_URL: ${REPORTING_BROKER_URL:?}
   notification:
     <<: *service
     build: !reset null
     image: ${NOTIFICATION_IMAGE:?}
+    environment:
+      <<: *identity
+      DATABASE_URL: ${NOTIFICATION_RUNTIME_URL:?}
+      RABBIT_URL: ${NOTIFICATION_BROKER_URL:?}
 networks:
   default: {internal: true}
   edge: {}

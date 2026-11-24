@@ -25,5 +25,6 @@ if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.u
   mkdirSync(dir,{recursive:true,mode:0o700});
   const pair=generateKeyPairSync("rsa",{modulusLength:3072});
   writeFileSync(join(dir,"receiver.pem"),pair.privateKey.export({format:"pem",type:"pkcs8"}),{mode:0o600,flag:"wx"});
+  writeFileSync(join(dir,'receiver-start.json'),JSON.stringify({startedAt:Date.now()}),{flag:'wx',mode:0o600});
   writeFileSync(join(dir,"recipient.txt"),pair.publicKey.export({format:"der",type:"spki"}).toString("base64"),{flag:"wx"});
 }

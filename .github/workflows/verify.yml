@@ -26,7 +26,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run setup
       - run: npm run build
-      - run: node --test infra/pilot/config.test.mjs
+      - run: node --test infra/pilot/config.test.mjs infra/pilot/runtime-db.test.mjs infra/pilot/broker.test.mjs
       - run: npx playwright install --with-deps chromium
       - run: docker compose up -d --build --wait
       - name: Run integration and migration tests

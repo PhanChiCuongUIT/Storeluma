@@ -12,6 +12,12 @@ export async function transaction<T>(fn:(c:PoolClient)=>Promise<T>):Promise<T>{
   }
 }
 export async function migrate(service:string){
+  if(process.env.STORELUMA_SCHEMA_MODE==='verify'){
+    const files=(await readdir(`services/${service}/migrations`)).filter(f=>/^\d{3}\.sql$/.test(f));
+    const applied=new Set((await db.query('SELECT version FROM schema_migrations')).rows.map(r=>r.version));
+    if(files.some(f=>!applied.has(f.slice(0,3))))throw new Error('Database migration required for '+service);
+    return;
+  }
   await transaction(async c=>{
     await c.query('SELECT pg_advisory_xact_lock(441004)');
     await c.query('CREATE TABLE IF NOT EXISTS schema_migrations(version text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())');

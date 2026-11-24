@@ -31,7 +31,13 @@ function totp(secret: string, step: number) {
 export async function fillFreshTotp(page: Page, secret: string) {
   const input = page.locator("#otp");
   await input.waitFor({ state: "visible" });
-  const nextWindow = (Math.floor(Date.now() / 30000) + 1) * 30000 + 1000;
-  await new Promise((resolve) => setTimeout(resolve, nextWindow - Date.now()));
-  await input.fill(totp(secret, Math.floor(Date.now() / 30000)));
+  const clock = await page.evaluate(async () => {
+    const response = await fetch("/realms/storeluma/.well-known/openid-configuration", { cache: "no-store" });
+    const date = response.headers.get("date");
+    if (!response.ok || !date) throw new Error("Missing identity provider clock");
+    return Date.parse(date);
+  });
+  const step = Math.floor(clock / 30000) + 1;
+  await new Promise((resolve) => setTimeout(resolve, step * 30000 + 1500 - clock));
+  await input.fill(totp(secret, step));
 }

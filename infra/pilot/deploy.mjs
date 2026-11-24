@@ -1,3 +1,5 @@
+import {brokerUrl,configureBroker} from "./broker.mjs";
+import {allowRuntime,applicationServices,psqlInContainer,runtimeConnection} from './runtime-db.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -35,6 +37,8 @@ assert.equal(client?.attributes?.['pkce.code.challenge.method'],'S256');
 assert.ok(settings.OIDC_SECRET && client.secret === settings.OIDC_SECRET,'Client configuration mismatch');
 assert.ok(existsSync(join(dir,'init.sql')) && existsSync(join(dir,'pgbackrest/pgbackrest.conf')));
 const env = { ...process.env, ...settings, PILOT_CONFIG_DIR:dir };
+for(const service of applicationServices){const key=service.toUpperCase();env[key+'_RUNTIME_URL']=runtimeConnection(service,settings[key+'_DB_PASSWORD']).url;}
+for(const service of applicationServices.filter(s=>s!=='gateway'))env[service.toUpperCase()+'_BROKER_URL']=brokerUrl(service,settings.RABBIT_PASSWORD);
 const services = ['edge','postgres','keycloak','rabbitmq','business','catalog','inventory','finance','sales','gateway','reporting','notification'];
 for (const service of services) {
   const ref = release.images?.[service];
@@ -61,9 +65,17 @@ if (action === 'backup-full' || action === 'backup-diff') {
 if (action === 'deploy') {
   run('pull');
   run('up','-d','--no-build','--wait','postgres','rabbitmq');
+  configureBroker(compose,env,settings.RABBIT_PASSWORD);
   backup('stanza-create');
   backup('check');
   backup('--type=full','backup');
+  for(const service of applicationServices){
+    const password=settings[service.toUpperCase()+'_DB_PASSWORD'];
+    const migrator={...env,DATABASE_URL:'postgres://'+service+':'+encodeURIComponent(password)+'@postgres:5432/'+service+'_db'};
+    execFileSync('docker',[...compose,'run','--rm','--no-deps','-T','-e','DATABASE_URL','-e','STORELUMA_SCHEMA_MODE=migrate',
+      '--entrypoint','node',service,'--input-type=module','-e',"import {migrate,db} from './dist/packages/platform/db.js'; try{await migrate('"+service+"')}finally{await db.end()}"],{env:migrator,stdio:'inherit'});
+    allowRuntime(service,password,psqlInContainer(compose,env));
+  }
   run('up','-d','--no-build','--wait','--wait-timeout','300');
   const issuer = 'https://' + settings.IDENTITY_HOST + '/realms/storeluma';
   for (const [url,field,expected] of [[issuer+'/.well-known/openid-configuration','issuer',issuer],[app+'/health','status','ok']]) {

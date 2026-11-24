@@ -7,6 +7,7 @@ import { join,dirname } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { root, stagingContext } from '../staging/context.mjs';
 
+const receiverStarted = performance.now();
 const mode=process.argv[2]??'local';
 if(!['local','send','receive'].includes(mode))throw new Error('Expected local, send or receive');
 const bundle=mode==='receive'?JSON.parse(unseal(readFileSync(process.argv[3]),readFileSync(process.argv[4]))):null;
@@ -140,7 +141,13 @@ try {
   assert.equal(inbox(restored),'1');
   const rtoSeconds = (Date.now() - startedAt) / 1000;
   const rpoSeconds = (Date.parse(incidentAt) - Date.parse(lastRecord)) / 1000;
-  assert.ok(rpoSeconds >= 0 && rpoSeconds <= 900 && rtoSeconds >= 0 && rtoSeconds <= 14400);
+  // A single-use receiver key exists before the source dispatch. This same-host
+  // interval includes dispatch, backup and transit, bounding the actual outage.
+  const clockFile = bundle && join(dirname(process.argv[4]), 'receiver-start.json');
+  const upperBound = clockFile && existsSync(clockFile)
+    ? (Date.now() - JSON.parse(readFileSync(clockFile,'utf8')).startedAt) / 1000 : undefined;
+  const elapsed = upperBound ?? rtoSeconds;
+  const withinObjectives = rpoSeconds >= 0 && rpoSeconds <= 900 && elapsed >= 0 && elapsed <= 14400;
   const images = {};
   for (const service of ['edge','postgres','rabbitmq','keycloak','gateway', ...producers]) {
     const container = output(...restored, 'ps', '-q', service);
@@ -148,7 +155,8 @@ try {
   }
   result = { revision, images, platform: output('image','inspect',image,'--format','{{.Os}}/{{.Architecture}}'),
     backup: backupLabel, cipher, incidentAt, lastRecord, rpoSeconds,
-    rtoSeconds: Math.round(rtoSeconds * 10) / 10, replayed, verifiedSales: 2, incomePerSale: 100000, stockCostPerSale: 40000,
+    withinObjectives, ...(bundle ? {receiverRestoreSeconds: Math.round((performance.now() - receiverStarted) / 100) / 10} : {}),
+    ...(upperBound === undefined ? {rtoSeconds: Math.round(rtoSeconds * 10) / 10} : {rtoUpperBoundSeconds: Math.round(upperBound * 10) / 10}), replayed, verifiedSales: 2, incomePerSale: 100000, stockCostPerSale: 40000,
     repositoryPlacement: bundle?'encrypted copy delivered to an independent recovery host':'isolated SFTP container on the rehearsal host', restoredProbe: ['keep'] };
   writeFileSync(join(state,'result.json'), JSON.stringify(result,null,2));
   }
@@ -159,4 +167,5 @@ if (result) {
   mkdirSync(join(root,'tmp/recovery'),{ recursive:true });
   writeFileSync(join(root,'tmp/recovery/latest.json'),JSON.stringify({ id, ...result },null,2));
   console.log(JSON.stringify(result));
+  assert.ok(result.withinObjectives, 'Recovery completed outside the 15 minute RPO or 4 hour RTO. Check transfer delay and UTC clock synchronization.');
 }
