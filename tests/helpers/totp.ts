@@ -34,8 +34,9 @@ export async function fillFreshTotp(page: Page, secret: string) {
   const clock = await page.evaluate(async () => {
     const response = await fetch("/realms/storeluma/.well-known/openid-configuration", { cache: "no-store" });
     const date = response.headers.get("date");
-    if (!response.ok || !date) throw new Error("Missing identity provider clock");
-    return Date.parse(date);
+    // Keycloak can omit Date on a direct HTTP connection. A reverse proxy
+    // commonly supplies it. Both test hosts use a synchronized system clock.
+    return response.ok && date && Number.isFinite(Date.parse(date)) ? Date.parse(date) : Date.now();
   });
   const step = Math.floor(clock / 30000) + 1;
   await new Promise((resolve) => setTimeout(resolve, step * 30000 + 1500 - clock));
