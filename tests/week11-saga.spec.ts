@@ -103,6 +103,11 @@ test.describe('Week 11 checkout and return recovery', () => {
     expect((await sales.query('SELECT status FROM orders WHERE id=$1', [order.id])).rows[0].status).toBe('REVIEW');
     startSales();
     await assertSale(order.id, payment.id);
+    const cases=await get('reconciliation-cases?siteId='+site.id+'&source='+payment.id);
+    expect(cases.items).toHaveLength(1);
+    expect(cases.items[0]).toMatchObject({order_id:order.id,status:'RESOLVED',stage:'DONE'});
+    const timeline=await get('reconciliation-cases/'+cases.items[0].id+'/timeline');
+    expect(timeline.some((e:any)=>e.action==='CHECKOUT_COMPLETED')).toBe(true);
   });
 
   for (const scenario of ['crash', 'expired', 'replaced'] as const) {

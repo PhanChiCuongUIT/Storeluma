@@ -81,9 +81,9 @@ const dataSchemas: Record<string, z.ZodType> = {
   RETURN: z.object({ ...documentFields, orderId: z.uuid() }).passthrough(),
   MONEY: z
     .object({
-      shiftId: z.uuid(),
+      shiftId: z.uuid().nullable(),
       actorId: z.string(),
-      kind: z.enum(["PAYMENT", "REFUND", "CASH_ENTRY"]),
+      kind: z.enum(["PAYMENT", "REFUND", "CASH_ENTRY", "SUPPLIER_PAYMENT"]),
       sourceId: z.uuid(),
       amountVnd: integer,
       occurredAt: timestamp,

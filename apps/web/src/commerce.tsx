@@ -1,5 +1,6 @@
 import {t,locale,localizedLabels} from "./i18n";
 import React, { useEffect, useRef, useState, type FormEvent } from "react";
+import { SupplierPayments } from "./supplier-payments";
 import { lineCost } from "../../../packages/platform/decimal";
 import "./commerce.css";
 type Api = (
@@ -87,6 +88,7 @@ function SupplierHistory({
     [asOf, setAsOf] = useState(""),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(false);
+  const [debtRevision,refreshDebt]=useState(0);
   const apiRef = useRef(api);
   apiRef.current = api;
   useEffect(() => {
@@ -130,7 +132,7 @@ function SupplierHistory({
     return () => {
       alive = false;
     };
-  }, [site, path, supplier.id, costRead]);
+  }, [site, path, supplier.id, costRead,debtRevision]);
   async function more(kind: "receipts" | "payables") {
     setLoading(true);
     try {
@@ -252,6 +254,7 @@ function SupplierHistory({
             {asOf && !debts.length && (
               <p className="c-help">{t("Chưa ghi nhận khoản phải trả tại thời điểm kiểm tra.")}</p>
             )}
+            {site&&<SupplierPayments key={site+supplier.id} site={site} supplier={supplier.id} path={path} api={api} debts={debts} after={()=>refreshDebt(v=>v+1)}/>}
             {debtNext && (
               <button
                 className="button secondary"

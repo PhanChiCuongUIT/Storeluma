@@ -96,6 +96,7 @@ export class Receipts {
       snapshot: {
         orderId: d.id,
         number: d.code,
+        customer: d.customer_snapshot,
         tenantName: g.tenantName,
         siteName: g.siteName,
         siteAddress: g.siteAddress,

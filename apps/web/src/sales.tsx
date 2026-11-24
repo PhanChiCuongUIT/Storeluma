@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import "./commerce.css";
 import "./sales.css";
 import { AfterSales, ReceiptView, ReturnQueue } from "./after-sales";
+import { Reconciliation } from "./reconciliation";
+import { CustomerPanel } from "./customers";
 import { ShiftDesk } from "./drawer";
 type Row = Record<string, any>;
 type Api = (
@@ -90,6 +92,7 @@ export function SalesRoom({
     [discountType, setDiscountType] = useState("AMOUNT"),
     [note, setNote] = useState(""),
     [quote, setQuote] = useState<Row | null>(null);
+  const [customer,setCustomer]=useState<{id:string,name:string}|null>(null),[chooseCustomer,setChooseCustomer]=useState(false);
   const [tendered, setTendered] = useState(""),
     [received, setReceived] = useState(false),
     [reason, setReason] = useState(""),
@@ -255,7 +258,7 @@ export function SalesRoom({
   }, [editor, search]);
   useEffect(() => {
     setQuote(null);
-  }, [cart, discount, discountType]);
+  }, [cart, discount, discountType,customer?.id]);
   useEffect(() => {
     if (order && ["COMPLETED", "CANCELLED"].includes(order.status))
       setNotice("");
@@ -274,6 +277,8 @@ export function SalesRoom({
   }
   async function edit(d?: Row) {
     await run(async () => {
+      setChooseCustomer(false);
+      setCustomer(d?.customer_id ? {id:d.customer_id,name:d.customer_snapshot.name} : null);
       if (d) {
         const skus = await Promise.all(
           d.lines.map((l: Row) => api(path + "/skus/" + l.skuId)),
@@ -362,6 +367,8 @@ export function SalesRoom({
           ["orders", t("Bán hàng")],
           ["returns", t("Trả hàng")],
           ["shifts", t("Ca thu ngân")],
+          ["customers",t("Khách hàng")],
+          ...(role==="OWNER"?[["reconciliation",t("Đối soát giao dịch")]]:[]),
         ].map(([k, v]) => (
           <button
             key={k}
@@ -427,6 +434,8 @@ export function SalesRoom({
           )}
         </div>
       </div>
+      {pane==="reconciliation" && role==="OWNER" && siteId && <Reconciliation key={path+siteId} api={api} path={path} site={siteId}/>}
+      {pane==="customers" && siteId && <CustomerPanel key={path+siteId} path={path} site={siteId} role={role} api={api}/>}
       {pane === "shifts" && (
         <ShiftDesk
           initialShiftId={siteId===initialSiteId?initialSourceId:undefined}
@@ -610,7 +619,7 @@ export function SalesRoom({
                           <small>{d.lines.length}{" "+t("dòng hàng")}</small>
                         </td>
                         <td>{date(d.created_at)}</td>
-                        <td>{t("Khách lẻ")}</td>
+                        <td>{d.customer_snapshot?.name??t("Khách lẻ")}</td>
                         <td className="sale-money">{money(d.payable_vnd)}</td>
                         <td>
                           <Badge status={d.status} />
@@ -803,6 +812,9 @@ export function SalesRoom({
                         </div>
                       )}
                     </div>
+                    <div><button type="button" className="button secondary" disabled={busy} onClick={()=>setChooseCustomer(!chooseCustomer)}>{t("Chọn khách hàng")} · {customer?.name??t("Khách lẻ")}</button>
+                    {customer&&<button type="button" className="button secondary" onClick={()=>setCustomer(null)}>{t("Dùng khách lẻ")}</button>}
+                    {chooseCustomer&&<CustomerPanel path={path} site={siteId} role={role} api={api} select={(id,name)=>{setCustomer({id,name});setChooseCustomer(false);}}/>}</div>
                     <label className="sale-note">{t("Ghi chú đơn")}<textarea
                         maxLength={500}
                         value={note}
@@ -815,7 +827,7 @@ export function SalesRoom({
                   <>
                     <div className="sale-section-heading">
                       <h2>{t("Chi tiết hàng bán")}</h2>
-                      <span>{t("Khách lẻ")}</span>
+                      <span>{order?.customer_snapshot?.name??t("Khách lẻ")}</span>
                     </div>
                     <div className="table-wrap">
                       <table>
@@ -881,7 +893,7 @@ export function SalesRoom({
               </div>
               <section className="sale-summary">
                 <h2>{t("Thanh toán")}</h2>
-                <span className="sale-customer">{t("Khách lẻ · Tiền mặt")}</span>
+                <span className="sale-customer">{(editor?customer?.name:order?.customer_snapshot?.name)??t("Khách lẻ")} · {t("Tiền mặt")}</span>
                 <dl>
                   <div>
                     <dt>{t("Tiền hàng")}</dt>
@@ -931,7 +943,7 @@ export function SalesRoom({
                       onClick={() =>
                         void run(async () => {
                           const q = await command("sales/quotes", {
-                            siteId,
+                            siteId,customerId:customer?.id,
                             lines: cart.map((l) => ({
                               skuId: l.skuId,
                               unitId: l.unitId,

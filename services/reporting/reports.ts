@@ -143,6 +143,7 @@ export async function cashReport(
     COALESCE(-sum((r.data->>'amountVnd')::numeric) FILTER(WHERE r.data->>'kind'='REFUND'),0)::text refunds_vnd,
     COALESCE(sum((r.data->>'amountVnd')::numeric) FILTER(WHERE r.data->>'kind'='CASH_ENTRY' AND (r.data->>'amountVnd')::numeric>0),0)::text other_in_vnd,
     COALESCE(-sum((r.data->>'amountVnd')::numeric) FILTER(WHERE r.data->>'kind'='CASH_ENTRY' AND (r.data->>'amountVnd')::numeric<0),0)::text other_out_vnd,
+    COALESCE(-sum((r.data->>'amountVnd')::numeric) FILTER(WHERE r.data->>'kind'='SUPPLIER_PAYMENT'),0)::text supplier_net_paid_vnd,
     ${sumText("(r.data->>'amountVnd')::numeric")} net_vnd FROM read_records r WHERE ${scope} AND r.producer='finance' AND r.kind='MONEY'
     AND (r.data->>'occurredAt')::timestamptz >= ($2::date::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')
     AND (r.data->>'occurredAt')::timestamptz < (($3::date+1)::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh') GROUP BY day ORDER BY day`,
@@ -155,6 +156,7 @@ export async function cashReport(
     "refunds_vnd",
     "other_in_vnd",
     "other_out_vnd",
+    "supplier_net_paid_vnd",
     "net_vnd",
   ])
     totals[key] = rows.reduce((n, r) => n + BigInt(r[key]), 0n).toString();
@@ -412,6 +414,7 @@ export async function exportTick() {
             label("Hoàn khách VND"),
             label("Thu khác VND"),
             label("Chi khác VND"),
+            label("Trả nhà cung cấp VND"),
             label("Dòng tiền thuần VND"),
           ],
           ...d.daily.map((r) => [
@@ -420,6 +423,7 @@ export async function exportTick() {
             r.refunds_vnd,
             r.other_in_vnd,
             r.other_out_vnd,
+            r.supplier_net_paid_vnd,
             r.net_vnd,
           ]),
         ];

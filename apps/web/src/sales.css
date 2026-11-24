@@ -1,3 +1,9 @@
+.customer-panel { padding: 1rem; }
+.customer-panel ul { list-style:none; padding:0; }
+.customer-panel li { padding:.45rem 0; }
+.customer-panel form { display:grid; gap:.65rem; margin-block:1rem; }
+.customer-panel label { display:grid; gap:.25rem; }
+.customer-panel input[type=checkbox] { width:auto; justify-self:start; }
 .sales-room {
   display: grid;
   gap: 22px;
@@ -608,7 +614,13 @@
     max-width: 100%;
     overflow-x: auto;
   }
-  .sales-room {
+  .customer-panel { padding: 1rem; }
+.customer-panel ul { list-style:none; padding:0; }
+.customer-panel li { padding:.45rem 0; }
+.customer-panel form { display:grid; gap:.65rem; margin-block:1rem; }
+.customer-panel label { display:grid; gap:.25rem; }
+.customer-panel input[type=checkbox] { width:auto; justify-self:start; }
+.sales-room {
     gap: 16px;
     min-width: 0;
   }

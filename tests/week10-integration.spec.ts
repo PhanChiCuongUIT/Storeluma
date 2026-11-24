@@ -248,4 +248,52 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     await drawer.screenshot({ path: evidence + '/06-drawer.png' });
     expect(errors).toEqual([]);
   });
+
+  test('P0 customer selection, document snapshot, scoped history and anonymization', async () => {
+    await page.goto('/');
+    await page.getByLabel('Chọn hộ kinh doanh').selectOption(tenant);
+    await page.getByRole('button',{name:'Đơn bán',exact:true}).click();
+    await page.getByRole('tab',{name:'Khách hàng',exact:true}).click();
+    await page.getByRole('button',{name:'Thêm khách hàng'}).click();
+    await page.getByLabel('Tên khách hàng',{exact:true}).fill('Minh An');
+    await page.getByLabel('Điện thoại',{exact:true}).fill('+84 912 345 670');
+    await page.getByRole('button',{name:'Lưu',exact:true}).click();
+    await expect(page.locator('.customer-panel li').filter({hasText:'Minh An'})).toBeVisible();
+    const customer=(await good(await get('customers?q=0912345670',staff))).items[0];
+    expect(customer.marketing_consent).toBe(false);
+    const quote=await good(await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]},staff));
+    const order=await good(await cmd('orders',{quoteId:quote.id},staff));
+    expect(order.customer_snapshot).toEqual({name:'Minh An'});
+    const renamed=await good(await cmd('customers/'+customer.id,{version:customer.version,name:'An Minh'},owner,randomUUID(),'PATCH'));
+    expect((await good(await get('orders/'+order.id))).customer_snapshot.name).toBe('Minh An');
+    expect((await good(await get('customers/'+customer.id+'/history?siteId='+site.id,staff))).items[0].id).toBe(order.id);
+    expect((await get('customers/'+customer.id+'/history?siteId='+secondSite.id,staff)).status()).toBe(404);
+    const reason={version:renamed.version,reason:'Yêu cầu của khách'};
+    expect((await cmd('customers/'+customer.id+'/anonymize',reason,staff)).status()).toBe(403);
+    await good(await cmd('customers/'+customer.id+'/anonymize',reason));
+    expect((await good(await get('customers?q=0912345670'))).items).toHaveLength(0);
+    expect((await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]})).status()).toBe(409);
+  });
+
+  test('P0 supplier allocation, concurrent retry and reversal preserve the closed drawer and sales', async () => {
+    const account=await good(await cmd('cash-accounts',{siteId:site.id,kind:'BANK',code:'BANK-01',name:'Tài khoản thanh toán'}));
+    const debts=async()=>(await good(await get('payables?siteId='+site.id+'&supplierId='+supplier.id))).items;
+    const [debt]=await debts();
+    const body={siteId:site.id,supplierId:supplier.id,accountId:account.id,amountVnd:'250000',allocations:[{payableId:debt.id,amountVnd:'250000'}],reason:'Thanh toán phiếu nhập',cashPaid:true};
+    expect((await cmd('supplier-payments',body,staff)).status()).toBe(403);
+    const key=randomUUID();
+    const rows=await Promise.all([1,2].map(()=>cmd('supplier-payments',body,owner,key).then(good)));
+    expect(rows[0].id).toBe(rows[1].id);
+    expect((await debts())[0].outstanding_vnd).toBe('150000');
+    expect((await cmd('supplier-payments',body)).status()).toBe(409);
+    await expect.poll(async()=>(await summary()).cash.totals.supplier_net_paid_vnd).toBe('250000');
+    expect((await summary()).cash.totals.net_vnd).toBe('-120000');
+    expect((await currentDrawer()).expected_cash).toBe('630000');
+    const reverse={version:rows[0].version,targetAccountId:account.id,reason:'Đảo giao dịch thử'};
+    await good(await cmd('supplier-payments/'+rows[0].id+'/reverse',reverse));
+    expect((await cmd('supplier-payments/'+rows[0].id+'/reverse',reverse)).status()).toBe(409);
+    expect((await debts())[0].outstanding_vnd).toBe('400000');
+    await expect.poll(async()=>(await summary()).cash.totals.net_vnd).toBe('130000');
+    expect((await currentDrawer()).ledger).toHaveLength(3);
+  });
 });

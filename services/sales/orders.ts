@@ -24,6 +24,7 @@ import {
   moneyInput,
   pageResult,
 } from "../../packages/platform/commands.js";
+import { selectedCustomer } from "./customers.js";
 import { quoteInput, price } from "./pricing.js";
 import type { ActorRequest } from "../../packages/platform/http.js";
 
@@ -78,7 +79,7 @@ export class Orders {
         async () =>
           (
             await c.query(
-              "INSERT INTO quotes(id,tenant_id,site_id,warehouse_id,created_by,request,lines,subtotal_vnd,discount_vnd,payable_vnd,pricing_hash,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now()+interval '120 seconds') RETURNING *",
+              "INSERT INTO quotes(id,tenant_id,site_id,warehouse_id,created_by,request,lines,subtotal_vnd,discount_vnd,payable_vnd,pricing_hash,customer_id,customer_snapshot,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,now()+interval '120 seconds') RETURNING *",
               [
                 randomUUID(),
                 t,
@@ -91,6 +92,8 @@ export class Orders {
                 v.discount,
                 v.payable,
                 v.hash,
+                p.customerId ?? null,
+                await selectedCustomer(c,t,p.customerId),
               ],
             )
           ).rows[0],
@@ -138,11 +141,12 @@ export class Orders {
           ).rows[0];
           if (old) return visible(old, g.costRead);
           await quote(c, t, p.quoteId);
+          await selectedCustomer(c,t,q.customer_id);
           const id = randomUUID(),
             code = "BH-" + id.slice(0, 8).toUpperCase();
           const d = (
             await c.query(
-              "INSERT INTO orders(id,tenant_id,site_id,warehouse_id,quote_id,code,created_by,note,lines,subtotal_vnd,discount_vnd,payable_vnd) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
+              "INSERT INTO orders(id,tenant_id,site_id,warehouse_id,quote_id,code,created_by,note,lines,subtotal_vnd,discount_vnd,payable_vnd,customer_id,customer_snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
               [
                 id,
                 t,
@@ -156,6 +160,7 @@ export class Orders {
                 q.subtotal_vnd,
                 q.discount_vnd,
                 q.payable_vnd,
+                q.customer_id, q.customer_snapshot,
               ],
             )
           ).rows[0];
@@ -200,9 +205,10 @@ export class Orders {
           if (old.status !== "DRAFT" || old.version !== p.version)
             throw new ConflictException("Đơn đã thay đổi.");
           await quote(c, t, p.quoteId);
+          await selectedCustomer(c,t,q.customer_id);
           const n = (
             await c.query(
-              "UPDATE orders SET quote_id=$2,note=$3,lines=$4,subtotal_vnd=$5,discount_vnd=$6,payable_vnd=$7,version=version+1,updated_at=clock_timestamp() WHERE id=$1 RETURNING *",
+              "UPDATE orders SET quote_id=$2,note=$3,lines=$4,subtotal_vnd=$5,discount_vnd=$6,payable_vnd=$7,customer_id=$8,customer_snapshot=$9,version=version+1,updated_at=clock_timestamp() WHERE id=$1 RETURNING *",
               [
                 id,
                 q.id,
@@ -211,6 +217,7 @@ export class Orders {
                 q.subtotal_vnd,
                 q.discount_vnd,
                 q.payable_vnd,
+                q.customer_id, q.customer_snapshot,
               ],
             )
           ).rows[0];

@@ -3,6 +3,7 @@ import {migrate,outbox} from '../../packages/platform/db.js';
 import {worker} from '../../packages/platform/bus.js';
 import {start} from '../../packages/platform/http.js';
 import {randomUUID} from 'node:crypto';
+import {SupplierPayments} from './supplier-payments.js';
 import {Finance} from './finance.js';
 import {Payments} from './payments.js';
 import {Refunds} from './refunds.js';
@@ -15,4 +16,4 @@ await worker('finance',['site.provision.requested','inventory.receipt-posted.v1'
   if(row.tenant_id!==e.tenantId||row.site_id!==e.siteId)throw new Error('Provision identity conflict');
   await outbox(c,'register.ready',{tenantId:e.tenantId,siteId:e.siteId,warehouseId:e.warehouseId,registerId:e.registerId});
 });
-await start([ProjectionSource,Finance,Payments,Refunds,Drawer]);
+await start([ProjectionSource,Finance,Payments,Refunds,Drawer,SupplierPayments]);

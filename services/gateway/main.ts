@@ -343,16 +343,16 @@ await start([], false, (app) => {
     }
     try {
       const resource = req.path.match(
-        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|payables|orders|sales|shifts|payments|returns|refunds|cash-entries|reports|report-exports|work-items|notification-rules)(?:\/|$)/,
+        /^\/v1\/tenants\/[^/]+\/(categories|products|skus|suppliers|receipts|stock-balances|stock-movements|stock-counts|stock-adjustments|reconciliation-cases|cash-accounts|supplier-payments|payables|customers|orders|sales|shifts|payments|returns|refunds|cash-entries|reports|report-exports|work-items|notification-rules)(?:\/|$)/,
       )?.[1];
       const target =
         resource && ["reports","report-exports"].includes(resource) ? process.env.REPORTING_URL
         : resource && ["work-items","notification-rules"].includes(resource) ? process.env.NOTIFICATION_URL
         : resource && ["categories", "products", "skus"].includes(resource)
           ? process.env.CATALOG_URL
-          : resource && ["orders", "sales", "returns"].includes(resource)
+          : resource && ["orders", "sales", "returns", "customers","reconciliation-cases"].includes(resource)
             ? process.env.SALES_URL
-          : resource && ["payables", "shifts", "payments", "refunds", "cash-entries"].includes(resource)
+          : resource && ["cash-accounts", "supplier-payments", "payables", "shifts", "payments", "refunds", "cash-entries"].includes(resource)
             ? process.env.FINANCE_URL
             : resource
               ? process.env.INVENTORY_URL

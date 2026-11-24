@@ -13,6 +13,7 @@ const english:Record<string,string>={
   "Thu bán VND": "Sales collected VND",
   "Hoàn khách VND": "Customer refunds VND",
   "Thu khác VND": "Other cash in VND",
+  "Trả nhà cung cấp VND": "Net supplier payments VND",
   "Chi khác VND": "Other cash out VND",
   "Dòng tiền thuần VND": "Net cash flow VND",
   "Bán hàng VND": "Sales VND",

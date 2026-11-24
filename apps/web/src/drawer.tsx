@@ -230,7 +230,7 @@ export function ShiftDesk({
                               ? "Thu đơn " + l.order_code
                               : l.refund_id
                                 ? t("Hoàn tiền khách")
-                                : l.kind === "REVERSAL"
+                                : l.supplier_payment_id ? t("Thanh toán nhà cung cấp") : l.kind === "REVERSAL"
                                   ? t("Đảo phiếu thu/chi")
                                   : l.kind === "IN"
                                     ? t("Thu tại quầy")

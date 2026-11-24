@@ -21,6 +21,7 @@ import type { ActorRequest } from "../../packages/platform/http.js";
 export const quoteInput = z
   .object({
     siteId: z.uuid(),
+    customerId: z.uuid().nullable().optional(),
     lines: z
       .array(
         z

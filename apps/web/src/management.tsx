@@ -403,7 +403,8 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                       <th>{t("Ngày")}</th>
                       <th>{t("Bán hàng")}</th>
                       <th>{t("Trả hàng")}</th>
-                      <th>{t("Thuần")}</th>
+                      <th>{t("Trả nhà cung cấp")}</th>
+                    <th>{t("Thuần")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -606,6 +607,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                     <th>{t("Hoàn khách")}</th>
                     <th>{t("Thu khác")}</th>
                     <th>{t("Chi khác")}</th>
+                    <th>{t("Trả nhà cung cấp")}</th>
                     <th>{t("Thuần")}</th>
                   </tr>
                 </thead>
@@ -618,6 +620,7 @@ export function ReportsRoom({ tenant, sites, api }: Props) {
                         "refunds_vnd",
                         "other_in_vnd",
                         "other_out_vnd",
+                        "supplier_net_paid_vnd",
                         "net_vnd",
                       ].map((k) => (
                         <td key={k}>{money(r[k])}</td>

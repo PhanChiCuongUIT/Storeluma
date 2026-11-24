@@ -115,6 +115,7 @@ export function ReceiptView({
                 <br />
                 {s!.siteAddress}
               </p>
+              {s!.customer?.name&&<p>{t("Khách hàng")} · {s!.customer.name}</p>}
               <h3>{t("BIÊN NHẬN BÁN HÀNG")}</h3>
               {data.reprint && (
                 <strong className="receipt-reprint">{t("BẢN IN LẠI")}</strong>
