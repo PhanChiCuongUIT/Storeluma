@@ -50,6 +50,8 @@ Storeluma is a business management application for household business owners and
 
 Gateway serves the frontend, manages login sessions, and routes requests to the owning service. Business owns businesses, locations, memberships, and authorization. Catalog owns products, units, and selling prices. Inventory owns suppliers, receipts, stock movements, quantities, and valuation. Finance owns registers, supplier payables, cash shifts, payments, and the cash ledger. Sales owns quotes, order snapshots, and durable checkout coordination.
 
+All eight application images share the Node.js runtime and platform libraries. Each image contains its own service entry point and SQL migrations. Only the Gateway image includes the web application.
+
 Each service runs as a separate process with its own PostgreSQL database and credentials. Business authorization and Catalog validation use authenticated internal HTTP calls. Receipt posting commits stock, valuation, and its Outbox events in one Inventory transaction; Finance consumes the event in a separate transaction with Inbox and receipt-level deduplication. Money is represented as integer strings and quantities as decimal strings, using PostgreSQL numeric types and exact fixed-point arithmetic.
 
 Counts and adjustments belong to Inventory. Approval commits the document, balances, movements, audit, and stock-change Outbox events in one transaction. These documents do not create supplier payables. SKU locks also protect stock with no existing balance. Sales reservations and stock commits use the same locks and freeze checks; transfer workflows remain planned.

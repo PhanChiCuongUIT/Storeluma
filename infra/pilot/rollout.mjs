@@ -19,22 +19,36 @@ export function rollService({action, candidate, journal, current, check, replace
     candidate = last.previous;
   }
   assert.match(candidate, digest);
-  if (before === candidate) {
+  const pending = last && (!last.status || last.status === 'deploying' || last.status === 'rolling-back');
+  if (pending) {
+    assert.ok([last.previous, last.next].includes(before), 'Running digest differs from interrupted deployment');
+    assert.ok(rollback || (last.status !== 'rolling-back' && candidate === last.next),
+      'Finish the interrupted service change before selecting a different digest');
+  }
+  const cancellingUnapplied = rollback && before === candidate && pending && last.status !== 'rolling-back';
+  if (before === candidate && (!pending || cancellingUnapplied)) {
     check(candidate);
     replace(candidate);
+    assert.equal(current(), candidate, 'Running image differs from selected digest');
+    if (cancellingUnapplied) save({...last,status:'rolled-back'});
     return;
   }
-  check(candidate);
-  const entry = {previous: before, next: candidate, changedAt: new Date().toISOString()};
-  save(entry);
+  const entry = rollback || pending ? last : {previous: before, next: candidate, changedAt: new Date().toISOString()};
+  const fallback = rollback ? entry.next : entry.previous;
+  assert.match(fallback, digest);
+  // A resumed change may already be running its target. If preflight now
+  // fails, restore the recorded source just as for a readiness failure.
+  if (before !== candidate) check(candidate);
+  save({...entry, status: rollback ? 'rolling-back' : 'deploying'});
   try {
+    if (before === candidate) check(candidate);
     replace(candidate);
     assert.equal(current(), candidate, 'Running image differs from selected digest');
-    save(rollback ? {...last, status: 'rolled-back'} : {...entry, status: 'healthy'});
+    save({...entry, status: rollback ? 'rolled-back' : 'healthy'});
   } catch (error) {
-    replace(before);
-    assert.equal(current(), before, 'Verify the previous service image on the host');
-    save({...entry, status: 'reverted'});
+    replace(fallback);
+    assert.equal(current(), fallback, 'Verify the previous service image on the host');
+    save({...entry, status: rollback ? 'rollback-failed' : 'reverted'});
     throw error;
   }
 }

@@ -259,15 +259,65 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     await page.getByLabel('Điện thoại',{exact:true}).fill('+84 912 345 670');
     await page.getByRole('button',{name:'Lưu',exact:true}).click();
     await expect(page.locator('.customer-panel li').filter({hasText:'Minh An'})).toBeVisible();
-    mkdirSync('tmp/week13',{recursive:true});await page.locator('.customer-panel').screenshot({path:'tmp/week13/customers.png'});
+    const panel=page.locator('.customer-panel');
+    const search=panel.getByRole('searchbox');
+    await search.fill('Không khớp '+stamp);
+    await expect(panel.getByRole('status')).toHaveText('Không tìm thấy khách hàng.');
+    await search.fill('Minh An');
+    await panel.getByRole('button',{name:'Lịch sử mua'}).click();
+    await expect(panel.getByText('Chưa có đơn tại địa điểm này.')).toBeVisible();
     const customer=(await good(await get('customers?q=0912345670',staff))).items[0];
     expect(customer.marketing_consent).toBe(false);
     const quote=await good(await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]},staff));
     const order=await good(await cmd('orders',{quoteId:quote.id},staff));
     expect(order.customer_snapshot).toEqual({name:'Minh An'});
+    await search.fill('');
+    await panel.getByRole('button',{name:'Lịch sử mua'}).click();
+    const history=panel.locator('.customer-history');
+    await expect(history).toContainText(order.code);
+    mkdirSync('tmp/week13',{recursive:true});
+    await page.setViewportSize({width:800,height:900});
+    await panel.screenshot({path:'tmp/week13/customers.png'});
+    await page.setViewportSize({width:390,height:844});
+    expect(await panel.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+    await expect(history).toContainText(order.code);
+    await page.setViewportSize({width:1440,height:1000});
+    const olderPage=await good(await get('customers/'+customer.id+'/history?siteId='+site.id,staff));
+    expect(olderPage.items.map((item:any)=>item.id)).toEqual([order.id]);
+    for(let i=0;i<10;i++){
+      const nextQuote=await good(await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]},staff));
+      await good(await cmd('orders',{quoteId:nextQuote.id},staff));
+    }
+    await search.fill('Minh');
+    await panel.getByRole('button',{name:'Lịch sử mua'}).click();
+    await expect(history.getByRole('listitem')).toHaveCount(10);
+    await expect(history).not.toContainText(order.code);
+    await history.getByRole('button',{name:'Xem thêm đơn'}).click();
+    await expect(history.getByRole('listitem')).toHaveCount(11);
+    await expect(history.getByRole('listitem').last()).toContainText(order.code);
+    await expect(history.getByRole('button',{name:'Xem thêm đơn'})).toHaveCount(0);
+
+    // Hold a real response until the user finishes a different search.
+    let release!:()=>void, received!:()=>void;
+    const held=new Promise<void>(resolve=>{release=resolve;});
+    const started=new Promise<void>(resolve=>{received=resolve;});
+    const delayed='**/customers?active=false&q=Minh%20An';
+    await page.route(delayed, async route=>{
+      const response=await route.fetch();received();await held;await route.fulfill({response});
+    });
+    try {
+      await search.fill('Minh An');
+      await started;
+      await search.fill('Khác '+stamp);
+      await expect(panel.getByRole('status')).toHaveText('Không tìm thấy khách hàng.');
+    } finally {
+      release();
+      await page.unrouteAll({behavior:'wait'});
+    }
+    await expect(panel.getByRole('listitem')).toHaveCount(0);
     const renamed=await good(await cmd('customers/'+customer.id,{version:customer.version,name:'An Minh'},owner,randomUUID(),'PATCH'));
     expect((await good(await get('orders/'+order.id))).customer_snapshot.name).toBe('Minh An');
-    expect((await good(await get('customers/'+customer.id+'/history?siteId='+site.id,staff))).items[0].id).toBe(order.id);
+    expect((await good(await get('customers/'+customer.id+'/history?siteId='+site.id,staff))).items.at(-1).id).toBe(order.id);
     expect((await get('customers/'+customer.id+'/history?siteId='+secondSite.id,staff)).status()).toBe(404);
     const reason={version:renamed.version,reason:'Yêu cầu của khách'};
     expect((await cmd('customers/'+customer.id+'/anonymize',reason,staff)).status()).toBe(403);

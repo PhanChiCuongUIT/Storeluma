@@ -814,7 +814,7 @@ export function SalesRoom({
                     </div>
                     <div><button type="button" className="button secondary" disabled={busy} onClick={()=>setChooseCustomer(!chooseCustomer)}>{t("Chọn khách hàng")} · {customer?.name??t("Khách lẻ")}</button>
                     {customer&&<button type="button" className="button secondary" onClick={()=>setCustomer(null)}>{t("Dùng khách lẻ")}</button>}
-                    {chooseCustomer&&<CustomerPanel path={path} site={siteId} role={role} api={api} select={(id,name)=>{setCustomer({id,name});setChooseCustomer(false);}}/>}</div>
+                    {chooseCustomer&&<CustomerPanel key={path+siteId} path={path} site={siteId} role={role} api={api} select={(id,name)=>{setCustomer({id,name});setChooseCustomer(false);}}/>}</div>
                     <label className="sale-note">{t("Ghi chú đơn")}<textarea
                         maxLength={500}
                         value={note}

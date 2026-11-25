@@ -35,3 +35,9 @@ Lượt phát hành ARM64 đạt đủ bốn job. Manifest 12 image có chữ k�
 Trên cụm dùng quyền runtime, tám dịch vụ ứng dụng kết nối bằng tài khoản PostgreSQL riêng. Bảy dịch vụ nghiệp vụ dùng tài khoản RabbitMQ riêng. Hai đơn 100.000 đồng đều hoàn tất qua HTTPS, một đơn trước và một đơn sau khi đổi thông tin đăng nhập của Finance. Trong lần thử cảnh báo, bộ nhận nội bộ ghi đúng một thông báo khi có sự kiện lỗi và một thông báo khi đã xử lý. [Số liệu đổi quyền](evidence/runtime-access.json) · [Kết quả thay dịch vụ](evidence/service-rollout.json)
 
 Hồ sơ gồm báo cáo tổng kết, tài liệu trình bày, kịch bản thao tác, ảnh biên nhận, sổ quỹ, báo cáo bán hàng và giao diện vận hành. [Kịch bản và minh chứng](README.md) · [Kết quả kiểm thử](https://github.com/PhanChiCuongUIT/Storeluma/actions/runs/45375029984)
+
+## Bổ sung ngày 25/11/2026
+
+Tại màn hình khách hàng, nhân viên tra đơn theo địa điểm, từ mới đến cũ. Mỗi trang có tối đa 10 đơn. Với 11 đơn của cùng một khách, màn hình hiện 10 đơn đầu, sau một lần bấm “Xem thêm đơn” mới hiện đơn cũ nhất. Đơn nháp 100.000 đồng có trong lịch sử và tổng chi tiêu vẫn bằng 0 đồng. [Ảnh tra cứu tại quầy](evidence/customers.png)
+
+Hai phép kiểm kiến trúc đối chiếu quyền PostgreSQL và nội dung tám container ứng dụng. Mỗi image chứa mã thực thi, migration của dịch vụ tương ứng và thư viện dùng chung. Bộ giao diện nằm trong image Gateway. Khi thử thay phiên bản một dịch vụ, bộ kiểm mô phỏng tiến trình dừng trước và sau lúc đổi image, kể cả trường hợp image đích không đạt kiểm tra trạng thái. Khi chạy lại lệnh rollback, hai mã digest đã lưu cho phép tiếp tục đúng đích.

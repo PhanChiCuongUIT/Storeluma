@@ -11,6 +11,8 @@ sudo bash infra/pilot/change-service.sh rollback-service /etc/storeluma/releases
 
 The command takes the installer lock, checks the running digest, verifies the signed manifest, pulls the selected service and checks its schema in a one-off container. Compose waits for that service's health check. The saved journal in the private config directory records its previous digest before replacement. Failed readiness restores the original image. A rollback uses the recorded digest and rejects an unrelated running image. A future full deploy intentionally converges all services on its selected manifest. Preserve the per-service journals with the configuration to reproduce an intermediate release.
 
+After an interruption, rerun the same command with the same manifest and service. The journal retains both digests until the health check finishes. If a rollback fails its health check, the command restores the release that was serving before the rollback. Once the cause is resolved, rerun `rollback-service` to retry the original target. A pending change must be resolved before selecting a different release for that service.
+
 ## Rotate a service credential
 
 Use the signed release matching the service's running image. Schedule a short interruption for that service.

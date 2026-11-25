@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {t, locale} from "./i18n";
 
 type Customer = {id:string; name:string; phone?:string; email?:string; note:string; marketing_consent:boolean; status:string; version:number};
@@ -8,21 +8,63 @@ type Props = {
   api:(path:string,method?:string,body?:unknown,key?:string)=>Promise<any>;
   select?:(id:string,name:string)=>void;
 };
+
+// A changed search or customer starts a new request sequence. A late page
+// from the old sequence must never append to the currently visible results.
+function usePages<T>(api:Props["api"], url:string, revision:number, delay=0) {
+  const client=useRef(api);
+  client.current=api;
+  const active=useRef(0), inFlight=useRef(false);
+  const [items,setItems]=useState<T[]>([]),[cursor,setCursor]=useState<string|null>(null);
+  const [total,setTotal]=useState<string|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
+  async function load(sequence:number, after:string|null) {
+    if(sequence!==active.current || inFlight.current)return;
+    inFlight.current=true;setLoading(true);setError("");
+    try {
+      const result=await client.current(url+(after?"&cursor="+encodeURIComponent(after):""));
+      if(sequence!==active.current)return;
+      setItems(previous=>after?[...previous,...result.items]:result.items);
+      setCursor(result.nextCursor);setTotal(result.totalSpentVnd??null);
+    } catch(e) {
+      if(sequence===active.current)setError((e as Error).message);
+    } finally {
+      if(sequence===active.current){inFlight.current=false;setLoading(false);}
+    }
+  }
+  useEffect(()=>{
+    const sequence=++active.current;
+    inFlight.current=false;setItems([]);setCursor(null);setTotal(null);setLoading(true);setError("");
+    const timer=setTimeout(()=>void load(sequence,null),delay);
+    return ()=>{active.current++;clearTimeout(timer);};
+  },[url,revision,delay]);
+  return {items,cursor,total,loading,error,load:()=>void load(active.current,cursor)};
+}
+
+const orderStatus:Record<string,string>={DRAFT:"Đơn nháp",PENDING:"Chờ thu tiền",COMMITTING:"Đang xuất kho",COMPLETED:"Hoàn tất",CANCELLED:"Đã hủy",REVIEW:"Đang đối chiếu"};
+function PurchaseHistory({api,url,name}:{api:Props["api"];url:string;name:string}) {
+  const history=usePages<History>(api,url,0);
+  return <section className="customer-history">
+    <h3>{t("Lịch sử mua")} · {name}</h3>
+    {history.total!==null&&<p>{t("Chi tiêu sau hoàn trả")} · <strong>{BigInt(history.total).toLocaleString(locale())} ₫</strong></p>}
+    <ul className="customer-list">{history.items.map(order=><li key={order.id}>
+      <div><strong>{order.code}</strong><small>{new Date(order.created_at).toLocaleDateString(locale())} · {t(orderStatus[order.status]??order.status)}</small></div>
+      <span>{BigInt(order.payable_vnd).toLocaleString(locale())} ₫</span>
+    </li>)}</ul>
+    {history.loading&&<p role="status">{t("Đang tải…")}</p>}
+    {history.error&&<p className="alert" role="alert">{t(history.error)}</p>}
+    {!history.loading&&!history.error&&!history.items.length&&<p>{t("Chưa có đơn tại địa điểm này.")}</p>}
+    {(history.cursor||history.error)&&<button type="button" className="button secondary small" disabled={history.loading} onClick={history.load}>
+      {history.error?t("Thử lại"):t("Xem thêm đơn")}</button>}
+  </section>;
+}
 export function CustomerPanel({path,site,role,api,select}:Props) {
-  const [q,search]=useState(""),[rows,setRows]=useState<Customer[]>([]),[cursor,setCursor]=useState<string|null>(null);
-  const [editing,edit]=useState<Customer|null>(null),[form,show]=useState(false),[history,setHistory]=useState<History[]|null>(null);
+  const [q,search]=useState("");
+  const [editing,edit]=useState<Customer|null>(null),[form,show]=useState(false),[history,setHistory]=useState<Customer|null>(null);
   const [error,fail]=useState(""),[busy,setBusy]=useState(false),[revision,refresh]=useState(0);
-  const [spent,setSpent]=useState("0");
   const [duplicates,setDuplicates]=useState<Customer[]>([]),[phone,setPhone]=useState("");
   const endpoint=path+"/customers";
   const listUrl=endpoint+"?active="+Boolean(select)+"&q="+encodeURIComponent(q);
-  useEffect(()=>{
-    let live=true;
-    setRows([]);setCursor(null);setHistory(null);fail("");
-    const timer=setTimeout(()=>{api(listUrl).then(data=>{if(live){setRows(data.items);setCursor(data.nextCursor);}})
-      .catch(e=>{if(live)fail(e.message);});},180);
-    return ()=>{live=false;clearTimeout(timer);};
-  },[listUrl,site,revision]);
+  const directory=usePages<Customer>(api,listUrl,revision,180);
   useEffect(()=>{
     let live=true;setDuplicates([]);
     if (!form || phone.trim().length<6) return;
@@ -40,19 +82,18 @@ export function CustomerPanel({path,site,role,api,select}:Props) {
   return <section className="data-panel customer-panel">
     <div className="section-heading"><h2>{t("Hồ sơ khách hàng")}</h2>{role!=="ACCOUNTANT"&&<button type="button" className="button secondary" onClick={()=>start(null)}>{t("Thêm khách hàng")}</button>}</div>
     {error&&<p className="alert" role="alert">{t(error)}</p>}
-    <label>{t("Tìm theo tên hoặc điện thoại")}<input type="search" value={q} onChange={e=>search(e.target.value)}/></label>
-    <ul>{rows.map(c=><li key={c.id}><strong>{c.name}</strong> {c.phone} {c.status==="INACTIVE"&&t("Ngừng hoạt động")}{" "}
+    <label>{t("Tìm theo tên hoặc điện thoại")}<input type="search" value={q} onChange={e=>{search(e.target.value);setHistory(null);}}/></label>
+    <ul className="customer-list">{directory.items.map(c=><li key={c.id}><div><strong>{c.name}</strong>
+      {c.phone&&<small>{c.phone}</small>}{c.status==="INACTIVE"&&<small>{t("Ngừng hoạt động")}</small>}</div><div className="customer-actions">
       {select ? <button type="button" className="button secondary small" onClick={()=>select(c.id,c.name)}>{t("Chọn")}</button> : <>
-        <button type="button" className="button secondary small" disabled={busy||!site} onClick={()=>void run(async()=>{
-          edit(c);show(false);setHistory([]);const all:History[]=[];let cursor=null;
-          do {const data=await api(endpoint+"/"+c.id+"/history?siteId="+site+(cursor?"&cursor="+cursor:""));all.push(...data.items);setSpent(data.totalSpentVnd);cursor=data.nextCursor;}while(cursor);
-          setHistory(all);
-        })}>{t("Lịch sử mua")}</button>
+        <button type="button" className="button secondary small" disabled={busy||!site} onClick={()=>{show(false);setHistory(c);}}>{t("Lịch sử mua")}</button>
         {role!=="ACCOUNTANT"&&<button type="button" className="button secondary small" onClick={()=>start(c)}>{t("Chỉnh sửa")}</button>}
-      </>}</li>)}</ul>
-    {cursor&&<button type="button" disabled={busy} onClick={()=>void run(async()=>{const d=await api(listUrl+"&cursor="+cursor);setRows([...rows,...d.items]);setCursor(d.nextCursor);})}>{t("Xem thêm")}</button>}
-    {history&&<div><h3>{t("Lịch sử mua")} · {editing?.name}</h3><p>{t("Chi tiêu sau hoàn trả")} · {BigInt(spent).toLocaleString(locale())} ₫</p>{!history.length&&<p>{t("Chưa có đơn tại địa điểm này.")}</p>}
-      {history.map(o=><p key={o.id}>{o.code} · {new Date(o.created_at).toLocaleDateString(locale())} · {BigInt(o.payable_vnd).toLocaleString(locale())} ₫ · {t(({DRAFT:"Đơn nháp",PENDING:"Chờ thu tiền",COMMITTING:"Đang xuất kho",COMPLETED:"Hoàn tất",CANCELLED:"Đã hủy",REVIEW:"Đang đối chiếu"} as Record<string,string>)[o.status])}</p>)}</div>}
+      </>}</div></li>)}</ul>
+    {directory.loading&&<p role="status">{t("Đang tải…")}</p>}
+    {directory.error&&<p className="alert" role="alert">{t(directory.error)}</p>}
+    {!directory.loading&&!directory.error&&!directory.items.length&&<p role="status">{q?t("Không tìm thấy khách hàng."):t("Chưa có khách hàng.")}</p>}
+    {(directory.cursor||directory.error)&&<button type="button" className="button secondary small" disabled={directory.loading} onClick={directory.load}>{directory.error?t("Thử lại"):t("Xem thêm")}</button>}
+    {history&&<PurchaseHistory key={history.id} name={history.name} api={api} url={endpoint+"/"+history.id+"/history?siteId="+site+"&limit=10"}/>}
     {form&&<form key={editing?.id??"new"} onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);void run(async()=>{
       const data={name:f.get("name"),phone,email:f.get("email"),note:f.get("note"),marketingConsent:f.has("consent"),
         ...(editing?{version:editing.version,status:f.get("active")?"ACTIVE":"INACTIVE"}:{})};

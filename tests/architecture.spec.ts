@@ -1,11 +1,36 @@
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { Pool } from 'pg';
 
 const env = Object.fromEntries(readFileSync('.env', 'utf8').split(/\r?\n/)
   .filter(line => line.includes('='))
   .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
 const services = ['business', 'catalog', 'inventory', 'sales', 'finance', 'reporting', 'notification', 'gateway', 'keycloak'];
+
+test('ARCH-02 Application containers ship only their service code and migrations', () => {
+  for (const service of services.filter(name => name !== 'keycloak')) {
+    const inspect = `
+      const fs = require('node:fs');
+      const service = process.env.SERVICE_NAME;
+      console.log(JSON.stringify({
+        service, code: fs.readdirSync('dist/services'), sources: fs.readdirSync('services'),
+        files: fs.readdirSync('services/' + service),
+        migrations: fs.readdirSync('services/' + service + '/migrations').sort(),
+        entry: fs.existsSync('dist/services/' + service + '/main.js'),
+        routes: fs.existsSync('dist/packages/platform/routes.json'),
+        web: fs.existsSync('apps/web/dist'),
+        logo: fs.existsSync('apps/web/dist/brand/Logo_Storeluma.png')
+      }));
+    `;
+    const result = execFileSync('docker', ['compose','exec','-T',service,'node','-e',inspect], {encoding:'utf8'});
+    expect(JSON.parse(result), service).toEqual({
+      service, code:[service], sources:[service], files:['migrations'],
+      migrations:readdirSync('services/'+service+'/migrations').sort(),
+      entry:true, routes:true, web:service==='gateway', logo:service==='gateway',
+    });
+  }
+});
 
 test('ARCH-01 Every service database account is isolated from all other service databases', async () => {
   for (const service of services) {
