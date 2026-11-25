@@ -326,12 +326,58 @@ test.describe.serial('Week 10 integrated receipt, sale, return and settlement', 
     expect((await cmd('sales/quotes',{customerId:customer.id,siteId:site.id,lines:[{skuId:sku.id,unitId:sku.units[0].id,quantity:'1'}]})).status()).toBe(409);
   });
 
+  test('customer retries distinguish omitted contact fields from explicit removal', async () => {
+    const name='An Bình '+stamp;
+    const customer=await good(await cmd('customers',{name,phone:'0912345001',note:'Giao buổi sáng',marketingConsent:true}));
+    const resource='customers/'+customer.id, key=randomUUID();
+    const update={name:name+' A',version:customer.version};
+    const patch=(body:unknown,requestKey=key)=>cmd(resource,body,owner,requestKey,'PATCH');
+    const saved=await good(await patch(update));
+    expect(await good(await patch(update))).toEqual(saved);
+    for(const clear of [{phone:''},{note:''},{marketingConsent:false}]){
+      expect((await patch({...update,...clear})).status()).toBe(409);
+    }
+    const read=async()=>(await good(await get('customers?q='+encodeURIComponent(name)))).items[0];
+    expect(await read()).toMatchObject({phone:'0912345001',note:'Giao buổi sáng',marketing_consent:true,version:saved.version});
+    const cleared=await good(await patch({version:saved.version,phone:'',note:'',marketingConsent:false},randomUUID()));
+    expect(await read()).toMatchObject({phone:null,note:'',marketing_consent:false,version:cleared.version});
+  });
+
+  test('concurrent customer edits preserve the winning contact and inactive customers disappear from POS', async () => {
+    const name='Thanh Mai '+stamp;
+    const customer=await good(await cmd('customers',{name}));
+    const patch=(body:unknown)=>cmd('customers/'+customer.id,body,owner,randomUUID(),'PATCH');
+    const emails=['mai.a@example.test','mai.b@example.test'];
+    const edits=await Promise.all(emails.map(email=>patch({version:customer.version,email})));
+    expect(edits.map(response=>response.status()).sort()).toEqual([200,409]);
+    const winner=await good(edits.find(response=>response.ok())!);
+    const list=async(active:boolean)=>(await good(await get('customers?active='+active+'&q='+encodeURIComponent(name)))).items;
+    expect(await list(true)).toMatchObject([{email:emails[edits.findIndex(response=>response.ok())],version:winner.version}]);
+    const inactive=await good(await patch({status:'INACTIVE',version:winner.version}));
+    expect(await list(true)).toEqual([]);
+    expect(await list(false)).toMatchObject([{id:customer.id,status:'INACTIVE'}]);
+    await good(await patch({status:'ACTIVE',version:inactive.version}));
+    expect(await list(true)).toMatchObject([{id:customer.id,status:'ACTIVE'}]);
+  });
+
   test('P0 supplier allocation, concurrent retry and reversal preserve the closed drawer and sales', async () => {
     const account=await good(await cmd('cash-accounts',{siteId:site.id,kind:'BANK',code:'BANK-01',name:'Tài khoản thanh toán'}));
     const debts=async()=>(await good(await get('payables?siteId='+site.id+'&supplierId='+supplier.id))).items;
     const [debt]=await debts();
     const body={siteId:site.id,supplierId:supplier.id,accountId:account.id,amountVnd:'250000',allocations:[{payableId:debt.id,amountVnd:'250000'}],reason:'Thanh toán phiếu nhập',cashPaid:true};
     expect((await cmd('supplier-payments',body,staff)).status()).toBe(403);
+    const payments=async()=>(await good(await get('supplier-payments?siteId='+site.id+'&supplierId='+supplier.id))).items;
+    const previousPayments=await payments();
+    for(const invalid of [
+      {...body,amountVnd:'250001'},
+      {...body,allocations:[{payableId:debt.id,amountVnd:'100000'},{payableId:debt.id,amountVnd:'150000'}]},
+      {...body,amountVnd:'400001',allocations:[{payableId:debt.id,amountVnd:'400001'}]},
+    ]){
+      expect((await cmd('supplier-payments',invalid)).status()).toBe(409);
+    }
+    expect(await payments()).toEqual(previousPayments);
+    expect((await debts())[0].outstanding_vnd).toBe('400000');
+    expect((await currentDrawer()).expected_cash).toBe('630000');
     const key=randomUUID();
     const rows=await Promise.all([1,2].map(()=>cmd('supplier-payments',body,owner,key).then(good)));
     expect(rows[0].id).toBe(rows[1].id);

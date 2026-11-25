@@ -8,6 +8,18 @@ const env = Object.fromEntries(readFileSync('.env', 'utf8').split(/\r?\n/)
   .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
 const services = ['business', 'catalog', 'inventory', 'sales', 'finance', 'reporting', 'notification', 'gateway', 'keycloak'];
 
+test('ARCH-03 Local application and infrastructure containers have a consistent restart policy', () => {
+  const ids=execFileSync('docker',['compose','ps','--all','-q'],{encoding:'utf8'}).trim().split(/\s+/);
+  const format='{{index .Config.Labels "com.docker.compose.service"}} {{.HostConfig.RestartPolicy.Name}}';
+  const rows=execFileSync('docker',['inspect','--format',format,...ids],{encoding:'utf8'}).trim().split(/\r?\n/);
+  expect(rows.sort()).toEqual([...services,'postgres','rabbitmq'].map(name=>name+' unless-stopped').sort());
+});
+
+test('ARCH-04 Local realm import contains the unassigned operations role', () => {
+  const realm=JSON.parse(readFileSync('infra/generated/storeluma-realm.json','utf8'));
+  expect(realm.roles?.realm?.filter((role:{name:string})=>role.name==='storeluma-ops')).toHaveLength(1);
+});
+
 test('ARCH-02 Application containers ship only their service code and migrations', () => {
   for (const service of services.filter(name => name !== 'keycloak')) {
     const inspect = `

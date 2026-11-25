@@ -50,11 +50,13 @@ export class Customers {
     z.uuid().parse(id);
     const p=contact.partial().extend({version:versionInput,status:z.enum(["ACTIVE","INACTIVE"]).optional()}).strict().parse(body);
     await authorize(r,tenant,"customer.write");
-    return transaction(c=>idempotent(c,tenant+":customer:edit:"+id+":"+r.actor.sub,r.get("idempotency-key")??"",p,async()=>{
+    // A missing PATCH field preserves its old value. An explicit empty value clears it.
+    const supplied = (key:string) => Object.hasOwn(body as object,key);
+    const changes = Object.fromEntries(Object.entries(p).filter(([key])=>supplied(key)));
+    return transaction(c=>idempotent(c,tenant+":customer:edit:"+id+":"+r.actor.sub,r.get("idempotency-key")??"",changes,async()=>{
       const old=(await c.query("SELECT * FROM customers WHERE tenant_id=$1 AND id=$2 FOR UPDATE",[tenant,id])).rows[0];
       if (!old) throw notFound();
       if (old.version!==p.version || old.status==="ANONYMIZED") throw new ConflictException("Hồ sơ khách hàng đã thay đổi.");
-      const supplied = (key:string) => Object.hasOwn(body as object,key);
       const row=(await c.query(`UPDATE customers SET name=$3,phone=NULLIF($4,''),email=NULLIF($5,''),note=$6,
         marketing_consent=$7,status=$8,version=version+1 WHERE tenant_id=$1 AND id=$2 RETURNING id,version`,
         [tenant,id,p.name??old.name,supplied("phone")?p.phone:old.phone,supplied("email")?p.email:old.email,

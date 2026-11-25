@@ -1,8 +1,15 @@
 // Keycloak's realm import only runs on creation. Add the unassigned role to an existing local realm.
-import {readFileSync} from 'node:fs';
+import {readFileSync,writeFileSync} from 'node:fs';
 import {parseEnv} from 'node:util';
 
 const settings=parseEnv(readFileSync('.env','utf8')),base='http://127.0.0.1:8180';
+const importPath='infra/generated/storeluma-realm.json';
+const realm=JSON.parse(readFileSync(importPath,'utf8'));
+realm.roles??={};realm.roles.realm??=[];
+if(!realm.roles.realm.some(role=>role.name==='storeluma-ops')){
+  realm.roles.realm.push({name:'storeluma-ops',description:'Platform operations'});
+  writeFileSync(importPath,JSON.stringify(realm));
+}
 const token=await fetch(base+'/realms/master/protocol/openid-connect/token',{method:'POST',redirect:'error',
   body:new URLSearchParams({grant_type:'password',client_id:'admin-cli',username:'admin',password:settings.KEYCLOAK_ADMIN_PASSWORD})});
 if(!token.ok)throw new Error('Local Keycloak administration is unavailable');
